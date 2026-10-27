@@ -30,6 +30,7 @@ test.beforeEach(async ({ page }) => {
       isTauri: true,
       __TAURI_INTERNALS__: {
         invoke: async (command: string, args: Record<string, unknown>) => {
+          if (command === "take_launch_request") return null;
           if (command === "load_settings")
             return {
               theme: "dark",

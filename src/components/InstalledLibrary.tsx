@@ -5,6 +5,8 @@ import type { GameState } from "../services/game-state";
 import { GameArt } from "./BloodborneMedia";
 import { GameAction } from "./GameAction";
 import { Button, Modal } from "./ui";
+import * as ContextMenu from "@radix-ui/react-context-menu";
+import { Play, FolderOpen, ShieldCheck, Trash2 } from "lucide-react";
 
 export function InstalledLibrary({
   media,
@@ -72,7 +74,7 @@ export function InstalledLibrary({
           ? "Целостность файлов подтверждена"
           : command === "remove_installation"
             ? "Игра удалена. Сохранения сохранены."
-            : "Настройки runtime открыты",
+            : result,
       );
     }
   }
@@ -94,31 +96,100 @@ export function InstalledLibrary({
       )}
       <div className="installed-grid">
         {state.items.map((i) => (
-          <button
-            key={i.id}
-            className={`installed-card ${selected === i.id ? "selected" : ""}`}
-            aria-label={`Выбрать: ${name(i)}`}
-            aria-pressed={selected === i.id}
-            onClick={() => {
-              setSelected(i.id);
-              setMessage("");
-            }}
-          >
-            <div className="installed-cover">
-              <GameArt
-                src={media[i.collectionId]?.cover}
-                label={`Обложка ${name(i)}`}
-              />
-            </div>
-            <h2>{name(i)}</h2>
-            <span className="muted small">
-              Версия {i.version || "не определена"}
-            </span>
-            <span className="muted small">
-              <span className="status-dot" />
-              {state.running.includes(i.id) ? "Уже запущена" : "Готова к игре"}
-            </span>
-          </button>
+          <ContextMenu.Root key={i.id}>
+            <ContextMenu.Trigger asChild>
+              <button
+                className={`installed-card ${selected === i.id ? "selected" : ""}`}
+                aria-label={`Выбрать: ${name(i)}`}
+                aria-pressed={selected === i.id}
+                onClick={() => {
+                  setSelected(i.id);
+                  setMessage("");
+                }}
+              >
+                <div className="installed-cover">
+                  <GameArt
+                    src={media[i.collectionId]?.cover}
+                    label={`Обложка ${name(i)}`}
+                  />
+                </div>
+                <h2>{name(i)}</h2>
+                <span className="muted small">
+                  Версия {i.version || "не определена"}
+                </span>
+                <span className="muted small">
+                  <span className="status-dot" />
+                  {state.running.includes(i.id)
+                    ? "Уже запущена"
+                    : "Готова к игре"}
+                </span>
+              </button>
+            </ContextMenu.Trigger>
+            <ContextMenu.Portal>
+              <ContextMenu.Content
+                className="library-context-menu"
+                aria-label={`Управление: ${name(i)}`}
+                collisionPadding={12}
+              >
+                <ContextMenu.Label className="context-label">
+                  {name(i)}
+                </ContextMenu.Label>
+                <ContextMenu.Item
+                  className="context-item"
+                  disabled={
+                    state.busy ||
+                    !!state.loadError ||
+                    !!state.operation?.active ||
+                    state.running.includes(i.id)
+                  }
+                  onSelect={() => void action("launch_installation", i)}
+                >
+                  <Play size={16} />
+                  Играть
+                </ContextMenu.Item>
+                <ContextMenu.Item
+                  className="context-item"
+                  disabled={
+                    state.busy || !!state.loadError || !!state.operation?.active
+                  }
+                  onSelect={() => void action("open_installation_folder", i)}
+                >
+                  <FolderOpen size={16} />
+                  Просмотреть локальные файлы
+                </ContextMenu.Item>
+                <ContextMenu.Item
+                  className="context-item"
+                  disabled={
+                    state.busy ||
+                    !!state.loadError ||
+                    !!state.operation?.active ||
+                    state.running.includes(i.id)
+                  }
+                  onSelect={() => {
+                    setSelected(i.id);
+                    void action("verify_installation", i);
+                  }}
+                >
+                  <ShieldCheck size={16} />
+                  Проверить целостность
+                </ContextMenu.Item>
+                <ContextMenu.Separator className="context-separator" />
+                <ContextMenu.Item
+                  className="context-item destructive"
+                  disabled={
+                    state.busy ||
+                    !!state.loadError ||
+                    !!state.operation?.active ||
+                    state.running.includes(i.id)
+                  }
+                  onSelect={() => setRemove(i)}
+                >
+                  <Trash2 size={16} />
+                  Удалить игру
+                </ContextMenu.Item>
+              </ContextMenu.Content>
+            </ContextMenu.Portal>
+          </ContextMenu.Root>
         ))}
       </div>
       {item && (
@@ -157,6 +228,19 @@ export function InstalledLibrary({
               <details className="game-management">
                 <summary>Управление игрой</summary>
                 <div className="management-actions">
+                  <Button
+                    variant="secondary"
+                    disabled={
+                      state.busy ||
+                      !!state.loadError ||
+                      !!state.operation?.active
+                    }
+                    onClick={() =>
+                      void action("open_installation_folder", item)
+                    }
+                  >
+                    Просмотреть локальные файлы
+                  </Button>
                   {item.version === "01.00" && (
                     <Button
                       variant="secondary"

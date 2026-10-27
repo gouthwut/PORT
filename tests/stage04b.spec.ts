@@ -34,6 +34,7 @@ test("update selection, progress, cancellation and one installation with the sam
       isTauri: true,
       __TAURI_INTERNALS__: {
         invoke: async (command: string, args: any) => {
+          if (command === "take_launch_request") return null;
           if (command === "load_settings")
             return {
               theme: "dark",

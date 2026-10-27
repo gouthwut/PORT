@@ -1150,6 +1150,11 @@
     "license": "Apache-2.0 OR MIT"
   },
   {
+    "name": "tauri-plugin-single-instance",
+    "version": "2.5.4",
+    "license": "Apache-2.0 OR MIT"
+  },
+  {
     "name": "tauri-runtime",
     "version": "2.12.2",
     "license": "Apache-2.0 OR MIT"

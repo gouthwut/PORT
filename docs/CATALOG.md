@@ -1,5 +1,7 @@
 # Published catalog v1 / Stage 04C
 
+Future product contract (Stage 04D): ordinary users must receive the published catalog automatically from a public HTTPS address embedded in PORT. Manual API configuration remains a development tool. No production endpoint is invented or enabled in this stage; integration follows deployment of the separate CMS. Existing local-fixture labels, cache and Stage 04C synchronization remain unchanged.
+
 PORT Client reads **published metadata** from a public HTTPS endpoint. The Catalog CMS does not exist yet. The default `fixtures/catalog/published-v1.json` is labelled **local test data** in the application; it is neither a live service nor a claim that a CMS has been deployed. No accounts, Cloudflare resources or CMS databases were created.
 
 ## CMS publication contract

@@ -1,5 +1,9 @@
 # Roadmap
 
+## Stage 04D — installation experience and library management
+
+Authorized 2026-10-27. Retain PKG selection/validation and installation/recovery; add destination preflight and native folder picker, explicit shortcut opt-in after successful commit, safe ID-based cold/warm launcher entry, and accessible installed-card context menus including Explorer. Keep schema 4 and the existing Bloodborne 1.09 registration/files/profile exact. Use temporary fixtures for new actions; release startup and preservation checks are required. No CMS, new adapter, move-game feature, PKG algorithm change or production catalog endpoint. See PROGRESS.md for actual exit evidence.
+
 ## Stage 04C — online catalog client foundation
 
 Authorized 2026-10-27. Versioned published metadata/API contract, configurable public HTTPS synchronization, bounded validation and local image/catalog cache, dynamic client cards/details, offline library independent of publication. CMS is not deployed; default data is an explicitly labelled local fixture. Installer adapters remain compiled/allowlisted; Bloodborne 1.09 installation/runtime/profile must remain unchanged. See docs/CATALOG.md and actual exit evidence in PROGRESS.md.

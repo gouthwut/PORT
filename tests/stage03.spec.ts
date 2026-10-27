@@ -38,6 +38,7 @@ test("native IPC UI contract: folder import and explicit cancellation (mocked ba
       isTauri: true,
       __TAURI_INTERNALS__: {
         invoke: async (command: string, args: Record<string, unknown>) => {
+          if (command === "take_launch_request") return null;
           if (
             command === "running_installations" ||
             command === "list_installations"
@@ -61,6 +62,13 @@ test("native IPC UI contract: folder import and explicit cancellation (mocked ba
               message: "QA mocked cache",
             };
           if (command === "pkg_install_available") return true;
+          if (command === "check_install_destination")
+            return {
+              id: "123-45",
+              root: "C:\\QA-target\\PORT-Bloodborne-123-45",
+              available: 100_000_000_000,
+              required: 34_000_000_000,
+            };
           if (command === "install_status") return state;
           if (command === "plugin:dialog|open") {
             const options = (args.options ?? args) as Record<string, unknown>;
@@ -146,6 +154,7 @@ test("native IPC UI contract: registered library, launch error, verify and confi
       isTauri: true,
       __TAURI_INTERNALS__: {
         invoke: async (command: string, args: Record<string, unknown>) => {
+          if (command === "take_launch_request") return null;
           if (command === "running_installations") return [];
           if (command === "install_status")
             return {

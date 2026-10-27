@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { FolderOpen, Monitor, Check } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { native } from "../services/settings";
 import { Button } from "./ui";
+import type { InstallationDestination } from "../domain";
 
 interface Folder {
   path: string;
@@ -21,9 +23,11 @@ interface Status {
 export function FolderImport({
   packagePaths = [],
   defaultParent = "",
+  packageBytes = 0,
 }: {
   packagePaths?: string[];
   defaultParent?: string;
+  packageBytes?: number;
 }) {
   const [folder, setFolder] = useState<Folder | null>(null);
   const [parent, setParent] = useState(defaultParent);
@@ -31,6 +35,46 @@ export function FolderImport({
   const [error, setError] = useState("");
   const [status, setStatus] = useState<Status | null>(null);
   const [pkgAvailable, setPkgAvailable] = useState(false);
+  const [shortcut, setShortcut] = useState(false);
+  const [destination, setDestination] =
+    useState<InstallationDestination | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [pathError, setPathError] = useState("");
+  const guard = useRef(false);
+  useEffect(() => {
+    if (native && !defaultParent)
+      void invoke<string>("default_install_parent")
+        .then(setParent)
+        .catch(() => {});
+  }, [defaultParent]);
+  const sourceReady = !!packagePaths.length || !!folder;
+  const bytes = Math.max(folder?.bytes ?? 0, packageBytes);
+  useEffect(() => {
+    setDestination(null);
+    setPathError("");
+    if (!native || !parent || !sourceReady) return;
+    let active = true;
+    setChecking(true);
+    const timer = setTimeout(() => {
+      void invoke<InstallationDestination>("check_install_destination", {
+        parent,
+        bytes,
+      })
+        .then((d) => {
+          if (active) setDestination(d);
+        })
+        .catch((e) => {
+          if (active) setPathError(String(e));
+        })
+        .finally(() => {
+          if (active) setChecking(false);
+        });
+    }, 300);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [parent, sourceReady, bytes]);
   useEffect(() => {
     if (!native) return;
     void invoke<boolean>("pkg_install_available")
@@ -53,7 +97,8 @@ export function FolderImport({
     };
   }, []);
   async function choose(source: boolean) {
-    if (busy || status?.active) return;
+    if (guard.current || status?.active) return;
+    guard.current = true;
     setBusy(true);
     setError("");
     try {
@@ -74,10 +119,13 @@ export function FolderImport({
     } catch (e) {
       setError(String(e));
     } finally {
+      guard.current = false;
       setBusy(false);
     }
   }
   async function action(command: string) {
+    if (guard.current) return;
+    guard.current = true;
     setBusy(true);
     setError("");
     try {
@@ -85,11 +133,14 @@ export function FolderImport({
         parent,
         source: folder?.path,
         paths: packagePaths,
+        destinationId: destination?.id,
+        desktopShortcut: shortcut,
       });
       setStatus(await invoke<Status>("install_status"));
     } catch (e) {
       setError(String(e));
     } finally {
+      guard.current = false;
       setBusy(false);
     }
   }
@@ -99,13 +150,71 @@ export function FolderImport({
       className="installer-section"
       aria-label="Импорт подготовленной папки"
     >
-      <h3>03 · Источник → Установка</h3>
+      <h3>02 · Место установки</h3>
       <p className="muted small">
-        Собственная подготовленная папка CUSA03173: eboot.bin, sce_module,
-        sce_sys/param.sfo, dvdroot_ps4. Копирование в отдельную установку с
-        SHA-256; исходная папка не изменяется. Уже применённое обновление
-        повторно не устанавливается.
+        {sourceReady
+          ? "Выберите, где хранить игру и её компоненты."
+          : "Сначала выберите PKG или подготовленную папку игры."}
       </p>
+      <label className="install-field-label" htmlFor="install-parent">
+        Папка установки
+      </label>
+      <div className="install-path-field">
+        <FolderOpen size={18} aria-hidden="true" />
+        <input
+          id="install-parent"
+          value={parent}
+          placeholder="Выберите папку на диске"
+          disabled={!native || locked || !sourceReady}
+          onChange={(e) => setParent(e.target.value)}
+          spellCheck={false}
+        />
+        <Button
+          variant="secondary"
+          aria-label="Выбрать папку назначения"
+          disabled={!native || locked || !sourceReady}
+          onClick={() => void choose(false)}
+        >
+          Обзор
+        </Button>
+      </div>
+      {checking && sourceReady && (
+        <p role="status" className="muted small">
+          Проверяем папку и свободное место…
+        </p>
+      )}
+      {pathError && (
+        <p role="alert" className="installer-error">
+          {pathError}
+        </p>
+      )}
+      {destination && (
+        <div className="install-destination">
+          <span className="quiet-label">ИТОГОВОЕ РАСПОЛОЖЕНИЕ</span>
+          <p>{destination.root}</p>
+          <span className="muted small">
+            Нужно {(destination.required / 1024 ** 3).toFixed(1)} ГиБ · свободно{" "}
+            {(destination.available / 1024 ** 3).toFixed(1)} ГиБ
+          </span>
+        </div>
+      )}
+      <h3>03 · Всё готово к установке</h3>
+      <label className={`install-shortcut ${shortcut ? "checked" : ""}`}>
+        <input
+          type="checkbox"
+          checked={shortcut}
+          onChange={(e) => setShortcut(e.target.checked)}
+          disabled={!native || locked || !sourceReady}
+        />
+        <span className="install-check" aria-hidden="true">
+          {shortcut && <Check size={15} />}
+        </span>
+        <span>
+          <strong>Создать ярлык на рабочем столе</strong>
+          <small>Быстрый запуск этой игры через PORT//</small>
+        </span>
+        <Monitor size={20} aria-hidden="true" />
+      </label>
       <div className="media-actions">
         <Button
           disabled={
@@ -113,7 +222,9 @@ export function FolderImport({
             locked ||
             !parent ||
             !packagePaths.length ||
-            !pkgAvailable
+            !pkgAvailable ||
+            !destination ||
+            checking
           }
           onClick={() => void action("install_packages")}
         >
@@ -121,13 +232,6 @@ export function FolderImport({
         </Button>
         <Button disabled={!native || locked} onClick={() => void choose(true)}>
           Выбрать папку с файлами игры
-        </Button>
-        <Button
-          variant="secondary"
-          disabled={!native || locked}
-          onClick={() => void choose(false)}
-        >
-          Выбрать папку назначения
         </Button>
       </div>
       {!native && (
@@ -150,14 +254,14 @@ export function FolderImport({
           <p>{folder.warning}</p>
         </div>
       )}
-      {parent && (
+      {parent && !destination && (
         <p className="inspection">
           Назначение: {parent}. PORT создаст отдельную подпапку установки.
         </p>
       )}
       <div className="media-actions">
         <Button
-          disabled={!native || locked || !folder || !parent}
+          disabled={!native || locked || !folder || !destination || checking}
           onClick={() => void action("import_game_folder")}
         >
           Установить из папки
@@ -171,14 +275,14 @@ export function FolderImport({
         </Button>
         <Button
           variant="secondary"
-          disabled={!status?.active || busy}
+          disabled={!status?.active || busy || status.phase === "finishing"}
           onClick={() => void action("cancel_install")}
         >
           Отменить установку
         </Button>
       </div>
       <p className="muted small">
-        Сначала скачайте компоненты выше. Проверенный кэш работает без
+        Компоненты Windows-проекта доступны ниже. Проверенный кэш работает без
         интернета. Подготовка только runtime не добавляет игру в библиотеку.
       </p>
       {native && !pkgAvailable && (

@@ -30,6 +30,13 @@ export interface Installation {
   version: string | null;
   manifestSha256: string;
 }
+/** Native preflight plan; root is a new stable-ID child of the selected parent. */
+export interface InstallationDestination {
+  id: string;
+  root: string;
+  available: number;
+  required: number;
+}
 export type InstallPhase =
   "validating" | "extracting" | "downloading" | "verifying" | "preparing";
 export type InstallEvent = {

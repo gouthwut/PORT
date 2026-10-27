@@ -458,7 +458,7 @@ export default function App() {
               <span className="status-dot" />
               {native ? "WINDOWS" : "WEB PREVIEW"}
               <span className="build-divider" />
-              STAGE 04C
+              STAGE 04D
             </div>
           </header>
           {!online && (
@@ -1130,8 +1130,7 @@ export default function App() {
                       PORT// <span>Миры становятся ближе.</span>
                     </span>
                     <span>
-                      Независимый проект<small>·</small>Stage 04C / Online
-                      Catalog
+                      Независимый проект<small>·</small>Stage 04D / Library
                     </span>
                   </footer>
                 </motion.div>
@@ -1148,13 +1147,16 @@ export default function App() {
           title="Установка Bloodborne"
           description="Подготовка собственных игровых файлов. Ничего не устанавливается без проверенной совместимости."
         >
-          <InstallerPanel installDir={settings.installDir} />
+          <InstallerPanel
+            installDir={settings.installDir}
+            artwork={media.banner || media.hero || media.cover}
+          />
         </Modal>
         <Modal
           open={about}
           onOpenChange={setAbout}
           title="Миры становятся ближе."
-          description="PORT// — независимый Windows-лаунчер. Версия 0.1.0, Stage 04C."
+          description="PORT// — независимый Windows-лаунчер. Версия 0.1.0, Stage 04D."
         >
           <div className="about-dialog-content">
             <Compass size={46} strokeWidth={1} />

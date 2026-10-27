@@ -19,6 +19,7 @@ export function useGameState() {
   const [loadError, setLoadError] = useState("");
   const [busy, setBusy] = useState(false);
   const lock = useRef(false);
+  const requestLock = useRef(false);
   async function refresh() {
     if (!native) return;
     const [records, processes, status] = await Promise.all([
@@ -33,6 +34,25 @@ export function useGameState() {
     setOperation(status);
     setReady(true);
     setLoadError("");
+    if (!requestLock.current) {
+      requestLock.current = true;
+      try {
+        const id = await invoke<string | null>("take_launch_request");
+        if (id) {
+          const item = records.find((r) => r.id === id);
+          if (!item) setError("Игра из ярлыка не найдена в библиотеке PORT");
+          else if (!lock.current) void action("launch_installation", item);
+          else
+            setError(
+              "Дождитесь завершения текущей операции и запустите игру из библиотеки",
+            );
+        }
+      } catch (e) {
+        setError(String(e));
+      } finally {
+        requestLock.current = false;
+      }
+    }
   }
   useEffect(() => {
     let disposed = false;

@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { Button } from "./ui";
 import { native } from "../services/settings";
 import { FolderImport } from "./FolderImport";
+import { GameArt } from "./BloodborneMedia";
 
 interface Inspection {
   format: string;
@@ -39,7 +40,13 @@ interface DownloadStatus {
   active: boolean;
 }
 const mb = (n: number) => (n / 1024 / 1024).toFixed(1);
-export function InstallerPanel({ installDir = "" }: { installDir?: string }) {
+export function InstallerPanel({
+  installDir = "",
+  artwork = "",
+}: {
+  installDir?: string;
+  artwork?: string;
+}) {
   const [result, setResult] = useState<Selection | null>(null);
   const [busy, setBusy] = useState(false);
   const [selectedPaths, setSelectedPaths] = useState<string[]>([]);
@@ -80,6 +87,14 @@ export function InstallerPanel({ installDir = "" }: { installDir?: string }) {
   }
   return (
     <div className="installer-section">
+      <div className="install-banner">
+        <GameArt src={artwork} label="Bloodborne" />
+        <div>
+          <span className="eyebrow">ВАША СЛЕДУЮЩАЯ ИСТОРИЯ</span>
+          <h2>Bloodborne</h2>
+          <p>Игровые файлы → Папка → Установка</p>
+        </div>
+      </div>
       <h3>01 · Выбрать PKG → Проверка</h3>
       <p className="muted small">
         Только чтение заголовка и доступного PARAM.SFO. Выберите основную игру
@@ -115,30 +130,34 @@ export function InstallerPanel({ installDir = "" }: { installDir?: string }) {
               <p className="small">{fileName}</p>
               {error && <p role="alert">{error}</p>}
               {p && (
-                <dl>
-                  <dt>Формат / тип</dt>
-                  <dd>
-                    {p.format} · {p.packageType} · CATEGORY {p.category || "?"}
-                  </dd>
-                  <dt>Content ID / Title ID</dt>
-                  <dd>
-                    {p.contentId} / {p.titleId}
-                  </dd>
-                  <dt>Регион</dt>
-                  <dd>{p.region}</dd>
-                  <dt>Версия / размер</dt>
-                  <dd>
-                    {p.version || "Версия недоступна"} · {mb(p.size)} МБ
-                  </dd>
-                  <dt>Содержимое PFS</dt>
-                  <dd>
-                    {p.pfsEncrypted === true
-                      ? "Флаг шифрования установлен; поддерживаемый механизм проверяется при установке"
-                      : p.pfsEncrypted === false
-                        ? "Флаг шифрования не установлен; извлечение ещё не проверено"
-                        : "Не определено"}
-                  </dd>
-                </dl>
+                <details>
+                  <summary>Сведения о пакете</summary>
+                  <dl>
+                    <dt>Формат / тип</dt>
+                    <dd>
+                      {p.format} · {p.packageType} · CATEGORY{" "}
+                      {p.category || "?"}
+                    </dd>
+                    <dt>Content ID / Title ID</dt>
+                    <dd>
+                      {p.contentId} / {p.titleId}
+                    </dd>
+                    <dt>Регион</dt>
+                    <dd>{p.region}</dd>
+                    <dt>Версия / размер</dt>
+                    <dd>
+                      {p.version || "Версия недоступна"} · {mb(p.size)} МБ
+                    </dd>
+                    <dt>Содержимое PFS</dt>
+                    <dd>
+                      {p.pfsEncrypted === true
+                        ? "Флаг шифрования установлен; поддерживаемый механизм проверяется при установке"
+                        : p.pfsEncrypted === false
+                          ? "Флаг шифрования не установлен; извлечение ещё не проверено"
+                          : "Не определено"}
+                    </dd>
+                  </dl>
+                </details>
               )}
             </section>
           ))}
@@ -156,7 +175,8 @@ export function InstallerPanel({ installDir = "" }: { installDir?: string }) {
           </p>
         </div>
       )}
-      <div className="dialog-note">
+      <details className="dialog-note">
+        <summary>Совместимость и ограничения PKG</summary>
         <p>
           Флаг PFS сам по себе не определяет доступность содержимого. В сборке с
           проверенным PKG worker доступно извлечение совместимого основного
@@ -165,13 +185,20 @@ export function InstallerPanel({ installDir = "" }: { installDir?: string }) {
           не применяется: установленная версия определяется по данным. PORT не
           подбирает passcode и не обходит DRM.
         </p>
-      </div>
-      <h3>02 · Компоненты Windows-проекта</h3>
-      <DownloadPanel />
+      </details>
       <FolderImport
         defaultParent={installDir}
         packagePaths={result?.metadataCompatible ? selectedPaths : []}
+        packageBytes={
+          result?.items
+            .filter((i) => i.inspection?.role === "base")
+            .reduce((n, i) => n + (i.inspection?.size || 0), 0) || 0
+        }
       />
+      <details className="install-components">
+        <summary>Компоненты Windows-проекта</summary>
+        <DownloadPanel />
+      </details>
     </div>
   );
 }

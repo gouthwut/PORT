@@ -276,6 +276,7 @@ test("removed publication retains actual library IPC identity and Play, unknown 
         },
         __TAURI_INTERNALS__: {
           invoke: async (command: string, args: any) => {
+            if (command === "take_launch_request") return null;
             calls.push(command);
             if (command === "load_catalog" || command === "sync_catalog")
               return structuredClone(snapshot);
