@@ -2,7 +2,7 @@
 
 Read AGENTS.md and PROGRESS.md first in every session.
 
-PORT is a Windows launcher for independently developed console game runtimes. Describe bbport/shadPS4-derived execution and Vulkan translation accurately; do not imply an official native PC release. Stage 02 Bloodborne is authorized by the 2026-10-27 requests, including installer/library integration within explicit gates. A replacement extractor writer is tested only in tools/extractor-lab; Stage 02C extraction and Stage 02D remain gated by unaudited PFS/PFSC decoding and encrypted user payloads. Inspect docs/UPSTREAM.md before continuing. Never imply arbitrary encrypted PS4 PKG support.
+PORT is a Windows launcher for independently developed console game runtimes. Describe bbport/shadPS4-derived execution and Vulkan translation accurately; do not imply an official native PC release. Stage 03 is authorized by the 2026-10-27 requests, including actual prepared-folder/compatible base-PKG installation, runtime/library/launch. Both supplied PKGs passed bounded fake-PKG mechanism/tree diagnostics; their encryption bit was not a conclusive blocker. Original bounded PFS/PFSC readers plus the existing writer are integrated through an optional pinned-source worker; see tools/pkg-worker/README.md. No arbitrary encrypted/retail PS4 PKG support or update application is promised. Inspect docs/UPSTREAM.md and actual native results in PROGRESS.md before continuing or claiming gameplay.
 
 Stack: Tauri 2, Rust, SQLite (rusqlite), React, TypeScript, Tailwind 4, Radix/shadcn-style components, Motion, Playwright. Frontend is in src/, native backend in src-tauri/, service contracts in src/domain.ts. One collection may own multiple display titles and one shared runtime. Do not invent launch arguments.
 

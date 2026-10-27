@@ -1,5 +1,11 @@
 # Roadmap
 
+## Stage 03 authorization and current override — 2026-10-27
+
+The user explicitly authorized real Bloodborne installation/library/launch and clarified PKG-only input as the desired path. Stage 02D is **no longer gated on arbitrary PKG decoding**: prepared-folder import is independent, and a narrow compatible fake-PKG base path now has its own bounded worker. Both actual package trees were read successfully. Core installer/runtime/SQLite/library/verification/removal/launch code is implemented; actual full-install/gameplay exit evidence is recorded in PROGRESS.md and must be checked before marking this stage complete. General retail/encrypted formats and update application remain unimplemented. NSIS, other games/themes and distribution are out of scope. The dated Stage 02 table below is historical.
+
+The requested core Stage 03 criterion is achieved for supplied **CUSA03173 base 1.00**: real PKG installation, runtime, persistent library and launch to the **user-confirmed main menu**. Actual folder import/cancel/retry/integrity/removal and native failure/restart/cache checks passed. Automatic repair, update application and in-world/long gameplay coverage remain future scope; these broader items are not marked complete.
+
 | Stage                                  | Scope                                                                                                                  | Exit criteria                                                                          |
 | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | 00 Foundation                          | Environment, Git, CI, docs, GitHub setup                                                                               | Reproducible local setup; remote if authorized                                         |

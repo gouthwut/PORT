@@ -1,5 +1,21 @@
 # Architecture
 
+## Stage 03 current contracts
+
+Stage 03 supersedes the historical Stage 02 feature gates below. `src-tauri/src/install.rs` owns native installation and lifecycle; `pkg_worker.rs` supervises the narrow optional compiled worker. `FolderImport` and `InstalledLibrary` use real IPC; browser preview cannot install/launch and has no fabricated installed records.
+
+- SQLite schema **3** adds `installations(id,value)` and `installation_jobs(id,staging,root)`, preserving settings/media. A process-lifetime app-data lock prevents concurrent PORT writers. Settings reset still resets only settings. `list_installations` is the library source of truth; no browser fallback for installations.
+- IPC: `inspect_game_folder`, `import_game_folder`, `install_packages`, `prepare_runtime`, `install_status`, `cancel_install`, `verify_installation`, `launch_installation({id,setup?})`, `launch_status`, `remove_installation({id,confirmed})`, `pkg_install_available`. Import accepts an existing local destination parent outside the source; every job creates a unique sibling staging/final directory, never overwrites a user's folder, and keeps the source read-only.
+- Folder checks: bounded no-link walk, required game layout/SELF header/CUSA03173 SFO, explicit version provenance/unknown state, upstream completeness floor, free space including runtime and reserve. Exact streams are hashed as copied. Unsupported/failing files abort; no link-based installation mutates the original.
+- PKG: selected compatible base + optional compatible 1.09 metadata. The self-contained pinned-source worker extracts only supported base content into installation staging. Job Object kills it if PORT exits and limits process/memory; bounded pipes, deadline, cancellation. No external commands, passcodes, keys or destination paths from package data are executed. Game-facing supplementary SFO/assets are combined with inner PFS with inner precedence. Updates are never overlaid.
+- Runtime: the existing downloader/cache/compiled SHA-256 manifest is retained. The installer rehashes the held ZIP before reading bounded entries through ZIP CRC checks and shared Windows-name policy, rejecting unexpected root/layout/links/expansion/collisions. Required executables, run.py and notices are checked; nothing runs before finalization. All immutable runtime bytes enter the integrity manifest.
+- Durable intent precedes output. Complete manifest is flushed before one no-overwrite same-volume directory rename, then SQLite registration + job deletion commit transactionally. On restart, owned unfinished staging is bounded/link-checked and removed; a fully renamed job is recovered into SQLite. Recovery access failures preserve data and surface an actionable status while existing library stays available.
+- Manifests contain relative names/sizes/SHA-256; SQLite stores their digest and fixed derived installation paths. Verification hashes all listed files. Launch checks all inventoried sizes/existence, rehashes the complete runtime plus eboot/SFO, rejects unexpected runtime files, and checks game layout. Import hashes establish a baseline, not game authenticity.
+- Launch uses pinned `Bloodborne.exe --play` plus isolated upstream settings (`game_dir`) and APPDATA/BB_DATA_DIR. Setup opens the same verified executable without flags. Single active lifecycle operation, immediate-exit/error messages and tracked process exit. Process creation/running status never becomes a gameplay-success flag.
+- Removal requires explicit UI + IPC confirmation, refuses while the tracked runtime is active, and removes only inventoried **game** files. Runtime, user-data/saves/config, original source and unknown added files are retained; a partial failure keeps the SQLite record for retry. No saved-data deletion API exists.
+
+Worker build, supported format/resource limits and LGPL obligations are in `tools/pkg-worker/README.md`. Private art is unchanged and ignored. Final actual-native verification/limitations live in PROGRESS.md; generated/browser tests are separate evidence.
+
 PORT is an offline-first Tauri 2 Windows application. Vite builds React/TypeScript into static assets embedded in the native executable. Web preview is for frontend development, not the desktop deliverable.
 
 ## Components

@@ -68,3 +68,19 @@ Native evidence from the built release executable (real Tauri WebView, not Vite)
 | 13-native-resized.png  | Real native WebView resized to 1042×782; no horizontal overflow |
 
 Computer Use additionally inspected the Windows title bar and native folder dialog. These WebView captures omit OS title bars. See PROGRESS.md for full-process restart validation and tool limitations.
+
+## Stage 03 private evidence — 2026-10-27
+
+All paths below are beneath ignored `.local/evidence/`, because the personal build contains private artwork. They are not public repository artifacts.
+
+| File                              | Evidence type                                                                                         |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| 03-browser-installer-preview.png  | Chromium browser preview; installation actions unavailable                                            |
+| 03-browser-library-mocked-ipc.png | Explicitly mocked native IPC UI contract with QA paths; not an installed game                         |
+| 03-native-library-actual-pkg.png  | Actual native release WebView after real base-PKG extraction, runtime install and SQLite registration |
+| 03-native-library-registered.png  | Actual native library with APP_VER 01.00 and real installation paths                                  |
+| 03-native-play-request.png        | Actual native Play request/process response; screenshot alone is not game loading proof               |
+
+The user confirmed the actual Bloodborne main menu after the native Play test. Allowed OS-window inventory independently returned Bloodborne™/installed bb-probe.exe, but computer-use capture/control was rejected; no automated game-window screenshot or in-world gameplay evidence is claimed. Local `.local/stage03` JSON/log files contain the installation/check observations. Historical browser/native evidence is retained separately.
+
+Additional actual-native captures: `03-native-final-restart-integrity.png` shows fresh-process SQLite and full primary integrity after the real launch; `03-native-final-release-library.png` shows the final release's Stage 03 library after cold startup. Both stay in ignored `.local/evidence/`.
