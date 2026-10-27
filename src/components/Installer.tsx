@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button } from "./ui";
 import { native } from "../services/settings";
+import { FolderImport } from "./FolderImport";
 
 interface Inspection {
   format: string;
@@ -38,9 +39,10 @@ interface DownloadStatus {
   active: boolean;
 }
 const mb = (n: number) => (n / 1024 / 1024).toFixed(1);
-export function InstallerPanel() {
+export function InstallerPanel({ installDir = "" }: { installDir?: string }) {
   const [result, setResult] = useState<Selection | null>(null);
   const [busy, setBusy] = useState(false);
+  const [selectedPaths, setSelectedPaths] = useState<string[]>([]);
   const [error, setError] = useState("");
   const guard = useRef(false);
   useEffect(() => {
@@ -61,6 +63,7 @@ export function InstallerPanel() {
         filters: [{ name: "PS4 PKG", extensions: ["pkg"] }],
       });
       if (paths && (typeof paths === "string" || paths.length)) {
+        setSelectedPaths(typeof paths === "string" ? [paths] : paths);
         setResult(null);
         setResult(
           await invoke<Selection>("inspect_packages", {
@@ -130,7 +133,7 @@ export function InstallerPanel() {
                   <dt>Содержимое PFS</dt>
                   <dd>
                     {p.pfsEncrypted === true
-                      ? "Зашифровано — автоматическое извлечение недоступно"
+                      ? "Флаг шифрования установлен; поддерживаемый механизм проверяется при установке"
                       : p.pfsEncrypted === false
                         ? "Флаг шифрования не установлен; извлечение ещё не проверено"
                         : "Не определено"}
@@ -155,22 +158,20 @@ export function InstallerPanel() {
       )}
       <div className="dialog-note">
         <p>
-          Зашифрованный PFS не извлекается: PORT не запрашивает ключи и не
-          обходит DRM. Для Windows-runtime нужна собственная подготовленная
-          расшифрованная папка с eboot.bin и sce_sys/param.sfo. Безопасная
-          граница записи экстрактора исследуется отдельно; её наличие ещё не
-          подтверждает безопасность всего декодера. Импорт папки и установка
-          пока недоступны.
+          Флаг PFS сам по себе не определяет доступность содержимого. В сборке с
+          проверенным PKG worker доступно извлечение совместимого основного
+          fake/debug PKG. Другие механизмы и произвольные зашифрованные PKG не
+          поддерживаются. Обновление выбирается для проверки совместимости, но
+          не применяется: установленная версия определяется по данным. PORT не
+          подбирает passcode и не обходит DRM.
         </p>
       </div>
       <h3>02 · Компоненты Windows-проекта</h3>
       <DownloadPanel />
-      <h3>03 · Установка → Готово</h3>
-      <p className="muted small">
-        Выбор папки, извлечение, регистрация в библиотеке и запуск остаются
-        недоступны до устранения блокера экстрактора и проверки игровых данных.
-        Скачанный архив сам по себе не добавляет игру в библиотеку.
-      </p>
+      <FolderImport
+        defaultParent={installDir}
+        packagePaths={result?.metadataCompatible ? selectedPaths : []}
+      />
     </div>
   );
 }

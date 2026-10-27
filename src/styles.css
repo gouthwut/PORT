@@ -2694,3 +2694,27 @@ footer small {
 .installer-section progress::-moz-progress-bar {
   background: #a78bfa;
 }
+.library-install {
+  display: flex;
+  gap: 24px;
+  margin: 20px 0;
+}
+.library-cover {
+  flex: 0 0 140px;
+  aspect-ratio: 2 / 3;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+.library-install p {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .library-install {
+    flex-direction: column;
+  }
+  .library-cover {
+    flex-basis: auto;
+    width: 120px;
+  }
+}

@@ -12,3 +12,5 @@ playwright-report
 src/assets/bloodborne-local
 tools/extractor-lab/bin
 tools/extractor-lab/obj
+tools/pkg-worker/bin
+tools/pkg-worker/obj

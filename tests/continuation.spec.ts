@@ -73,6 +73,14 @@ for (const choice of ["single", "multiple", "cancel", "error"] as const) {
               };
             if (command === "load_media")
               return { hero: "", cover: "", banner: "", gallery: [] };
+            if (command === "install_status")
+              return {
+                phase: "",
+                active: false,
+                completed: 0,
+                total: 0,
+                message: "",
+              };
             if (command === "download_status")
               return {
                 phase: "idle",

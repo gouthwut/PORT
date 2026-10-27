@@ -24,7 +24,9 @@ export interface Installation {
   collectionId: string;
   runtimePath: string;
   dataPath: string;
-  version: string;
+  root: string;
+  version: string | null;
+  manifestSha256: string;
 }
 export type InstallPhase =
   "validating" | "extracting" | "downloading" | "verifying" | "preparing";

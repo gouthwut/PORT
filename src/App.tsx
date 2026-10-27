@@ -39,6 +39,7 @@ import { GameArt, Gallery, MediaEditor } from "./components/BloodborneMedia";
 import { InstallerPanel, DownloadPanel } from "./components/Installer";
 import { emptyMedia, mediaService, type MediaSet } from "./services/media";
 import { resolveMedia } from "./services/bundled-media";
+import { InstalledLibrary } from "./components/InstalledLibrary";
 
 type Page =
   "home" | "catalog" | "details" | "library" | "downloads" | "settings";
@@ -567,9 +568,9 @@ export default function App() {
                           </div>
                           <p className="catalog-note">
                             <Info size={15} />
-                            PORT пока не устанавливает игры. Архив
-                            Windows-проекта доступен отдельно; установка
-                            заблокирована до безопасного извлечения.
+                            Установка из собственной папки или совместимого
+                            основного PKG. Windows-runtime загружается отдельно;
+                            данные игры не скачиваются.
                           </p>
                         </>
                       ) : (
@@ -723,7 +724,7 @@ export default function App() {
                           <div className="install-panel-icon">
                             <Download size={24} />
                           </div>
-                          <Badge>ЗАПУСК В PORT НЕ ПРОВЕРЕН</Badge>
+                          <Badge>CUSA03173 · СВОИ ФАЙЛЫ</Badge>
                           <h2>
                             Следующая
                             <br />
@@ -757,8 +758,8 @@ export default function App() {
                           <div className="file-notice">
                             <ShieldCheck size={18} />
                             <p>
-                              Нужны ваши игровые файлы. Успешный запуск
-                              Bloodborne в PORT пока не подтверждён.
+                              Нужны ваши игровые файлы. Результат запуска
+                              зависит от версии дампа, оборудования и драйверов.
                             </p>
                           </div>
                         </aside>
@@ -774,32 +775,11 @@ export default function App() {
                             Библиотека<span className="accent">.</span>
                           </h1>
                         </div>
-                        <span className="quiet-label">0 установленных игр</span>
                       </div>
-                      <Empty
-                        icon={Library}
-                        title="Здесь начнётся ваша история"
-                        description="Установленная Bloodborne появится здесь. Найдите своё первое приключение в каталоге PORT."
-                      >
-                        <Button onClick={() => navigate("catalog")}>
-                          Открыть каталог
-                          <ArrowRight size={17} />
-                        </Button>
-                      </Empty>
-                      <div className="future-actions">
-                        <span>После установки</span>
-                        {[
-                          "Играть",
-                          "Настройки игры",
-                          "Проверить файлы",
-                          "Удалить",
-                        ].map((s) => (
-                          <span key={s} className="future-action">
-                            {s}
-                          </span>
-                        ))}
-                        <span className="small muted">Пока нет установок</span>
-                      </div>
+                      <InstalledLibrary
+                        cover={media.cover}
+                        onCatalog={() => navigate("catalog")}
+                      />
                       <div className="info-strip">
                         <ShieldCheck size={20} />
                         <div>
@@ -983,7 +963,9 @@ export default function App() {
                           <p className="small">
                             Stage 02 · Bloodborne
                             <br />
-                            Установка и запуск игр ещё не реализованы.
+                            Доступны собственная папка и совместимые основные
+                            PKG. Патч 1.09 не применяется автоматически;
+                            загрузка игры проверяется отдельно.
                           </p>
                           <button
                             className="text-link"
@@ -1008,7 +990,7 @@ export default function App() {
                       PORT// <span>Миры становятся ближе.</span>
                     </span>
                     <span>
-                      Независимый проект<small>·</small>Stage 02 / Bloodborne
+                      Независимый проект<small>·</small>Stage 03 / Bloodborne
                     </span>
                   </footer>
                 </motion.div>
@@ -1022,13 +1004,13 @@ export default function App() {
           title="Установка Bloodborne"
           description="Подготовка собственных игровых файлов. Ничего не устанавливается без проверенной совместимости."
         >
-          <InstallerPanel />
+          <InstallerPanel installDir={settings.installDir} />
         </Modal>
         <Modal
           open={about}
           onOpenChange={setAbout}
           title="Миры становятся ближе."
-          description="PORT// — независимый Windows-лаунчер. Версия 0.1.0, Stage 02."
+          description="PORT// — независимый Windows-лаунчер. Версия 0.1.0, Stage 03."
         >
           <div className="about-dialog-content">
             <Compass size={46} strokeWidth={1} />
