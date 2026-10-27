@@ -6,7 +6,7 @@ import { importPhoto, type MediaSet } from "../services/media";
 
 export function GameArt({
   src,
-  label = "Добавьте своё изображение Bloodborne",
+  label = "Bloodborne",
 }: {
   src?: string;
   label?: string;
@@ -69,8 +69,9 @@ export function MediaEditor({
       <h3>Ваше оформление Bloodborne</h3>
       <p className="muted small">
         Импортируйте материалы, которыми вправе пользоваться. Файлы
-        обрабатываются локально и не отправляются в интернет. Галерея: 6–10
-        скриншотов. В браузерном preview лимит хранения зависит от localStorage.
+        обрабатываются локально и не отправляются в интернет. Галерея: до 10
+        изображений. В браузерном preview лимит хранения зависит от
+        localStorage.
       </p>
       <input
         ref={input}
@@ -129,7 +130,7 @@ export function Gallery({ images }: { images: string[] }) {
     <section className="gallery-section">
       <h2>Ночь в Ярнаме</h2>
       <p className="muted small">
-        Галерея · {images.length} / 10 · ваши локальные скриншоты
+        Галерея · {images.length} / 10 · изображения доступны без интернета
       </p>
       <div className="screenshot-grid">
         {images.length ? (
@@ -154,7 +155,7 @@ export function Gallery({ images }: { images: string[] }) {
           ))
         ) : (
           <p className="gallery-empty">
-            Скриншоты ещё не импортированы. Добавьте 6–10 изображений в разделе
+            Скриншоты ещё не добавлены. Выберите изображения в разделе
             оформления ниже.
           </p>
         )}

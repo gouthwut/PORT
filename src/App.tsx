@@ -38,6 +38,7 @@ import { Button, Modal, Switch } from "./components/ui";
 import { GameArt, Gallery, MediaEditor } from "./components/BloodborneMedia";
 import { InstallerPanel, DownloadPanel } from "./components/Installer";
 import { emptyMedia, mediaService, type MediaSet } from "./services/media";
+import { resolveMedia } from "./services/bundled-media";
 
 type Page =
   "home" | "catalog" | "details" | "library" | "downloads" | "settings";
@@ -127,7 +128,8 @@ function GameCard({
 }
 
 export default function App() {
-  const [media, setMedia] = useState<MediaSet>(emptyMedia);
+  const [mediaOverrides, setMedia] = useState<MediaSet>(emptyMedia);
+  const media = resolveMedia(mediaOverrides);
   const [page, setPage] = useState<Page>("home");
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
@@ -653,7 +655,13 @@ export default function App() {
                             </p>
                           </section>
                           <Gallery images={media.gallery} />
-                          <MediaEditor media={media} onSave={saveMedia} />
+                          <details className="media-customization">
+                            <summary>Заменить оформление на своё</summary>
+                            <MediaEditor
+                              media={mediaOverrides}
+                              onSave={saveMedia}
+                            />
+                          </details>
                           <SectionTitle title="Bloodborne на Windows" />
                           <p className="body-copy">
                             Выбран SuperMedo / bloodborne_pc, windows-v1.9.4.

@@ -8,3 +8,7 @@ native-metadata.tmp.json
 docs/licenses
 test-results
 playwright-report
+.local
+src/assets/bloodborne-local
+tools/extractor-lab/bin
+tools/extractor-lab/obj

@@ -9,29 +9,29 @@ test("navigation, honest installer and all primary screen screenshots", async ({
     page.getByRole("heading", { name: "За пределами консоли." }),
   ).toBeVisible();
   await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
-  await page.screenshot({ path: "screenshots/02a-01-home-1440.png" });
+  await page.screenshot({ path: ".local/evidence/02-cont-home.png" });
   await page.getByRole("button", { name: "Установить", exact: true }).click();
   await expect(page.getByRole("dialog")).toContainText(
     "Только чтение заголовка",
   );
   await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
-  await page.screenshot({ path: "screenshots/02a-07-installer.png" });
+  await page.screenshot({ path: ".local/evidence/02-cont-07-installer.png" });
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).not.toBeVisible();
   await page.getByRole("button", { name: "Каталог", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Каталог." })).toBeVisible();
   await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
-  await page.screenshot({ path: "screenshots/02a-02-catalog.png" });
+  await page.screenshot({ path: ".local/evidence/02-cont-02-catalog.png" });
   await page.getByRole("button", { name: /Подробнее: Bloodborne/ }).click();
   await expect(
     page.getByRole("heading", { name: "Системные требования" }),
   ).toBeVisible();
   await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
-  await page.screenshot({ path: "screenshots/02a-03-bloodborne.png" });
+  await page.screenshot({ path: ".local/evidence/02-cont-03-bloodborne.png" });
   await page.getByRole("button", { name: "Библиотека", exact: true }).click();
   await expect(page.getByText("Здесь начнётся ваша история")).toBeVisible();
   await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
-  await page.screenshot({ path: "screenshots/02a-04-library.png" });
+  await page.screenshot({ path: ".local/evidence/02-cont-04-library.png" });
   await page.getByRole("button", { name: /^Загрузки/ }).click();
   await expect(
     page.getByRole("button", { name: "Скачать компоненты" }),
@@ -40,11 +40,11 @@ test("navigation, honest installer and all primary screen screenshots", async ({
     page.getByText("WEB PREVIEW · реальные загрузки", { exact: false }),
   ).toBeVisible();
   await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
-  await page.screenshot({ path: "screenshots/02a-05-downloads.png" });
+  await page.screenshot({ path: ".local/evidence/02-cont-05-downloads.png" });
   await page.getByRole("button", { name: "Настройки", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Настройки." })).toBeVisible();
   await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
-  await page.screenshot({ path: "screenshots/02a-06-settings.png" });
+  await page.screenshot({ path: ".local/evidence/02-cont-06-settings.png" });
   expect(errors).toEqual([]);
 });
 test("search, filters, settings persistence and reset", async ({ page }) => {
@@ -107,7 +107,7 @@ test("offline, keyboard, light theme and responsive layouts", async ({
   await page.getByRole("button", { name: "Библиотека", exact: true }).click();
   await expect(page.getByText("Здесь начнётся ваша история")).toBeVisible();
   await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
-  await page.screenshot({ path: "screenshots/02a-10-offline.png" });
+  await page.screenshot({ path: ".local/evidence/02-cont-10-offline.png" });
   await context.setOffline(false);
   await page.getByRole("button", { name: "Главная", exact: true }).click();
   for (const [width, height] of [
@@ -125,7 +125,9 @@ test("offline, keyboard, light theme and responsive layouts", async ({
         .evaluate((e) => e.scrollWidth <= e.clientWidth),
     ).toBeTruthy();
     await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
-    await page.screenshot({ path: `screenshots/02a-08-home-${width}.png` });
+    await page.screenshot({
+      path: `.local/evidence/02-cont-08-home-${width}.png`,
+    });
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.getByRole("button", { name: "Настройки", exact: true }).click();
@@ -137,7 +139,7 @@ test("offline, keyboard, light theme and responsive layouts", async ({
   );
   await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
   await page.screenshot({
-    path: "screenshots/02a-09-settings-system-light.png",
+    path: ".local/evidence/02-cont-09-settings-system-light.png",
   });
   expect(errors).toEqual([]);
 });
@@ -151,6 +153,7 @@ test("local media import, persistence, gallery keyboard and offline lightbox", a
   await expect(
     page.getByRole("heading", { name: "Системные требования" }),
   ).toBeVisible();
+  await page.getByText("Заменить оформление на своё", { exact: true }).click();
   const png = await page.evaluate(() => {
     const c = document.createElement("canvas");
     c.width = 640;
@@ -194,7 +197,9 @@ test("local media import, persistence, gallery keyboard and offline lightbox", a
   await expect(page.getByRole("dialog")).toContainText("6 / 6");
   await page.keyboard.press("ArrowRight");
   await expect(page.getByRole("dialog")).toContainText("1 / 6");
-  await page.screenshot({ path: "screenshots/02a-gallery-qa-fixture.png" });
+  await page.screenshot({
+    path: ".local/evidence/02-cont-gallery-qa-fixture.png",
+  });
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).not.toBeVisible();
   await expect(
@@ -202,6 +207,7 @@ test("local media import, persistence, gallery keyboard and offline lightbox", a
   ).toBeFocused();
   await page.reload();
   await page.getByRole("button", { name: "Подробнее: Bloodborne" }).click();
+  await page.getByText("Заменить оформление на своё", { exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Скриншоты (6/10)" }),
   ).toBeVisible();

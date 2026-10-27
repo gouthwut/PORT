@@ -1,4 +1,8 @@
 node_modules/
+.local/
+src/assets/bloodborne-local/
+tools/extractor-lab/bin/
+tools/extractor-lab/obj/
 dist/
 src-tauri/target/
 test-results/

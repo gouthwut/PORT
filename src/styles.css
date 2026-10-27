@@ -2475,6 +2475,19 @@ footer small {
   color: #b4a8c8;
   font-size: 12px;
 }
+.media-customization summary {
+  cursor: pointer;
+  color: var(--muted);
+  padding: 16px 0;
+}
+.package-component {
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0;
+  overflow-wrap: anywhere;
+}
+.package-component h4 {
+  margin: 0;
+}
 .art-empty small {
   font-size: 8px;
   letter-spacing: 2px;
