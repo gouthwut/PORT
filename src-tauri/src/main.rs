@@ -133,6 +133,7 @@ fn main() {
             install::import_game_folder,
             install::prepare_runtime,
             install::install_packages,
+            install::update::update_installation,
             pkg_worker::pkg_install_available,
             install::list_installations,
             install::running_installations,

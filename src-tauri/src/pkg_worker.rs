@@ -59,9 +59,28 @@ pub fn extract(
     mut status: impl FnMut(u64, u64),
     cancel: impl Fn() -> bool,
 ) -> Result<()> {
+    extract_kind(source, target, cache, &mut status, cancel, false)
+}
+pub fn extract_update(
+    source: &str,
+    target: &Path,
+    cache: &Path,
+    status: impl FnMut(u64, u64),
+    cancel: impl Fn() -> bool,
+) -> Result<()> {
+    extract_kind(source, target, cache, status, cancel, true)
+}
+fn extract_kind(
+    source: &str,
+    target: &Path,
+    cache: &Path,
+    mut status: impl FnMut(u64, u64),
+    cancel: impl Fn() -> bool,
+    update: bool,
+) -> Result<()> {
     #[cfg(not(port_pkg_worker))]
     {
-        let _ = (source, target, cache, &mut status, cancel);
+        let _ = (source, target, cache, &mut status, cancel, update);
         Err("В этой сборке нет проверенного PKG worker. Соберите его по scripts/build-pkg-worker.ps1 либо импортируйте папку.".into())
     }
     #[cfg(port_pkg_worker)]
@@ -97,7 +116,14 @@ pub fn extract(
         }
         let mut command = Command::new(&exe);
         command
-            .args(["--extract-base", source])
+            .args([
+                if update {
+                    "--extract-confirmed-update"
+                } else {
+                    "--extract-base"
+                },
+                source,
+            ])
             .arg(target)
             .current_dir(&root)
             .env("DOTNET_GCHeapHardLimit", "40000000")

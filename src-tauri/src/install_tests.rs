@@ -1,9 +1,9 @@
 use super::*;
 use std::io::Cursor;
-fn status() -> Arc<Mutex<Status>> {
+pub(super) fn status() -> Arc<Mutex<Status>> {
     Arc::default()
 }
-fn metadata(version: Option<&str>) -> Vec<u8> {
+pub(super) fn metadata(version: Option<&str>) -> Vec<u8> {
     let mut pairs = vec![("TITLE_ID", "CUSA03173"), ("CATEGORY", "gd")];
     if let Some(v) = version {
         pairs.push(("APP_VER", v));
@@ -29,7 +29,7 @@ fn metadata(version: Option<&str>) -> Vec<u8> {
     }
     b
 }
-fn fixture(root: &Path, version: Option<&str>) {
+pub(super) fn fixture(root: &Path, version: Option<&str>) {
     for dir in ["sce_sys", "sce_module", "dvdroot_ps4/shader"] {
         fs::create_dir_all(root.join(dir)).unwrap();
     }

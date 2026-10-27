@@ -1,7 +1,9 @@
-//! Prepared-folder installation. Game bytes stay local; no PKG decoder or patch overlay.
+//! Local installation lifecycle and durable staging; narrow updates live in install_update.rs.
 #[cfg(test)]
 #[path = "install_tests.rs"]
 mod tests;
+#[path = "install_update.rs"]
+pub(crate) mod update;
 use crate::{download, package, Database};
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
@@ -618,6 +620,7 @@ fn install_job(
     packages: Vec<String>,
     parent: String,
     s: &Arc<Mutex<Status>>,
+    update: Option<update::UpdateSource>,
 ) -> Result<()> {
     let parent = PathBuf::from(parent);
     safe(&parent)?;
@@ -634,6 +637,9 @@ fn install_job(
         .as_ref()
         .map(|p| inspect(Path::new(p), s, true))
         .transpose()?;
+    if let Some(update) = &update {
+        update.validate(inspected.as_ref().ok_or("Нет основной игры")?, s)?;
+    }
     if let Some((folder, _)) = &inspected {
         let canonical_source = fs::canonicalize(&folder.path).map_err(err)?;
         let canonical_parent = fs::canonicalize(&parent).map_err(err)?;
@@ -652,12 +658,23 @@ fn install_job(
     } else {
         inspected.as_ref().map_or(0, |(f, _)| f.bytes)
     };
-    space(&parent, bytes + 2 * 1024 * 1024 * 1024)?;
+    let profile_bytes = update.as_ref().map_or(0, |u| u.profile_bytes());
+    space(
+        &parent,
+        bytes
+            .checked_add(profile_bytes)
+            .and_then(|n| n.checked_add(3 * 1024 * 1024 * 1024))
+            .ok_or("Размер слишком большой")?,
+    )?;
     phase(
         s,
         "verifying",
         "Повторная проверка закреплённого SHA-256 кэша (интернет не требуется)",
     );
+    if let Ok(mut status) = s.lock() {
+        status.completed = 0;
+        status.total = 0;
+    }
     let mut zip = cache_zip(&cache, s)?;
     let id = format!(
         "{}-{}",
@@ -744,6 +761,9 @@ fn install_job(
                 package::regular_file(&from)?;
                 let p = format!("CUSA03173/{}", e.path);
                 let hash = stream(open_read(&from)?, Some(&stage.join(&p)), e.size, s)?;
+                if let Some(update) = &update {
+                    update.check_copied(&p, e.size, &hash)?;
+                }
                 entries.push(Entry {
                     path: p,
                     size: e.size,
@@ -767,6 +787,9 @@ fn install_job(
             }
         }
         entries.extend(extract(&mut zip, &stage, s)?);
+        if let Some(update) = &update {
+            update.apply(&stage, &cache, &mut entries, s)?;
+        }
         let version = if has_game {
             inspect(&stage.join("CUSA03173"), s, true)?.0.version
         } else {
@@ -822,7 +845,9 @@ fn install_job(
             }
         })?;
         status.phase = "ready".into();
-        status.message = if has_game {
+        status.message = if update.is_some() {
+            format!("Обновление 1.09 проверено и установлено отдельной копией: {}. Исходная 1.00 сохранена в библиотеке; сохранения и настройки скопированы в отдельный профиль.", record.data_path)
+        } else if has_game {
             format!(
                 "Установлено: {}. Загрузка самой игры ещё не подтверждена. Обновление PKG не применялось.",
                 record.data_path
@@ -971,7 +996,7 @@ fn start(
     drop(s);
     let status = state.status.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        if let Err(e) = install_job(&app, source, packages, parent, &status) {
+        if let Err(e) = install_job(&app, source, packages, parent, &status, None) {
             if let Ok(mut s) = status.lock() {
                 s.phase = if s.cancel { "cancelled" } else { "error" }.into();
                 s.message = e;
