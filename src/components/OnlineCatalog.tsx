@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowUpRight, RefreshCw } from "lucide-react";
 import type { GameState } from "../services/game-state";
 import {
   supportsInstall,
+  developerMode,
   type CatalogState,
   type PublishedGame,
 } from "../services/catalog";
@@ -43,13 +44,21 @@ export function CatalogStatus({ state }: { state: CatalogState }) {
         {state.error && (
           <div role="alert" className="catalog-error">
             Не удалось обновить каталог. Последние данные сохранены.
-            <details>
-              <summary>Подробности ошибки</summary>
-              <p>{state.error}</p>
-            </details>
+            {developerMode && (
+              <details>
+                <summary>Подробности ошибки</summary>
+                <p>{state.error}</p>
+              </details>
+            )}
           </div>
         )}
-        {s.warning && <p role="status">{s.warning}</p>}
+        {s.warning && (
+          <p role="status">
+            {developerMode
+              ? s.warning
+              : "Некоторые изображения пока недоступны."}
+          </p>
+        )}
       </div>
       <Button
         variant="secondary"
@@ -68,12 +77,14 @@ export function CatalogSettings({ state }: { state: CatalogState }) {
     () => setEndpoint(state.snapshot.endpoint),
     [state.snapshot.endpoint],
   );
+  if (!developerMode) return null;
   return (
     <details className="settings-section catalog-settings">
       <summary>Для разработчиков · онлайн-каталог</summary>
       <p className="muted">
-        Адрес опубликованного каталога. Без адреса используются локальные
-        тестовые данные; сервер каталога ещё не подключён.
+        Переопределение адреса для разработки. Пустое поле включает локальные
+        тестовые данные в браузерной разработке; нативный клиент использует
+        постоянный адрес.
       </p>
       <form
         onSubmit={(e) => {

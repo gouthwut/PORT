@@ -12,10 +12,19 @@ export default defineConfig({
     reducedMotion: "reduce",
     trace: "retain-on-failure",
   },
-  webServer: {
-    command: "npm run dev",
-    url: "http://127.0.0.1:1420",
-    reuseExistingServer: !process.env.CI,
-    timeout: 30000,
-  },
+  webServer: [
+    {
+      command: "npm run dev",
+      env: { VITE_CATALOG_FIXTURE: "1" },
+      url: "http://127.0.0.1:1420",
+      reuseExistingServer: !process.env.CI,
+      timeout: 30000,
+    },
+    {
+      command: "npm run preview -- --host 127.0.0.1 --port 1421 --strictPort",
+      url: "http://127.0.0.1:1421",
+      reuseExistingServer: !process.env.CI,
+      timeout: 30000,
+    },
+  ],
 });

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import schema from "../../docs/catalog.schema.json";
 import fixture from "../../fixtures/catalog/published-v1.json";
+import productionEndpoint from "../catalog-endpoint.json";
 import { native } from "./settings";
 import type { MediaSet } from "./media";
 
@@ -184,6 +185,27 @@ export const demoSnapshot = (): CatalogSnapshot => ({
   source: "demo",
   warning: "",
 });
+export const developerMode = import.meta.env.DEV;
+export const defaultEndpoint = productionEndpoint;
+const localFixture =
+  developerMode && import.meta.env.VITE_CATALOG_FIXTURE === "1";
+const initialSnapshot = (): CatalogSnapshot =>
+  localFixture
+    ? demoSnapshot()
+    : {
+        endpoint: defaultEndpoint,
+        catalog: {
+          schemaVersion: 1,
+          revision: "empty",
+          publishedAt: "2026-10-27T00:00:00Z",
+          games: [],
+        },
+        images: {},
+        known: [],
+        syncedAt: null,
+        warning: "",
+        source: "empty",
+      };
 // This registry is compiled code. Remote IDs never provide commands, URLs or flags to installers.
 export const supportsInstall = (g: PublishedGame) =>
   g.id === "bloodborne" &&
@@ -208,7 +230,11 @@ const configKey = "port.catalog.endpoint.v1",
   cacheKey = "port.catalog.cache.v1",
   knownKey = "port.catalog.known.v1";
 async function loadPreview(): Promise<CatalogSnapshot> {
-  const endpoint = localStorage.getItem(configKey) || "";
+  const configured = localStorage.getItem(configKey);
+  const endpoint =
+    configured === "" && developerMode
+      ? ""
+      : configured || (localFixture ? "" : defaultEndpoint);
   if (endpoint) publicHttps(endpoint);
   // Preview has no installations. Known metadata is for preview only, never a library record.
   let known: PublishedGame[] = [];
@@ -291,7 +317,7 @@ async function bytes(
       headers: { Accept: type },
     });
     if (
-      !r.ok ||
+      r.status !== 200 ||
       r.headers.get("content-type")?.split(";")[0].trim() !== type ||
       Number(r.headers.get("content-length")) > limit ||
       !r.body
@@ -421,6 +447,7 @@ export const catalogService = {
   load: (): Promise<CatalogSnapshot> =>
     native ? invoke("load_catalog") : Promise.resolve().then(loadPreview),
   configure: async (endpoint: string): Promise<CatalogSnapshot> => {
+    if (!developerMode) throw Error("Настройка доступна только разработчикам");
     if (endpoint) publicHttps(endpoint);
     if (native) return invoke("configure_catalog", { endpoint });
     localStorage.setItem(configKey, endpoint);
@@ -430,7 +457,7 @@ export const catalogService = {
     native ? invoke("sync_catalog") : syncPreview(),
 };
 export function useCatalog() {
-  const [snapshot, setSnapshot] = useState(demoSnapshot);
+  const [snapshot, setSnapshot] = useState(initialSnapshot);
   const [busy, setBusy] = useState(true),
     [error, setError] = useState("");
   const lock = useRef(false);

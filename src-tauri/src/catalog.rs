@@ -19,7 +19,12 @@ const IMAGE_LIMIT: usize = 1024 * 1024;
 const CACHE_LIMIT: usize = 36 * 1024 * 1024;
 const TOTAL_IMAGES: usize = 24 * 1024 * 1024;
 const SCHEMA: &str = include_str!("../../docs/catalog.schema.json");
+#[cfg(test)]
 const DEMO: &str = include_str!("../../fixtures/catalog/published-v1.json");
+const DEFAULT_ENDPOINT_JSON: &str = include_str!("../../src/catalog-endpoint.json");
+fn default_endpoint() -> String {
+    serde_json::from_str(DEFAULT_ENDPOINT_JSON).expect("compiled catalog endpoint")
+}
 #[derive(Default, Clone)]
 pub struct SyncLock(Arc<Mutex<()>>);
 #[derive(Clone, Serialize, Deserialize)]
@@ -231,7 +236,7 @@ fn endpoint(c: &Connection) -> Result<String, String> {
         r.get(0)
     })
     .optional()
-    .map(|v| v.unwrap_or_default())
+    .map(|v: Option<String>| v.filter(|s| !s.is_empty()).unwrap_or_else(default_endpoint))
     .map_err(|e| e.to_string())
 }
 fn known(c: &Connection) -> Result<Vec<Value>, String> {
@@ -290,15 +295,11 @@ fn load(c: &Connection) -> Result<Snapshot, String> {
     }
     Ok(Snapshot {
         endpoint: ep.clone(),
-        catalog: if ep.is_empty() {
-            parse(DEMO.as_bytes(), None)?
-        } else {
-            json!({"schemaVersion":1,"revision":"empty","publishedAt":"2026-10-27T00:00:00Z","games":[]})
-        },
+        catalog: json!({"schemaVersion":1,"revision":"empty","publishedAt":"2026-10-27T00:00:00Z","games":[]}),
         images: HashMap::new(),
         known: k,
         synced_at: None,
-        source: if ep.is_empty() { "demo" } else { "empty" }.into(),
+        source: "empty".into(),
         warning: String::new(),
     })
 }
@@ -313,6 +314,9 @@ pub fn configure_catalog(
     db: tauri::State<Database>,
     sync: tauri::State<SyncLock>,
 ) -> Result<Snapshot, String> {
+    if !cfg!(debug_assertions) {
+        return Err("Catalog configuration requires a developer build".into());
+    }
     let _guard = sync
         .0
         .try_lock()
@@ -367,7 +371,7 @@ fn fetch(url: &str, limit: usize, deadline: Instant, mime: &str) -> Result<Vec<u
         .map_err(|e| e.to_string())?
         .error_for_status()
         .map_err(|e| e.to_string())?;
-    if r.status().is_redirection()
+    if r.status() != reqwest::StatusCode::OK
         || r.content_length().is_some_and(|n| n > limit as u64)
         || r.headers()
             .get("content-type")
@@ -566,6 +570,62 @@ pub async fn sync_catalog(
 mod tests {
     use super::*;
     #[test]
+    fn production_default_preserves_configuration_and_installation_schema() {
+        let c = Connection::open_in_memory().unwrap();
+        crate::init(&c).unwrap();
+        init(&c).unwrap();
+        let version: i64 = c
+            .query_row("PRAGMA user_version", [], |r| r.get(0))
+            .unwrap();
+        https(&default_endpoint()).unwrap();
+        assert_eq!(load(&c).unwrap().endpoint, default_endpoint());
+        assert_eq!(load(&c).unwrap().catalog["games"], json!([]));
+        c.execute("INSERT INTO catalog_config VALUES(1,'')", [])
+            .unwrap();
+        assert_eq!(load(&c).unwrap().endpoint, default_endpoint());
+        c.execute(
+            "UPDATE catalog_config SET endpoint='https://custom.port-qa.com/v1'",
+            [],
+        )
+        .unwrap();
+        assert_eq!(load(&c).unwrap().endpoint, "https://custom.port-qa.com/v1");
+        assert_eq!(
+            c.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
+                .unwrap(),
+            version
+        );
+    }
+    #[test]
+    #[ignore = "real production HTTPS, read-only; run explicitly"]
+    fn live_production_catalog_and_all_images() {
+        let ep = default_endpoint();
+        let deadline = Instant::now() + Duration::from_secs(45);
+        let raw = fetch(&ep, JSON_LIMIT, deadline, "application/json").unwrap();
+        let catalog = parse(&raw, Some(&ep)).unwrap();
+        let games = catalog["games"].as_array().unwrap();
+        assert!(games.iter().any(|g| g["id"] == "bloodborne"
+            && g["collectionId"] == "bloodborne"
+            && g["status"] == "published"));
+        let mut checked = HashSet::new();
+        let mut total = 0;
+        for game in games {
+            for asset in assets(game) {
+                let url = asset["url"].as_str().unwrap();
+                if !checked.insert(url.to_string()) {
+                    continue;
+                }
+                let bytes = fetch(url, IMAGE_LIMIT, deadline, "image/webp").unwrap();
+                image(&bytes).unwrap();
+                assert_eq!(
+                    format!("{:x}", Sha256::digest(&bytes)),
+                    asset["sha256"].as_str().unwrap()
+                );
+                total += bytes.len();
+            }
+        }
+        println!("Anonymous production GET 200/schema v1: revision={}, games={}, unique WebP={}, verified bytes={}", catalog["revision"], games.len(), checked.len(), total);
+    }
+    #[test]
     fn shared_schema_rejects_unpublished_unknown_commands_and_bad_urls() {
         let v = parse(DEMO.as_bytes(), None).unwrap();
         for (field, value) in [
@@ -634,6 +694,23 @@ mod tests {
         snap.catalog = parse(DEMO.as_bytes(), None).unwrap();
         snap.synced_at = Some(1);
         commit(&mut c, &snap).unwrap();
+        // A later publication changes metadata without touching the installed identity.
+        snap.catalog["revision"] = json!("qa-next");
+        snap.catalog["games"][0]["title"] = json!("Bloodborne updated metadata");
+        commit(&mut c, &snap).unwrap();
+        assert_eq!(
+            load(&c).unwrap().catalog["games"][0]["title"],
+            "Bloodborne updated metadata"
+        );
+        // A failed fetch never commits; the validated cache remains available.
+        assert!(fetch(
+            "http://localhost/invalid",
+            JSON_LIMIT,
+            Instant::now() + Duration::from_secs(1),
+            "application/json"
+        )
+        .is_err());
+        assert_eq!(load(&c).unwrap().catalog["revision"], "qa-next");
         snap.catalog["games"] = json!([]);
         commit(&mut c, &snap).unwrap();
         drop(c);
@@ -641,7 +718,7 @@ mod tests {
         let loaded = load(&c).unwrap();
         assert_eq!(loaded.source, "cache");
         assert_eq!(loaded.catalog["games"], json!([]));
-        assert_eq!(loaded.known[0]["title"], "Bloodborne");
+        assert_eq!(loaded.known[0]["title"], "Bloodborne updated metadata");
         assert_eq!(
             c.query_row("SELECT value FROM installations", [], |r| r
                 .get::<_, String>(0))
