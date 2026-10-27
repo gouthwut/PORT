@@ -1,5 +1,13 @@
 # PORT// progress
 
+## 2026-10-27 — Stage 04B: confirmed update implementation / native checks in progress
+
+- Read requested current context and sources; starting worktree clean at Stage 04A. Primary 1.00 is never a write destination. Existing SQLite schema 3 and library retained. No upstream/runtime download or base-PKG re-extraction performed.
+- Fully read/hashes the actual update: SHA-256 pinned in worker contract, 432 game-facing files / 185382731 bytes, no empty files, 18 added paths. ORIGIN_DELTAINFO_DAT is present (21888-byte DLT record); it is excluded console bookkeeping, not replayed as a patch algorithm. Reverified the exact runtime's complete-file overlay recipe. Extracted patch alone to ignored QA output; unmodified runtime prepare/patches checks recognize every original 1.09 eboot group (3/3), eboot=93825704 bytes. No general delta/deletion support inferred.
+- Added narrow update command and library action. It validates identity/version/content, rejects unknown full-PKG hashes before copying, verifies source copy against the existing manifest, reuses worker/staging/recovery, clones an independent profile, read-verifies all new bytes, and atomically registers a second installation. Primary 1.00 registration/files/profile remain rollback; shared Play selects the highest version. Combined first-install base+update deferred to the reliable existing base-then-update sequence.
+- Controlled tests pass replacements/additions, unchanged original, corrupted readback, invalid Title/Content/version/role, cancellation, existing space/path and journal recovery boundaries. Real native tests pass malformed source, a 1-byte-damaged copy of the actual PKG (hash rejection before output), cancellation after actual copying starts, and process termination during actual copying followed by fresh-process owned-stage recovery. Before recovery SQLite had one installation/one job; afterwards only the original installation and no staging remain. Backups/logs/screenshots are ignored in `.local/evidence/04b`.
+- Final native installation/launch, stable-source final checks, commits/push and CI results follow below. Do not mark 1.09 installed from this interim entry. Browser checks remain mocked UI evidence; Rust/native checks are separate.
+
 ## 2026-10-27 — Stage 03: real base-PKG installation and main-menu launch
 
 - User explicitly authorized prepared-folder import, runtime extraction, SQLite library and launch, and clarified that the desired source is PKG alone. Initial tree clean at ebc92f4. Read all requested context first; existing artwork, multi-picker, downloader and laboratory retained.

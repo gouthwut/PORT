@@ -29,6 +29,7 @@ export function GameAction({
         "preparing",
         "hashing",
         "installing",
+        "updating",
       ].includes(state.operation!.phase));
   return (
     <div className="game-primary-action">
@@ -87,10 +88,10 @@ export function GameAction({
           </Button>
         </div>
       )}
-      {!item && state.operation?.phase === "error" && (
+      {state.operation?.phase === "error" && (
         <p className="muted small">
-          Установка не завершена. Откройте установщик для подробностей и
-          повторного выбора файлов.
+          Установка не завершена.{" "}
+          {state.operation.message || "Повторите выбор файлов."}
         </p>
       )}
     </div>

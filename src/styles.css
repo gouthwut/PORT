@@ -518,6 +518,7 @@ main > div {
 }
 .hero-actions {
   display: flex;
+  align-items: flex-start;
   gap: 10px;
   margin-top: 23px;
 }
@@ -2814,6 +2815,12 @@ footer small {
 }
 .game-install-progress progress {
   max-width: 140px;
+  accent-color: #b6a0f3;
+}
+.hero:has(.game-install-progress) {
+  height: auto;
+  min-height: 430px;
+  padding-bottom: 48px;
 }
 @media (max-width: 600px) {
   .installed-grid {

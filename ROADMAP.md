@@ -1,5 +1,9 @@
 # Roadmap
 
+## Stage 04B — narrow Bloodborne 1.09 update
+
+Authorized separately on 2026-10-27. Implement a confirmed package digest/metadata gate and a separate staged 1.09 installation retaining the working 1.00 and its profile. Reuse existing worker, manifest, journal, SQLite, process guard and UI state; verify real cancel/interruption/error paths and complete new bytes before registration. Actual exit evidence is recorded in PROGRESS.md. General deltas, update catalogs and combined initial base+update automation remain deferred.
+
 ## Stage 03 authorization and current override — 2026-10-27
 
 The user explicitly authorized real Bloodborne installation/library/launch and clarified PKG-only input as the desired path. Stage 02D is **no longer gated on arbitrary PKG decoding**: prepared-folder import is independent, and a narrow compatible fake-PKG base path now has its own bounded worker. Both actual package trees were read successfully. Core installer/runtime/SQLite/library/verification/removal/launch code is implemented; actual full-install/gameplay exit evidence is recorded in PROGRESS.md and must be checked before marking this stage complete. General retail/encrypted formats and update application remain unimplemented. NSIS, other games/themes and distribution are out of scope. The dated Stage 02 table below is historical.

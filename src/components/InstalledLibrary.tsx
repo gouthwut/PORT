@@ -20,6 +20,28 @@ export function InstalledLibrary({
   const [remove, setRemove] = useState<Installation | null>(null);
   const [message, setMessage] = useState("");
   const [report, setReport] = useState("");
+  const [picking, setPicking] = useState(false);
+  async function update(i: Installation) {
+    setPicking(true);
+    setMessage("");
+    try {
+      const { open } = await import("@tauri-apps/plugin-dialog");
+      const path = await open({
+        multiple: false,
+        directory: false,
+        title: "Выберите update PKG Bloodborne 1.09",
+        filters: [{ name: "PS4 PKG", extensions: ["pkg"] }],
+      });
+      if (typeof path === "string") {
+        await invoke("update_installation", { id: i.id, path });
+        await state.refresh();
+      }
+    } catch (e) {
+      setMessage(String(e));
+    } finally {
+      setPicking(false);
+    }
+  }
   useEffect(() => {
     if (selected) detailRef.current?.scrollIntoView({ block: "nearest" });
   }, [selected]);
@@ -76,6 +98,9 @@ export function InstalledLibrary({
             </div>
             <h2>{name(i)}</h2>
             <span className="muted small">
+              Версия {i.version || "не определена"}
+            </span>
+            <span className="muted small">
               <span className="status-dot" />
               {state.running.includes(i.id) ? "Уже запущена" : "Готова к игре"}
             </span>
@@ -100,6 +125,14 @@ export function InstalledLibrary({
           <div className="library-detail-body">
             <p className="eyebrow">ВАША КОЛЛЕКЦИЯ</p>
             <h2>{name(item)}</h2>
+            <p className="muted">Версия {item.version || "не определена"}</p>
+            {item.version === "01.00" && (
+              <p className="muted small">
+                Обновление создаёт отдельную 1.09 и копирует профиль. Эта 1.00 и
+                её сохранения остаются доступны. Нужно около 31 ГиБ свободного
+                места.
+              </p>
+            )}
             <div className="media-actions">
               <GameAction
                 state={state}
@@ -110,6 +143,26 @@ export function InstalledLibrary({
               <details className="game-management">
                 <summary>Управление игрой</summary>
                 <div className="management-actions">
+                  {item.version === "01.00" && (
+                    <Button
+                      variant="secondary"
+                      disabled={
+                        picking ||
+                        state.busy ||
+                        !!state.loadError ||
+                        !!state.operation?.active ||
+                        state.running.includes(item.id) ||
+                        state.items.some(
+                          (i) =>
+                            i.collectionId === item.collectionId &&
+                            i.version === "01.09",
+                        )
+                      }
+                      onClick={() => void update(item)}
+                    >
+                      {picking ? "Выбор PKG…" : "Установить обновление"}
+                    </Button>
+                  )}
                   <Button
                     variant="secondary"
                     disabled={
@@ -145,7 +198,7 @@ export function InstalledLibrary({
               </details>
             </div>
             {state.operation?.active &&
-              state.operation.phase === "verifying" && (
+              ["verifying", "updating"].includes(state.operation.phase) && (
                 <Button
                   variant="ghost"
                   onClick={() =>
@@ -154,9 +207,16 @@ export function InstalledLibrary({
                     )
                   }
                 >
-                  Отменить проверку
+                  {state.operation.phase === "updating"
+                    ? "Отменить обновление"
+                    : "Отменить проверку"}
                 </Button>
               )}
+            {state.operation?.message && (
+              <p role="status" className="muted small">
+                {state.operation.message}
+              </p>
+            )}
             <details className="technical-info">
               <summary>Техническая информация</summary>
               <dl>

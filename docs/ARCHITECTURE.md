@@ -1,5 +1,11 @@
 # Architecture
 
+## Stage 04B update contract
+
+`install_update.rs` adds `update_installation({id,path})`. It reuses `install.rs` operations, process detection, bounded scans/streams, cache validation, durable jobs, cleanup, final directory rename and additive SQLite registration. Schema stays 3. The existing 1.00 registration and files remain available; a successful update is a second installation with an independently copied profile. No shared hardlinks or saves are introduced. Home/details prefer the highest installed version; a library card launches its specific installation.
+
+Before output: actual installed SFO identity/version, package metadata and the confirmed full PKG digest must match. Source game paths/sizes must exactly match the old manifest, copied hashes must match that baseline, and disk space must cover the base, profile, runtime/update workspace and reserve. All writes are in a unique journalled stage. Only the exact confirmed cumulative package is extracted through the existing pinned worker. Its complete files replace/add staged files; no deletion or binary-delta engine is exposed. Every new game/runtime file and copied profile is read-verified before version 01.09 can be registered. Cancellation and crash cleanup preserve the old installation. A fully finalized job can be recovered into the library by existing recovery logic. General/other patches and combined initial base+update automation remain unsupported; use base installation followed by the update action. See worker README for format evidence/limits.
+
 ## Stage 03 current contracts
 
 Stage 03 supersedes the historical Stage 02 feature gates below. `src-tauri/src/install.rs` owns native installation and lifecycle; `pkg_worker.rs` supervises the narrow optional compiled worker. `FolderImport` and `InstalledLibrary` use real IPC; browser preview cannot install/launch and has no fabricated installed records.

@@ -26,7 +26,9 @@ export function useGameState() {
       invoke<string[]>("running_installations"),
       invoke<OperationStatus>("install_status"),
     ]);
-    setItems(records);
+    setItems(
+      records.sort((a, b) => (b.version || "").localeCompare(a.version || "")),
+    );
     setRunning(processes);
     setOperation(status);
     setReady(true);
