@@ -2,6 +2,37 @@
 
 Stage 02 is authorized. Artifact integration is separate from a working game installation. No gameplay has been verified by PORT.
 
+## Continuation verification and current gate — 2026-10-27
+
+Re-fetched both requested repositories into an external local lab. Heads are unchanged: mathisto `4f9426e7dde5f04c42fb7e063992f730e3c308c8`, OpenOrbis `92a4e7f8e5914cb06b52ba3ae6b0675da438a051`. No source or third-party binary is copied into PORT. Reverified the [README at the selected windows-v1.9.4 tag](https://github.com/Supermedo/bloodborne_pc/blob/windows-v1.9.4/README.md): own decrypted CUSA03173, 1.09 for community patches; other versions described at 30 FPS. This is an upstream claim, not a PORT gameplay test. The documented setup remains Bloodborne.exe → choose game folder → PLAY; no CLI is invented.
+
+### Actual local packages (read-only)
+
+| Component | Size              | CNT content flags | SFO                                   | PFS                              |
+| --------- | ----------------- | ----------------- | ------------------------------------- | -------------------------------- |
+| Base      | 31351111680 bytes | `0x0a000000`      | CUSA03173, CATEGORY gd, APP_VER 01.00 | mode `0x000d`, encrypted bit set |
+| Update    | 181338112 bytes   | `0x62100000`      | CUSA03173, CATEGORY gp, APP_VER 01.09 | mode `0x000d`, encrypted bit set |
+
+Both public metadata records contain the same Content ID, including the SFO/header comparison. This is **metadata agreement only**, not authentication, full payload integrity, key availability, retail/fake classification or installability. The update's flags include cumulative-patch bits as defined by [upstream ContentFlags](https://github.com/mathisto/pkgextract/blob/4f9426e7dde5f04c42fb7e063992f730e3c308c8/LibOrbisPkg/PKG/Enums.cs). They do not establish a correct merge algorithm for this payload: encrypted file contents have not been decoded. No overlay/delta application has been performed and installed version 1.09 is never reported.
+
+The native multi-picker selected both actual files at once; the app labelled gd/base and gp/update without filename/size heuristics. Native IPC separately tested reversed input order, base-only (update not mandatory), duplicate selection and malformed inputs. Rust fixtures cover foreign Content/Title IDs, conflicting updates, delta/unknown roles, invalid versions/type disagreement and damaged PFS headers. Source sizes, modification times and bounded-header SHA-256 were unchanged before/after native checks. This is not a full 29 GiB package hash. No package upload, source write, payload extraction, passcode probing, key recovery or decryption attempt occurred.
+
+### Replacement writer tested; full extractor not integrated
+
+`tools/extractor-lab/Boundary.cs` replaces the unsafe output design with strict virtual-root/path checks, Windows-name and collision rejection, per-file/total/count/depth/ratio quotas, free-space reserve, private owner-only staging ACL, ancestor reparse rejection, CreateNew/exact-length stream writes, cancellation, error cleanup and a no-overwrite atomic directory move. It does not reuse `File.OpenWrite`/unbounded SetLength. See [lab README](../tools/extractor-lab/README.md) for tested scope and limits.
+
+33 Windows boundary checks pass, including a real junction ancestor, mid-stream cancellation, simulated decoder error and successful retry. The optional bridge references the exact unmodified upstream project: its PfsBuilder generates tiny unencrypted fixtures, PfsReader decodes them, and the new writer produces matching bytes. Generated traversal, truncated structure, invalid magic, excessive inode count and encrypted-mode fixtures are rejected. These are synthetic PFS tests, not user-PKG extraction tests. Standalone writer tests run in CI; the optional upstream roundtrip was run locally.
+
+**Remaining critical gate:** the [PfsReader](https://github.com/mathisto/pkgextract/blob/4f9426e7dde5f04c42fb7e063992f730e3c308c8/LibOrbisPkg/PFS/PfsReader.cs) still allocates from header fields and recursively loads directories without a complete reviewed inode/block/count/depth/cycle boundary. The [PFSCReader](https://github.com/mathisto/pkgextract/blob/4f9426e7dde5f04c42fb7e063992f730e3c308c8/LibOrbisPkg/PFS/PFSCReader.cs) requires bounded sector-map/allocation/expansion validation. The small-fixture guard is not a general parser validator or process sandbox. Hostile same-user filesystem race confinement has not been established. Therefore a writer fix alone does not clear production integration. Both real user payloads also carry encrypted PFS; availability of supported lawful access has not been established, and PORT supplies no keys or DRM bypass.
+
+No real extraction, patch application, runtime extraction, install-target copy, installation SQLite record, library/Play, repair/remove or saves access has been added past this gate. Prepared decrypted folders remain the documented alternative data source for future integration; PORT's folder import is not implemented. Next step is bounded/cancellable decoder hardening and malicious structure coverage, then validation of an available supported decrypted source and patch semantics before completing installation/launch work.
+
+### Private embedded artwork
+
+The continuation request explicitly permits local build packaging when public rights are unknown. The supplied archive was inspected: six images, safe names, no links/streams; five distinct inputs selected for seven optimized WebP outputs (~0.9 MB). The included promotional Banner.png was not used because its baked logo duplicates the existing game title. See [LOCAL_ART.md](LOCAL_ART.md) for exact input dimensions/uses. Ignored local assets are embedded at build time, resolve beneath optional persisted overrides and work on cold offline startup in the actual executable. Four distinct screenshots retain keyboard navigation. No user import is required in this personal build. Public Git/CI have no restricted art; private evidence remains ignored. Public binary redistribution rights are still unconfirmed.
+
+The following sections retain the initial review; their original write-boundary finding is addressed only within the lab scope described above.
+
 ## Windows projects
 
 | Evidence                 | SuperMedo / bloodborne_pc                                                 | Awakenchan / LanternEngine                                                           |

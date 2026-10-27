@@ -1,5 +1,21 @@
 # Screenshot index
 
+## Stage 02 continuation — private local evidence, 2026-10-27
+
+The personal executable now embeds supplied Bloodborne artwork. Its redistribution rights are unconfirmed, so new art-containing screenshots are **not committed/uploaded**. Files are available locally under `C:\PORT\.local\evidence\` (ignored); the historical public evidence below is preserved unchanged.
+
+| Local filename                         | Evidence                                                                                                         |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 02-cont-native-home-offline.png        | Actual release WebView, cold reload with network disabled, default hero/cover without SQLite art overrides       |
+| 02-cont-native-details-offline.png     | Actual release WebView, default wide banner and page                                                             |
+| 02-cont-native-gallery-offline.png     | Actual release WebView, four provided images; arrow wrap/Escape/focus return                                     |
+| 02-cont-native-multiselect-dialog.png  | Computer Use screenshot including Windows chrome; two actual PKGs selected together in one standard multi-picker |
+| 02-cont-native-two-packages.png        | Actual window, recognized gd/base 01.00 and gp/update 01.09, encrypted PFS/unavailable extraction                |
+| 02-cont-native-packages.json           | Private read-only native IPC metadata assessment (no package bytes or keys)                                      |
+| 02-cont-home.png / other 02-cont-*.png | Chromium preview/regression evidence; distinguish from native files above                                        |
+
+`scripts/native-continuation.mjs` checks actual native SQLite save/reload then restores original settings/media, offline default artwork, gallery, invalid PKG, reverse-order real package assessment, base-only and duplicate rejection. Before/after source size/mtime/bounded-header SHA match; no full payload hash or extraction claim. Browser IPC mocks are explicitly labelled in `tests/continuation.spec.ts`. The native multi-select OS interaction was additionally performed through Computer Use; its accessibility-index action failed, a fresh screenshot/coordinate action succeeded, and both selected components appeared in the real app. No gameplay evidence exists.
+
 ## Stage 02 Bloodborne — 2026-10-27
 
 Current screenshots contain **no redistributed Bloodborne artwork**. Empty art slots indicate local import is required. `qa-fixture` images contain labelled synthetic test cards, never gameplay. Earlier screenshots below are preserved as Stage 01 history.
