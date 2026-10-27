@@ -7,6 +7,17 @@ import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 export const cn = (...inputs: Parameters<typeof clsx>) =>
   twMerge(clsx(...inputs));
+export function gameCount(count: number, installed = false) {
+  const form = new Intl.PluralRules("ru-RU").select(count);
+  const noun = form === "one" ? "игра" : form === "few" ? "игры" : "игр";
+  const adjective =
+    form === "one"
+      ? "установленная"
+      : form === "few"
+        ? "установленные"
+        : "установленных";
+  return `${count} ${installed ? `${adjective} ` : ""}${noun}`;
+}
 const buttonVariants = cva("button", {
   variants: {
     variant: {

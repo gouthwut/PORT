@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import interLicense from "./assets/fonts/Inter-OFL.txt?raw";
+import manropeLicense from "./assets/fonts/Manrope-OFL.txt?raw";
 import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import {
   ArrowDownToLine,
@@ -34,7 +36,7 @@ import {
   settingsService,
   type Settings,
 } from "./services/settings";
-import { Button, Modal, Switch } from "./components/ui";
+import { Button, Modal, Switch, gameCount } from "./components/ui";
 import { GameArt, Gallery, MediaEditor } from "./components/BloodborneMedia";
 import { InstallerPanel, DownloadPanel } from "./components/Installer";
 import { emptyMedia, mediaService, type MediaSet } from "./services/media";
@@ -337,6 +339,7 @@ export default function App() {
             {navigation.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
+                aria-label={label}
                 className={`nav-item ${page === id || (id === "catalog" && page === "details") ? "active" : ""}`}
                 onClick={() => navigate(id)}
                 aria-current={page === id ? "page" : undefined}
@@ -396,6 +399,7 @@ export default function App() {
             </div>
             <button
               className={`nav-item ${page === "settings" ? "active" : ""}`}
+              aria-label="Настройки"
               onClick={() => navigate("settings")}
               aria-current={page === "settings" ? "page" : undefined}
             >
@@ -458,7 +462,7 @@ export default function App() {
               <span className="status-dot" />
               {native ? "WINDOWS" : "WEB PREVIEW"}
               <span className="build-divider" />
-              STAGE 04D
+              PORT//
             </div>
           </header>
           {!online && (
@@ -606,21 +610,18 @@ export default function App() {
                       </div>
                       <div className="home-bottom">
                         <section className="new-ports">
-                          <SectionTitle title="Новые порты" />
+                          <SectionTitle title="Ваша коллекция — ваши файлы" />
                           <div className="new-ports-content">
                             <span className="outline-icon">
                               <Package size={25} strokeWidth={1.4} />
                             </span>
                             <div>
-                              <h3>Большие открытия впереди</h3>
+                              <h3>Всё остаётся на компьютере</h3>
                               <p>
-                                Каталог начинается с Bloodborne.
-                                <br />
-                                Новые порты появятся после проверки
-                                совместимости.
+                                PORT устанавливает совместимые файлы игры,
+                                которые уже есть у вас.
                               </p>
                             </div>
-                            <Badge>СКОРО</Badge>
                           </div>
                         </section>
                         <section className="manifesto">
@@ -656,7 +657,7 @@ export default function App() {
                           </h1>
                         </div>
                         <span className="quiet-label">
-                          {catalog.snapshot.catalog.games.length} игр
+                          {gameCount(catalog.snapshot.catalog.games.length)}
                         </span>
                       </div>
                       <div className="filter-bar">
@@ -764,8 +765,9 @@ export default function App() {
                             <Badge>Sony Computer Entertainment</Badge>
                             <Badge>Оригинал: PlayStation 4 · 2015</Badge>
                           </div>
-                          <section className="game-features">
-                            <h2>Искусство охоты</h2>
+                          <Gallery images={media.gallery} />
+                          <details className="game-features technical-info">
+                            <summary>Искусство охоты</summary>
                             <h3>Рискните, чтобы выжить</h3>
                             <p className="body-copy">
                               Стремительные бои, огнестрельное парирование и
@@ -784,8 +786,7 @@ export default function App() {
                               Срезы пути, потайные встречи и подземелья Чаш
                               углубляют каждое возвращение.
                             </p>
-                          </section>
-                          <Gallery images={media.gallery} />
+                          </details>
                           <details className="media-customization">
                             <summary>Заменить оформление на своё</summary>
                             <MediaEditor
@@ -793,14 +794,18 @@ export default function App() {
                               onSave={saveMedia}
                             />
                           </details>
-                          <SectionTitle title="Bloodborne на Windows" />
-                          <p className="body-copy">
-                            Выбран SuperMedo / bloodborne_pc, windows-v1.9.4.
-                            Неофициальный проект на основе bbport и shadPS4:
-                            x86-64 код игры выполняется на CPU, графика
-                            переводится в Vulkan. PORT не представляет это как
-                            официальный нативный PC-релиз.
-                          </p>
+                          <details className="technical-info runtime-info">
+                            <summary>
+                              Как Bloodborne работает на Windows
+                            </summary>
+                            <p className="body-copy">
+                              Выбран SuperMedo / bloodborne_pc, windows-v1.9.4.
+                              Неофициальный проект на основе bbport и shadPS4:
+                              x86-64 код игры выполняется на CPU, графика
+                              переводится в Vulkan. PORT не представляет это как
+                              официальный нативный PC-релиз.
+                            </p>
+                          </details>
                           <SectionTitle title="Системные требования" />
                           <p className="muted small">
                             По README SuperMedo · проверено 27 октября 2026 · не
@@ -864,8 +869,8 @@ export default function App() {
                             {games.items.some(
                               (i) => i.collectionId === collection.id,
                             )
-                              ? "Всё готово к следующей охоте."
-                              : "Подготовьте свои игровые файлы. PORT покажет доступные действия и ограничения."}
+                              ? "Игра готова к запуску."
+                              : "Выберите свои файлы игры. PORT проверит совместимость перед установкой."}
                           </p>
                           <GameAction
                             state={games}
@@ -966,7 +971,6 @@ export default function App() {
                           {saving ? "Сохранение…" : "Локальное сохранение"}
                         </span>
                       </div>
-                      <CatalogSettings state={catalog} />
                       <div className="settings-layout">
                         <div>
                           <SettingsSection
@@ -1028,7 +1032,7 @@ export default function App() {
                             <div className="setting-row folder-setting">
                               <div>
                                 <h3>Папка установки</h3>
-                                <p>Будет использоваться будущим установщиком</p>
+                                <p>По умолчанию для новых установок</p>
                               </div>
                               <Button
                                 variant="secondary"
@@ -1066,7 +1070,7 @@ export default function App() {
                             title="Локальные данные"
                             description={
                               native
-                                ? "Настройки хранятся в SQLite на этом компьютере."
+                                ? "Настройки хранятся на этом компьютере."
                                 : "Режим браузера: настройки хранятся в localStorage."
                             }
                           >
@@ -1084,6 +1088,7 @@ export default function App() {
                               </Button>
                             </div>
                           </SettingsSection>
+                          <CatalogSettings state={catalog} />
                         </div>
                         <aside className="about-panel">
                           <div className="brand">
@@ -1101,11 +1106,11 @@ export default function App() {
                           </p>
                           <div className="panel-rule" />
                           <p className="small">
-                            Stage 03 · Bloodborne
+                            Bloodborne на Windows
                             <br />
-                            Доступны собственная папка и совместимые основные
-                            PKG. Патч 1.09 не применяется автоматически;
-                            загрузка игры проверяется отдельно.
+                            Неофициальный проект на основе bbport / shadPS4.
+                            Нужны собственные игровые файлы. Совместимость
+                            зависит от оборудования и версии игры.
                           </p>
                           <button
                             className="text-link"
@@ -1130,7 +1135,7 @@ export default function App() {
                       PORT// <span>Миры становятся ближе.</span>
                     </span>
                     <span>
-                      Независимый проект<small>·</small>Stage 04D / Library
+                      Независимый проект<small>·</small>Windows
                     </span>
                   </footer>
                 </motion.div>
@@ -1156,7 +1161,7 @@ export default function App() {
           open={about}
           onOpenChange={setAbout}
           title="Миры становятся ближе."
-          description="PORT// — независимый Windows-лаунчер. Версия 0.1.0, Stage 04D."
+          description="PORT// — независимый Windows-лаунчер. Версия 0.1.0."
         >
           <div className="about-dialog-content">
             <Compass size={46} strokeWidth={1} />
@@ -1173,6 +1178,17 @@ export default function App() {
               <Github size={17} />
               Открыть проект SuperMedo
             </Button>
+            <details className="technical-info font-notices">
+              <summary>Шрифты и лицензии</summary>
+              <p>
+                Manrope · The Manrope Project Authors. Inter · The Inter Project
+                Authors. SIL Open Font License 1.1.
+              </p>
+              <h3>Manrope</h3>
+              <pre>{manropeLicense}</pre>
+              <h3>Inter</h3>
+              <pre>{interLicense}</pre>
+            </details>
           </div>
         </Modal>
         <Modal

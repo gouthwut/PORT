@@ -25,24 +25,27 @@ export function CatalogStatus({ state }: { state: CatalogState }) {
       <div>
         <strong>
           {s.source === "demo"
-            ? "Локальные тестовые данные · CMS ещё не подключена"
+            ? "Локальные тестовые данные"
             : s.source === "empty"
               ? "Каталог ещё не загружен"
               : s.source === "cache"
-                ? "Последний валидный каталог · локальный кэш"
+                ? "Каталог сохранён на компьютере"
                 : "Каталог обновлён"}
         </strong>
         <p className="muted small">
           {s.syncedAt
             ? `Синхронизация: ${new Date(s.syncedAt * 1000).toLocaleString("ru-RU")}`
-            : "Настройте HTTPS API в настройках. Библиотека доступна независимо от каталога."}
+            : "Библиотека доступна и без сети."}
           {!native && " · WEB PREVIEW: кэш в localStorage"}
         </p>
         {state.error && (
-          <p role="alert">
-            Не удалось обновить каталог. Последние данные сохранены.{" "}
-            {state.error}
-          </p>
+          <div role="alert" className="catalog-error">
+            Не удалось обновить каталог. Последние данные сохранены.
+            <details>
+              <summary>Подробности ошибки</summary>
+              <p>{state.error}</p>
+            </details>
+          </div>
         )}
         {s.warning && <p role="status">{s.warning}</p>}
       </div>
@@ -64,11 +67,11 @@ export function CatalogSettings({ state }: { state: CatalogState }) {
     [state.snapshot.endpoint],
   );
   return (
-    <section className="settings-section catalog-settings">
-      <h2>Онлайн-каталог</h2>
+    <details className="settings-section catalog-settings">
+      <summary>Для разработчиков · онлайн-каталог</summary>
       <p className="muted">
-        Публичный HTTPS endpoint опубликованных карточек будущей CMS. Пустое
-        поле включает локальные тестовые данные.
+        Адрес опубликованного каталога. Без адреса используются локальные
+        тестовые данные; сервер каталога ещё не подключён.
       </p>
       <form
         onSubmit={(e) => {
@@ -90,7 +93,7 @@ export function CatalogSettings({ state }: { state: CatalogState }) {
         </Button>
       </form>
       <CatalogStatus state={state} />
-    </section>
+    </details>
   );
 }
 export function PublishedAction({

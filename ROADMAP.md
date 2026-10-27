@@ -1,5 +1,9 @@
 # Roadmap
 
+## Stage 04E — Dark Violet Liquid Glass UI/UX
+
+Authorized 2026-10-27. Visual layer, typography, player-facing copy and existing screen composition only. Inspect local references and Figma, create a coherent editable direction, implement in React/CSS, preserve navigation and all Stage 04A–04D handlers. No Rust/schema/library/runtime/PKG/update/path/shortcut changes, no CMS or new games. Exit evidence: before/after screenshots, keyboard/reduced-motion/responsive review, existing regression suite, native release startup, exact Bloodborne 01.09 preservation, commits/push and Windows CI. Actual outcomes and limits are recorded in PROGRESS.md.
+
 ## Stage 04D — installation experience and library management
 
 Authorized 2026-10-27. Retain PKG selection/validation and installation/recovery; add destination preflight and native folder picker, explicit shortcut opt-in after successful commit, safe ID-based cold/warm launcher entry, and accessible installed-card context menus including Explorer. Keep schema 4 and the existing Bloodborne 1.09 registration/files/profile exact. Use temporary fixtures for new actions; release startup and preservation checks are required. No CMS, new adapter, move-game feature, PKG algorithm change or production catalog endpoint. See PROGRESS.md for actual exit evidence.

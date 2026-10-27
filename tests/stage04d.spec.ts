@@ -300,3 +300,55 @@ test("shortcut request resolves existing ID and rejects absent installation (moc
     ),
   ).toBe(1);
 });
+
+test("04E card Play reuses the guarded ID action and glass stays outside card grids (mocked IPC)", async ({
+  page,
+}) => {
+  await fixture(page, true);
+  await page.setViewportSize({ width: 800, height: 600 });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Библиотека", exact: true }).click();
+  const play = page.getByRole("button", {
+    name: "Играть в Bloodborne",
+    exact: true,
+  });
+  await expect(play).toBeEnabled();
+  await expect(page.locator(".installed-tile")).toHaveCSS(
+    "backdrop-filter",
+    "none",
+  );
+  await expect
+    .poll(() =>
+      page.locator("main").evaluate((e) => e.scrollWidth <= e.clientWidth),
+    )
+    .toBeTruthy();
+  await page
+    .getByRole("button", { name: "Выбрать: Bloodborne", exact: true })
+    .focus();
+  await page.keyboard.press("Tab");
+  await expect(play).toBeFocused();
+  await expect(play).toHaveCSS("outline-style", "solid");
+  await page.screenshot({
+    path: ".local/evidence/04e/browser-library-800-mocked.png",
+  });
+  await page.keyboard.press("Enter");
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (window as any).qaCalls.filter(
+            (c: any) => c.command === "launch_installation",
+          ).length,
+      ),
+    )
+    .toBe(1);
+  expect(
+    await page.evaluate(() =>
+      (window as any).qaCalls.filter((c: any) =>
+        /install_packages|import_game_folder|update_installation|remove_installation|save_settings/.test(
+          c.command,
+        ),
+      ),
+    ),
+  ).toEqual([]);
+});

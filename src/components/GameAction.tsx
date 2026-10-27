@@ -1,17 +1,22 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { GameState } from "../services/game-state";
 import { Button } from "./ui";
+import { Play, Download } from "lucide-react";
 
 export function GameAction({
   state,
   collectionId,
   installationId,
   onInstall,
+  ariaLabel,
+  compact = false,
 }: {
   state: GameState;
   collectionId: string;
   installationId?: string;
   onInstall: () => void;
+  ariaLabel?: string;
+  compact?: boolean;
 }) {
   const item = state.items.find((i) =>
     installationId ? i.id === installationId : i.collectionId === collectionId,
@@ -35,6 +40,7 @@ export function GameAction({
   return (
     <div className="game-primary-action">
       <Button
+        aria-label={ariaLabel}
         disabled={
           !state.ready ||
           !!state.loadError ||
@@ -46,6 +52,11 @@ export function GameAction({
           item ? void state.action("launch_installation", item) : onInstall()
         }
       >
+        {item ? (
+          <Play size={16} aria-hidden="true" />
+        ) : (
+          <Download size={16} aria-hidden="true" />
+        )}
         {!state.ready
           ? "Загрузка…"
           : running
@@ -61,7 +72,7 @@ export function GameAction({
                   ? "Играть"
                   : "Установить"}
       </Button>
-      {installing && (
+      {installing && !compact && (
         <div className="game-install-progress">
           <progress
             aria-label="Прогресс установки"
@@ -96,7 +107,7 @@ export function GameAction({
           </Button>
         </div>
       )}
-      {state.operation?.phase === "error" && (
+      {!compact && state.operation?.phase === "error" && (
         <p className="muted small">
           Установка не завершена.{" "}
           {state.operation.message || "Повторите выбор файлов."}

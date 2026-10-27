@@ -92,15 +92,29 @@ export function InstallerPanel({
         <div>
           <span className="eyebrow">ВАША СЛЕДУЮЩАЯ ИСТОРИЯ</span>
           <h2>Bloodborne</h2>
-          <p>Игровые файлы → Папка → Установка</p>
+          <p>Свои файлы. Новая история.</p>
         </div>
       </div>
-      <h3>01 · Выбрать PKG → Проверка</h3>
+      <ol className="install-flow" aria-label="Порядок установки">
+        <li className={result?.metadataCompatible ? "complete" : "current"}>
+          <span>01</span>PKG
+        </li>
+        <li className={result?.metadataCompatible ? "current" : ""}>
+          <span>02</span>Папка
+        </li>
+        <li>
+          <span>03</span>Ярлык
+        </li>
+        <li>
+          <span>04</span>Установка
+        </li>
+      </ol>
+      <h3>01 · Выбор игровых файлов</h3>
       <p className="muted small">
-        Только чтение заголовка и доступного PARAM.SFO. Выберите основную игру
-        и, при наличии, обновление в одном окне через Ctrl / Shift, в любом
-        порядке. PORT определит компоненты по метаданным. Исходные файлы не
-        изменяются и не отправляются на серверы.
+        Выберите основной PKG. Если есть обновление, его можно выбрать вместе с
+        игрой через Ctrl / Shift для проверки. Исходные файлы не изменяются и не
+        отправляются в сеть. Обновление устанавливается отдельно, после основной
+        игры.
       </p>
       <Button disabled={!native || busy} onClick={() => void choose()}>
         {busy ? "Ожидание выбора / проверка…" : "Выбрать PKG"}
@@ -178,6 +192,7 @@ export function InstallerPanel({
       <details className="dialog-note">
         <summary>Совместимость и ограничения PKG</summary>
         <p>
+          Только чтение заголовка и доступного PARAM.SFO при выборе пакетов.
           Флаг PFS сам по себе не определяет доступность содержимого. В сборке с
           проверенным PKG worker доступно извлечение совместимого основного
           fake/debug PKG. Другие механизмы и произвольные зашифрованные PKG не
@@ -256,9 +271,10 @@ export function DownloadPanel() {
       className="installer-section runtime-download"
       aria-label="Загрузка компонентов"
     >
+      <h3>Компоненты для Bloodborne</h3>
       <p className="muted small">
-        SuperMedo · windows-v1.9.4 · 180.5 МБ · официальный GitHub Releases.
-        SHA-256 закреплён в PORT. Оригинальные игровые данные не загружаются.
+        SuperMedo · windows-v1.9.4 · 180.5 МБ. Игровые данные в загрузку не
+        входят.
       </p>
       {status && (
         <>
@@ -274,7 +290,12 @@ export function DownloadPanel() {
             {mb(status.completed)} / {mb(status.total)} МБ · {mb(status.speed)}{" "}
             МБ/с
           </p>
-          {status.path && <p className="inspection">{status.path}</p>}
+          {status.path && (
+            <details className="technical-info">
+              <summary>Расположение архива</summary>
+              <p className="inspection">{status.path}</p>
+            </details>
+          )}
         </>
       )}
       <div className="media-actions">
@@ -307,12 +328,17 @@ export function DownloadPanel() {
           Отменить загрузку
         </Button>
       </div>
-      <p className="muted small">
-        Возобновление через HTTP Range; если сервер его не поддерживает,
-        скачивание начнётся заново. Пауза и отмена применяются после текущего
-        чтения (сетевой таймаут до 120 с). Ошибка сети сохраняет частичный файл
-        для повтора. Готовый архив не распаковывается и не запускается.
-      </p>
+      <details className="technical-info">
+        <summary>Источник и подробности загрузки</summary>
+        <p className="muted small">
+          Архив из официального GitHub Releases проекта SuperMedo; SHA-256
+          закреплён в PORT. Возобновление через HTTP Range; если сервер его не
+          поддерживает, скачивание начнётся заново. Пауза и отмена применяются
+          после текущего чтения (сетевой таймаут до 120 с). Ошибка сети
+          сохраняет частичный файл для повтора. Готовый архив не распаковывается
+          и не запускается.
+        </p>
+      </details>
       {!native && (
         <p className="muted small">
           WEB PREVIEW · реальные загрузки доступны только в Windows-приложении.

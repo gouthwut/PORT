@@ -68,6 +68,9 @@ test("published cards sync, image cache survives offline restart, refresh and in
       });
   });
   await page.getByRole("button", { name: "Настройки", exact: true }).click();
+  await page
+    .getByText("Для разработчиков · онлайн-каталог", { exact: true })
+    .click();
   await page.getByLabel("HTTPS API каталога").fill(endpoint);
   await page
     .getByRole("button", { name: "Сохранить и синхронизировать" })
@@ -122,7 +125,9 @@ test("published cards sync, image cache survives offline restart, refresh and in
     /^data:image\/webp;base64,/,
   );
   expect(imageRequests).toBe(1);
-  await expect(page.getByText(/Последний валидный каталог/)).toBeVisible();
+  await expect(
+    page.getByText("Каталог сохранён на компьютере", { exact: true }),
+  ).toBeVisible();
   unavailable = false;
   await expect(
     page.getByRole("button", { name: "Обновить каталог" }),
@@ -398,6 +403,9 @@ test("shared schema, URL policy, unsupported adapter and endpoint configuration 
     duplicate: true,
   });
   await page.getByRole("button", { name: "Настройки", exact: true }).click();
+  await page
+    .getByText("Для разработчиков · онлайн-каталог", { exact: true })
+    .click();
   await page.getByLabel("HTTPS API каталога").fill("http://localhost/api");
   await page
     .getByRole("button", { name: "Сохранить и синхронизировать" })
@@ -409,7 +417,9 @@ test("shared schema, URL policy, unsupported adapter and endpoint configuration 
     await page.evaluate(() => localStorage.getItem("port.catalog.endpoint.v1")),
   ).toBeNull();
   await page.setViewportSize({ width: 480, height: 850 });
-  expect(
-    await page.locator("main").evaluate((e) => e.scrollWidth <= e.clientWidth),
-  ).toBeTruthy();
+  await expect
+    .poll(() =>
+      page.locator("main").evaluate((e) => e.scrollWidth <= e.clientWidth),
+    )
+    .toBeTruthy();
 });

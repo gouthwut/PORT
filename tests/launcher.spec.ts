@@ -137,7 +137,7 @@ test("offline, keyboard, light theme and responsive layouts", async ({
   await page.getByRole("combobox").selectOption("system");
   await expect(page.locator(".app-shell")).toHaveCSS(
     "background-color",
-    "rgb(245, 244, 248)",
+    "rgb(245, 242, 250)",
   );
   await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
   await page.screenshot({

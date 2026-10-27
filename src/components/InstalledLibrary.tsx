@@ -4,7 +4,7 @@ import { collection, type Installation } from "../domain";
 import type { GameState } from "../services/game-state";
 import { GameArt } from "./BloodborneMedia";
 import { GameAction } from "./GameAction";
-import { Button, Modal } from "./ui";
+import { Button, Modal, gameCount } from "./ui";
 import * as ContextMenu from "@radix-ui/react-context-menu";
 import { Play, FolderOpen, ShieldCheck, Trash2 } from "lucide-react";
 
@@ -80,7 +80,7 @@ export function InstalledLibrary({
   }
   return (
     <>
-      <p className="quiet-label">{state.items.length} установленных игр</p>
+      <p className="quiet-label">{gameCount(state.items.length, true)}</p>
       {!state.ready && <p role="status">Загрузка библиотеки…</p>}
       {message && (
         <p role="status" className="inspection">
@@ -96,100 +96,117 @@ export function InstalledLibrary({
       )}
       <div className="installed-grid">
         {state.items.map((i) => (
-          <ContextMenu.Root key={i.id}>
-            <ContextMenu.Trigger asChild>
-              <button
-                className={`installed-card ${selected === i.id ? "selected" : ""}`}
-                aria-label={`Выбрать: ${name(i)}`}
-                aria-pressed={selected === i.id}
-                onClick={() => {
-                  setSelected(i.id);
-                  setMessage("");
-                }}
-              >
-                <div className="installed-cover">
-                  <GameArt
-                    src={media[i.collectionId]?.cover}
-                    label={`Обложка ${name(i)}`}
-                  />
-                </div>
-                <h2>{name(i)}</h2>
-                <span className="muted small">
-                  Версия {i.version || "не определена"}
-                </span>
-                <span className="muted small">
-                  <span className="status-dot" />
-                  {state.running.includes(i.id)
-                    ? "Уже запущена"
-                    : "Готова к игре"}
-                </span>
-              </button>
-            </ContextMenu.Trigger>
-            <ContextMenu.Portal>
-              <ContextMenu.Content
-                className="library-context-menu"
-                aria-label={`Управление: ${name(i)}`}
-                collisionPadding={12}
-              >
-                <ContextMenu.Label className="context-label">
-                  {name(i)}
-                </ContextMenu.Label>
-                <ContextMenu.Item
-                  className="context-item"
-                  disabled={
-                    state.busy ||
-                    !!state.loadError ||
-                    !!state.operation?.active ||
-                    state.running.includes(i.id)
-                  }
-                  onSelect={() => void action("launch_installation", i)}
-                >
-                  <Play size={16} />
-                  Играть
-                </ContextMenu.Item>
-                <ContextMenu.Item
-                  className="context-item"
-                  disabled={
-                    state.busy || !!state.loadError || !!state.operation?.active
-                  }
-                  onSelect={() => void action("open_installation_folder", i)}
-                >
-                  <FolderOpen size={16} />
-                  Просмотреть локальные файлы
-                </ContextMenu.Item>
-                <ContextMenu.Item
-                  className="context-item"
-                  disabled={
-                    state.busy ||
-                    !!state.loadError ||
-                    !!state.operation?.active ||
-                    state.running.includes(i.id)
-                  }
-                  onSelect={() => {
+          <div
+            key={i.id}
+            className={`installed-tile ${selected === i.id ? "selected" : ""}`}
+          >
+            <ContextMenu.Root>
+              <ContextMenu.Trigger asChild>
+                <button
+                  className={`installed-card ${selected === i.id ? "selected" : ""}`}
+                  aria-label={`Выбрать: ${name(i)}`}
+                  aria-pressed={selected === i.id}
+                  onClick={() => {
                     setSelected(i.id);
-                    void action("verify_installation", i);
+                    setMessage("");
                   }}
                 >
-                  <ShieldCheck size={16} />
-                  Проверить целостность
-                </ContextMenu.Item>
-                <ContextMenu.Separator className="context-separator" />
-                <ContextMenu.Item
-                  className="context-item destructive"
-                  disabled={
-                    state.busy ||
-                    !!state.loadError ||
-                    !!state.operation?.active ||
-                    state.running.includes(i.id)
-                  }
-                  onSelect={() => setRemove(i)}
+                  <div className="installed-cover">
+                    <GameArt
+                      src={media[i.collectionId]?.cover}
+                      label={`Обложка ${name(i)}`}
+                    />
+                  </div>
+                  <h2>{name(i)}</h2>
+                  <span className="muted small">
+                    Версия {i.version || "не определена"}
+                  </span>
+                  <span className="muted small">
+                    <span className="status-dot" />
+                    {state.running.includes(i.id)
+                      ? "Уже запущена"
+                      : "Готова к игре"}
+                  </span>
+                </button>
+              </ContextMenu.Trigger>
+              <ContextMenu.Portal>
+                <ContextMenu.Content
+                  className="library-context-menu"
+                  aria-label={`Управление: ${name(i)}`}
+                  collisionPadding={12}
                 >
-                  <Trash2 size={16} />
-                  Удалить игру
-                </ContextMenu.Item>
-              </ContextMenu.Content>
-            </ContextMenu.Portal>
-          </ContextMenu.Root>
+                  <ContextMenu.Label className="context-label">
+                    {name(i)}
+                  </ContextMenu.Label>
+                  <ContextMenu.Item
+                    className="context-item"
+                    disabled={
+                      state.busy ||
+                      !!state.loadError ||
+                      !!state.operation?.active ||
+                      state.running.includes(i.id)
+                    }
+                    onSelect={() => void action("launch_installation", i)}
+                  >
+                    <Play size={16} />
+                    Играть
+                  </ContextMenu.Item>
+                  <ContextMenu.Item
+                    className="context-item"
+                    disabled={
+                      state.busy ||
+                      !!state.loadError ||
+                      !!state.operation?.active
+                    }
+                    onSelect={() => void action("open_installation_folder", i)}
+                  >
+                    <FolderOpen size={16} />
+                    Просмотреть локальные файлы
+                  </ContextMenu.Item>
+                  <ContextMenu.Item
+                    className="context-item"
+                    disabled={
+                      state.busy ||
+                      !!state.loadError ||
+                      !!state.operation?.active ||
+                      state.running.includes(i.id)
+                    }
+                    onSelect={() => {
+                      setSelected(i.id);
+                      void action("verify_installation", i);
+                    }}
+                  >
+                    <ShieldCheck size={16} />
+                    Проверить целостность
+                  </ContextMenu.Item>
+                  <ContextMenu.Separator className="context-separator" />
+                  <ContextMenu.Item
+                    className="context-item destructive"
+                    disabled={
+                      state.busy ||
+                      !!state.loadError ||
+                      !!state.operation?.active ||
+                      state.running.includes(i.id)
+                    }
+                    onSelect={() => setRemove(i)}
+                  >
+                    <Trash2 size={16} />
+                    Удалить игру
+                  </ContextMenu.Item>
+                </ContextMenu.Content>
+              </ContextMenu.Portal>
+            </ContextMenu.Root>
+            <div className="installed-card-action">
+              <GameAction
+                compact
+                state={state}
+                collectionId={i.collectionId}
+                installationId={i.id}
+                onInstall={onCatalog}
+                ariaLabel={`Играть в ${name(i)}`}
+              />
+            </div>
+          </div>
         ))}
       </div>
       {item && (

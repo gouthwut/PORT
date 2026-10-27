@@ -1,6 +1,24 @@
 # PORT visual design
 
-[Figma foundation board](https://www.figma.com/design/UcQWJ0RjgsgaW9O5YgJjbC). Editable palette and typography direction; full application screens are implemented directly in React. Figma board uses Inter as a concept font; shipped Windows UI uses locally installed Segoe UI Variable/Segoe UI. No font downloads.
+## Stage 04E — Dark Violet Liquid Glass
+
+[Editable Figma direction](https://www.figma.com/design/UcQWJ0RjgsgaW9O5YgJjbC?node-id=4-2): a separate 04E page preserves the original foundation. It contains semantic color/spacing/radius variables with CSS syntax, five shared text styles, a glass effect style, seven reusable visual primitives and seven editable screen/state compositions. These are schematic direction frames with explicitly labelled art slots, not pixel-perfect application screenshots. No private game art was uploaded. Local concepts in ignored `.local/design_refs/PORT-Visual-References/` were inspected for material, depth and composition only; none became application assets.
+
+The existing navigation and layout remain in `styles.css`; `theme.css` is the shared visual layer. Canvas #0B0911, secondary #120E1D, panel #221A33, accent #8F55F5, focus #A782FF, near-white text #F4F0FA and lavender secondary #AEA5BE are local CSS tokens. Primary gradients use slightly darker violet stops so white button labels retain at least 4.79:1 contrast at the lightest stop. Translucent fills, fine borders, static edge reflections, inset highlights and soft shadows establish depth. Backdrop blur is bounded to the sidebar and transient dialog/menu/toast surfaces; cover grids, settings rows and long lists have no blur. No continuous ambient animation or new effects setting was added.
+
+Manrope variable is used for display/game names/headings; Inter variable for the interface. Both are bundled offline, include Cyrillic and Latin, and retain their OFL 1.1 notices. Exact source URLs and SHA-256 hashes are in `src/assets/fonts/README.md`. The About dialog embeds the full notices in the executable. No runtime font fetching or unknown font distributor is used.
+
+Home and catalog emphasize art, Library gives each real installation a direct Play action using the existing shared guards, and selected-game management remains available. Detail pages bring the gallery forward and fold extended gameplay/runtime explanations into disclosures; requirements and actual compatibility limits remain accessible. The installer uses one continuous numbered PKG → folder → optional shortcut → confirmation/progress form, with unchanged Stage 04D handlers. Progress always comes from the existing operation data. Windows component paths, download mechanics and raw catalog errors live in disclosures. The default catalog is still visibly labelled **local test data**; endpoint configuration is under “Для разработчиков · онлайн-каталог”, after player settings. No CMS exists or is implied.
+
+The native minimum remains 800×600. Short windows reduce sidebar spacing so Settings and the local profile remain reachable; narrow preview layouts retain explicit accessible navigation names. Keyboard focus, Radix modal/menu semantics, system light theme, saved compact layout and reduced motion remain supported. Reduced motion also covers body-level portals. No changes to Rust, schema 4, installation/profile data, runtime, PKG/update algorithms, paths or shortcut handling.
+
+Private before/after screenshots and QA are in ignored `.local/evidence/04e/`; browser/mocked and native evidence are labelled separately. See PROGRESS.md for actual checks and remaining limits; screenshots alone are not installation/gameplay evidence.
+
+## Historical Stage 01 foundation
+
+The following sections record the earlier design and implementation stages. Stage 04E above supersedes their palette, font and presentation choices.
+
+[Original Figma foundation](https://www.figma.com/design/UcQWJ0RjgsgaW9O5YgJjbC?node-id=1-2) used Inter as a concept font and shipped Segoe UI Variable/Segoe UI.
 
 Palette: canvas #101116, surfaces #191A21, cards #20212A, text #F5F5F7, secondary #A0A0AA, accent #A78BFA. Restrained lavender focus and actions. UI theme follows Windows only when selected. Branding, curved 12–16px surfaces and editorial typography establish PORT's identity without copying another launcher.
 
