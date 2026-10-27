@@ -1,4 +1,6 @@
 //! Local installation lifecycle and durable staging; narrow updates live in install_inplace.rs.
+#[path = "install_experience.rs"]
+pub mod experience;
 #[cfg(test)]
 #[path = "install_tests.rs"]
 mod tests;
@@ -640,13 +642,15 @@ fn install_job(
     source: Option<String>,
     packages: Vec<String>,
     parent: String,
+    destination_id: Option<String>,
+    desktop_shortcut: bool,
     s: &Arc<Mutex<Status>>,
 ) -> Result<()> {
     let parent = PathBuf::from(parent);
-    safe(&parent)?;
-    if !parent.is_dir() {
-        return Err("Папка назначения должна существовать".into());
-    }
+    let id = destination_id.map(Ok).unwrap_or_else(experience::new_id)?;
+    let root = with_db(app, |db| {
+        experience::destination(&parent, &id, &records(db)?)
+    })?;
     let cache = app.path().app_cache_dir().map_err(err)?;
     phase(
         s,
@@ -691,15 +695,6 @@ fn install_job(
         status.total = 0;
     }
     let mut zip = cache_zip(&cache, s)?;
-    let id = format!(
-        "{}-{}",
-        SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map_err(err)?
-            .as_nanos(),
-        std::process::id()
-    );
-    let root = parent.join(format!("PORT-Bloodborne-{id}"));
     let stage = parent.join(format!(".port-stage-{id}"));
     // Durable intent before any output; recovery handles both sides of the final rename.
     with_db(app, |db| {
@@ -865,6 +860,17 @@ fn install_job(
                 record.runtime_path
             )
         };
+        if has_game && desktop_shortcut {
+            status.phase = "finishing".into();
+            drop(status);
+            let shortcut_result = crate::shortcuts::create(app, &id);
+            status = s.lock().map_err(err)?;
+            status.phase = "ready".into();
+            match shortcut_result {
+                Ok(()) => status.message.push_str(" Ярлык создан на рабочем столе."),
+                Err(_) => status.message.push_str(" Игра установлена, но ярлык создать не удалось. Запускайте её из библиотеки PORT."),
+            }
+        }
         status.active = false;
         Ok(())
     })();
@@ -994,6 +1000,8 @@ fn start(
     source: Option<String>,
     packages: Vec<String>,
     parent: String,
+    destination_id: Option<String>,
+    desktop_shortcut: bool,
 ) -> Result<()> {
     let mut s = state.status.lock().map_err(err)?;
     if s.active {
@@ -1007,7 +1015,15 @@ fn start(
     drop(s);
     let status = state.status.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        if let Err(e) = install_job(&app, source, packages, parent, &status) {
+        if let Err(e) = install_job(
+            &app,
+            source,
+            packages,
+            parent,
+            destination_id,
+            desktop_shortcut,
+            &status,
+        ) {
             if let Ok(mut s) = status.lock() {
                 s.phase = if s.cancel { "cancelled" } else { "error" }.into();
                 s.message = e;
@@ -1023,8 +1039,18 @@ pub fn import_game_folder(
     state: tauri::State<Installer>,
     source: String,
     parent: String,
+    destination_id: Option<String>,
+    desktop_shortcut: Option<bool>,
 ) -> Result<()> {
-    start(app, state, Some(source), Vec::new(), parent)
+    start(
+        app,
+        state,
+        Some(source),
+        Vec::new(),
+        parent,
+        destination_id,
+        desktop_shortcut.unwrap_or(false),
+    )
 }
 #[tauri::command]
 pub fn prepare_runtime(
@@ -1032,7 +1058,7 @@ pub fn prepare_runtime(
     state: tauri::State<Installer>,
     parent: String,
 ) -> Result<()> {
-    start(app, state, None, Vec::new(), parent)
+    start(app, state, None, Vec::new(), parent, None, false)
 }
 #[tauri::command]
 pub fn install_packages(
@@ -1040,6 +1066,8 @@ pub fn install_packages(
     state: tauri::State<Installer>,
     paths: Vec<String>,
     parent: String,
+    destination_id: Option<String>,
+    desktop_shortcut: Option<bool>,
 ) -> Result<()> {
     if paths.is_empty() || paths.len() > 2 {
         return Err("Выберите один основной PKG и, при наличии, одно обновление".into());
@@ -1047,7 +1075,15 @@ pub fn install_packages(
     if !crate::pkg_worker::pkg_install_available() {
         return Err("PKG worker отсутствует в этой сборке".into());
     }
-    start(app, state, None, paths, parent)
+    start(
+        app,
+        state,
+        None,
+        paths,
+        parent,
+        destination_id,
+        desktop_shortcut.unwrap_or(false),
+    )
 }
 #[tauri::command]
 pub fn list_installations(db: tauri::State<Database>) -> Result<Vec<Installation>> {
@@ -1172,6 +1208,7 @@ pub async fn remove_installation(
             if path.exists() { fs::remove_file(path).map_err(err)?; }
         }
         with_db(&app, |db| { db.execute("DELETE FROM installations WHERE id=?1", [&id]).map_err(err)?; Ok(()) })?;
-        Ok(format!("Игра удалена из библиотеки. Сохранения, настройки, runtime и неизвестные файлы сохранены в {}. Исходная папка не изменена.", r.root))
+        let warning=crate::shortcuts::remove(&app,&id).err().map(|_| " Ярлык не удалён: он изменён или недоступен.").unwrap_or("");
+        Ok(format!("Игра удалена из библиотеки. Сохранения, настройки, runtime и неизвестные файлы сохранены в {}. Исходная папка не изменена.{warning}", r.root))
     }).await.map_err(err)?
 }

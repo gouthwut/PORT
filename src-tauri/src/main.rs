@@ -6,6 +6,7 @@ mod install;
 mod media;
 mod package;
 mod pkg_worker;
+mod shortcuts;
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
@@ -90,6 +91,15 @@ fn reset_settings(db: tauri::State<Database>) -> Result<Settings, String> {
 }
 fn main() {
     tauri::Builder::default()
+        .manage(shortcuts::LaunchRequest::default())
+        .plugin(tauri_plugin_single_instance::init(|app, args, _| {
+            shortcuts::queue(app, &args);
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.unminimize();
+                let _ = window.set_focus();
+            }
+        }))
         .manage(download::Download::default())
         .manage(install::Installer::default())
         .manage(catalog::SyncLock::default())
@@ -117,12 +127,17 @@ fn main() {
                 app.state::<install::Installer>().recovery_error(&error);
             }
             app.manage(Database(Mutex::new(conn)));
+            shortcuts::queue(app.handle(), &std::env::args().collect::<Vec<_>>());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             load_settings,
             save_settings,
             reset_settings,
+            shortcuts::take_launch_request,
+            install::experience::default_install_parent,
+            install::experience::check_install_destination,
+            install::experience::open_installation_folder,
             catalog::load_catalog,
             catalog::configure_catalog,
             catalog::sync_catalog,
