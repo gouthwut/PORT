@@ -409,4 +409,79 @@ mod tests {
         fs::write(&path, b"broken").unwrap();
         assert!(package::inspect_file(path.to_str().unwrap()).is_err());
     }
+    #[test]
+    fn insufficient_space_and_finalized_update_recovery_keep_original() {
+        let temp = tempfile::tempdir().unwrap();
+        let free = fs2::available_space(temp.path()).unwrap();
+        assert!(space(temp.path(), free)
+            .unwrap_err()
+            .contains("Недостаточно"));
+        let db = Connection::open_in_memory().unwrap();
+        crate::init(&db).unwrap();
+        let mut original = None;
+        for (id, version) in [("base", "01.00"), ("update", "01.09")] {
+            let root = temp.path().join(format!("PORT-Bloodborne-{id}"));
+            fixture(&root.join("CUSA03173"), Some(version));
+            let files = scan(&root.join("CUSA03173"), &status())
+                .unwrap()
+                .into_iter()
+                .map(|mut e| {
+                    e.sha256 = stream(
+                        open_read(&root.join("CUSA03173").join(&e.path)).unwrap(),
+                        None,
+                        e.size,
+                        &status(),
+                    )
+                    .unwrap();
+                    e.path = format!("CUSA03173/{}", e.path);
+                    e
+                })
+                .collect();
+            let manifest = Manifest {
+                schema: 1,
+                id: id.into(),
+                version: Some(version.into()),
+                files,
+            };
+            let bytes = serde_json::to_vec(&manifest).unwrap();
+            fs::write(root.join("port-manifest.json"), &bytes).unwrap();
+            fs::write(root.join("port-owner"), id).unwrap();
+            let record = Installation {
+                id: id.into(),
+                collection_id: "bloodborne".into(),
+                root: root.display().to_string(),
+                data_path: root.join("CUSA03173").display().to_string(),
+                runtime_path: root.join(RUNTIME).display().to_string(),
+                version: Some(version.into()),
+                manifest_sha256: format!("{:x}", Sha256::digest(&bytes)),
+            };
+            if id == "base" {
+                register(&db, &record).unwrap();
+                original = Some(serde_json::to_string(&record).unwrap());
+            } else {
+                db.execute(
+                    "INSERT INTO installation_jobs VALUES(?1,?2,?3)",
+                    params![
+                        id,
+                        temp.path().join(".port-stage-update").display().to_string(),
+                        record.root
+                    ],
+                )
+                .unwrap();
+            }
+        }
+        recover(&db).unwrap();
+        recover(&db).unwrap();
+        let rows = records(&db).unwrap();
+        assert_eq!(rows.len(), 2);
+        assert_eq!(
+            serde_json::to_string(rows.iter().find(|r| r.id == "base").unwrap()).unwrap(),
+            original.unwrap()
+        );
+        assert!(rows.iter().any(|r| r.version.as_deref() == Some("01.09")));
+        assert!(temp
+            .path()
+            .join("PORT-Bloodborne-base/CUSA03173/eboot.bin")
+            .exists());
+    }
 }
