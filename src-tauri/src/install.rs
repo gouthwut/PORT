@@ -498,12 +498,12 @@ fn write_new(p: &Path, data: &[u8]) -> Result<()> {
     f.sync_all().map_err(err)
 }
 fn space(path: &Path, needed: u64) -> Result<()> {
-    if fs2::available_space(path).map_err(err)?
-        < needed
-            .checked_add(RESERVE)
-            .ok_or("Размер слишком большой")?
-    {
-        return Err("Недостаточно места: нужны игровые данные, runtime и 512 МиБ резерва".into());
+    let available = fs2::available_space(path).map_err(err)?;
+    let required = needed
+        .checked_add(RESERVE)
+        .ok_or("Размер слишком большой")?;
+    if available < required {
+        return Err(format!("Недостаточно места: нужно {:.1} ГиБ (включая временные файлы и 512 МиБ резерва), доступно {:.1} ГиБ", required as f64 / 1073741824.0, available as f64 / 1073741824.0));
     }
     Ok(())
 }
@@ -965,12 +965,15 @@ pub fn install_status(state: tauri::State<Installer>) -> Result<Status> {
 #[tauri::command]
 pub fn cancel_install(state: tauri::State<Installer>) -> Result<()> {
     let mut s = state.status.lock().map_err(err)?;
+    request_cancel(&mut s)
+}
+fn request_cancel(s: &mut Status) -> Result<()> {
     if !s.active {
         return Err("Нет активной операции".into());
     }
     if !matches!(
         s.phase.as_str(),
-        "validating" | "verifying" | "copying" | "extracting"
+        "validating" | "verifying" | "copying" | "extracting" | "updating"
     ) {
         return Err("Эта операция не поддерживает отмену".into());
     }

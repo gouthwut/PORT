@@ -484,4 +484,23 @@ mod tests {
             .join("PORT-Bloodborne-base/CUSA03173/eboot.bin")
             .exists());
     }
+    #[test]
+    fn update_phase_cancel_reaches_stream_checkpoints() {
+        let s = status();
+        {
+            let mut state = s.lock().unwrap();
+            state.active = true;
+            state.phase = "updating".into();
+            request_cancel(&mut state).unwrap();
+        }
+        assert!(checkpoint(&s).is_err());
+        let temp = tempfile::tempdir().unwrap();
+        let output = temp.path().join("not-finalized");
+        assert!(stream(std::io::Cursor::new(b"new update"), Some(&output), 10, &s).is_err());
+        let mut state = s.lock().unwrap();
+        state.phase = "launching".into();
+        state.cancel = false;
+        assert!(request_cancel(&mut state).is_err());
+        assert!(!state.cancel);
+    }
 }
