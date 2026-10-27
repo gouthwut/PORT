@@ -313,6 +313,7 @@ test("04E card Play reuses the guarded ID action and glass stays outside card gr
     exact: true,
   });
   await expect(play).toBeEnabled();
+  await expect(play).toBeInViewport({ ratio: 1 });
   await expect(page.locator(".installed-tile")).toHaveCSS(
     "backdrop-filter",
     "none",
