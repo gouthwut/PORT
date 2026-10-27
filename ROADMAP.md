@@ -12,9 +12,9 @@ Authorized 2026-10-27. Retain PKG selection/validation and installation/recovery
 
 Authorized 2026-10-27. Versioned published metadata/API contract, configurable public HTTPS synchronization, bounded validation and local image/catalog cache, dynamic client cards/details, offline library independent of publication. CMS is not deployed; default data is an explicitly labelled local fixture. Installer adapters remain compiled/allowlisted; Bloodborne 1.09 installation/runtime/profile must remain unchanged. See docs/CATALOG.md and actual exit evidence in PROGRESS.md.
 
-## Stage 05 — PORT Catalog CMS (future)
+## Stage 05A — PORT Catalog CMS (authorized, deployment pending)
 
-Separate private web project: owner authentication, draft/editor workflows, authorized image uploads/optimization, free infrastructure selection, atomic publication to a stable public v1 HTTPS endpoint and end-to-end client synchronization. No CMS source/secrets in the public client repository. Stage 04C does not authorize creating hosting accounts or this admin project. Additional game installers require independent reviewed adapters, not catalog-provided code. Distribution/signing gates in the historical table remain separate.
+Authorized 2026-10-27: separate PRIVATE project at `C:\PORT-CMS`, owner-only GitHub OAuth, server-persisted drafts/editor, authorized WebP uploads, transactional publication/history/rollback and a public v1 endpoint using free infrastructure. Local implementation selects Workers Free + SQLite Durable Object because KV cannot atomically guarantee snapshot/media visibility. No paid products or R2. Actual local checks and private repository are recorded in PROGRESS.md. Cloudflare owner login and OAuth App configuration are required before deployment. No real site/API URL exists yet; keep the client's labelled fixture and existing configuration until a verified live endpoint can become the automatic first-run default. Exit criterion remains real internet publication/unpublication reaching the native Windows client while its existing Bloodborne 1.09 installation/profile/library remain intact. Additional installers still require independent reviewed compiled adapters. Distribution/signing gates remain separate.
 
 ## Stage 04B — narrow Bloodborne 1.09 update
 

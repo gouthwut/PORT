@@ -1,8 +1,12 @@
 # Published catalog v1 / Stage 04C
 
+## Stage 05A status — 2026-10-27
+
+The separate private CMS implementation is in `C:\PORT-CMS`; its README documents Workers Free + SQLite-backed Durable Object, GitHub owner-ID OAuth, drafts, immutable private/public WebP assets and transactional publication/history/rollback. Local workerd/SQLite and Chromium tests are separate from real hosting evidence. Cloudflare CLI is not authenticated, and production OAuth configuration is absent: **no live site or public endpoint has been deployed**. The historical Stage 04C descriptions below remain accurate for the shipped client. Its source, native SQLite configuration, schema 4 and Bloodborne 1.09 data/profile are unchanged in this work. After owner setup, verify the actual HTTPS API before embedding it as the shared first-run default and performing native internet publication/unpublication checks. No guessed endpoint or manual CMS requirement is being introduced for users. See PROGRESS.md for completed evidence and remaining gates.
+
 Future product contract (Stage 04D): ordinary users must receive the published catalog automatically from a public HTTPS address embedded in PORT. Manual API configuration remains a development tool. No production endpoint is invented or enabled in this stage; integration follows deployment of the separate CMS. Existing local-fixture labels, cache and Stage 04C synchronization remain unchanged.
 
-PORT Client reads **published metadata** from a public HTTPS endpoint. The Catalog CMS does not exist yet. The default `fixtures/catalog/published-v1.json` is labelled **local test data** in the application; it is neither a live service nor a claim that a CMS has been deployed. No accounts, Cloudflare resources or CMS databases were created.
+PORT Client reads **published metadata** from a public HTTPS endpoint. The separate Catalog CMS is not deployed yet. The default `fixtures/catalog/published-v1.json` is labelled **local test data** in the application; it is neither a live service nor a claim that a CMS has been deployed. No production accounts, Cloudflare resources or production CMS databases were created.
 
 ## CMS publication contract
 
