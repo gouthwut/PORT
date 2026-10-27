@@ -1,5 +1,9 @@
 # Extractor write-boundary research
 
+## Stage 03 continuation
+
+The historical gate below describes Stage 02. Stage 03 adds bounded original readers and a separate [production worker](../pkg-worker/README.md); the old upstream PfsReader/PFSCReader are used only by synthetic reference tests. Optional `--probe-mechanism <pkg>` / `--probe-tree <pkg>` diagnostics read fixed metadata / bounded trees without writing game files, trying passcodes or returning secrets. They require the exact upstream checkout and are never invoked by PORT. Writer tests still run standalone. See current PROGRESS/UPSTREAM for actual user-file results; the remaining historical text must not be read as a current claim that the PFS encryption bit proves incompatibility.
+
 This is **not an installed PKG extractor** and has no user-PKG command. PORT never invokes it. Original PORT code replaces the unsafe `ExtractInParallel` output boundary while retaining an optional reference to the existing upstream PFS decoder for tiny synthetic fixtures. No upstream source, keys or binaries are included in this repository.
 
 Run on Windows with .NET SDK 8+:

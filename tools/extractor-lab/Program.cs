@@ -1,6 +1,13 @@
 using System.Text;
 using Port.ExtractorLab;
 
+#if UPSTREAM
+if (args.Length == 2 && args[0] is "--probe-mechanism" or "--probe-tree")
+{
+    PackageProbe.Run(args[1], args[0] == "--probe-tree");
+    return;
+}
+#endif
 if (args.Length != 1 || args[0] != "--self-test")
     throw new ArgumentException("Research harness accepts only --self-test; no user-PKG extraction command.");
 var root = Directory.CreateTempSubdirectory("port-boundary-tests-").FullName;

@@ -3,6 +3,8 @@ node_modules/
 src/assets/bloodborne-local/
 tools/extractor-lab/bin/
 tools/extractor-lab/obj/
+tools/pkg-worker/bin/
+tools/pkg-worker/obj/
 dist/
 src-tauri/target/
 test-results/
