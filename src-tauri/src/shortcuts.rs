@@ -62,8 +62,14 @@ fn write_exclusive(path: &Path, bytes: &[u8]) -> Result<(), String> {
     }
     Ok(())
 }
-fn publish(temp: &Path, desktop: &Path, receipts: &Path, id: &str) -> Result<(), String> {
-    let path = desktop.join(format!("PORT - Bloodborne ({id}).lnk"));
+fn publish(
+    temp: &Path,
+    desktop: &Path,
+    receipts: &Path,
+    id: &str,
+    name: &str,
+) -> Result<(), String> {
+    let path = desktop.join(format!("PORT - {name} ({id}).lnk"));
     crate::download::safe_existing(&path)?;
     crate::download::safe_existing(receipts)?;
     let bytes = fs::read(temp).map_err(|e| e.to_string())?;
@@ -89,8 +95,11 @@ fn publish(temp: &Path, desktop: &Path, receipts: &Path, id: &str) -> Result<(),
     Ok(())
 }
 pub fn create(app: &tauri::AppHandle, id: &str) -> Result<(), String> {
-    if !valid_id(id) {
-        return Err("Недопустимый ID установки".into());
+    create_named(app, id, "Bloodborne")
+}
+pub fn create_named(app: &tauri::AppHandle, id: &str, name: &str) -> Result<(), String> {
+    if !valid_id(id) || !["Bloodborne", "Skate 3"].contains(&name) {
+        return Err("Недопустимый ярлык".into());
     }
     #[cfg(windows)]
     {
@@ -105,6 +114,7 @@ pub fn create(app: &tauri::AppHandle, id: &str) -> Result<(), String> {
             &receipts,
             &std::env::current_exe().map_err(|e| e.to_string())?,
             id,
+            name,
         )
     }
     #[cfg(not(windows))]
@@ -114,7 +124,13 @@ pub fn create(app: &tauri::AppHandle, id: &str) -> Result<(), String> {
     }
 }
 #[cfg(windows)]
-fn create_at(desktop: &Path, receipts: &Path, exe: &Path, id: &str) -> Result<(), String> {
+fn create_at(
+    desktop: &Path,
+    receipts: &Path,
+    exe: &Path,
+    id: &str,
+    name: &str,
+) -> Result<(), String> {
     use std::os::windows::process::CommandExt;
     if !valid_id(id) {
         return Err("Недопустимый ID установки".into());
@@ -147,7 +163,7 @@ fn create_at(desktop: &Path, receipts: &Path, exe: &Path, id: &str) -> Result<()
         if !status.success() {
             return Err("Windows не смог создать ярлык".into());
         }
-        publish(&temp, desktop, receipts, id)
+        publish(&temp, desktop, receipts, id, name)
     })();
     let _ = fs::remove_file(&temp);
     result
@@ -166,7 +182,13 @@ fn remove_owned(desktop: &Path, receipts: &Path, id: &str) -> Result<(), String>
     }
     let r: Receipt = serde_json::from_slice(&fs::read(&file).map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
-    let expected = desktop.join(format!("PORT - Bloodborne ({id}).lnk"));
+    let expected = r.path.clone();
+    if !["Bloodborne", "Skate 3"]
+        .iter()
+        .any(|name| expected == desktop.join(format!("PORT - {name} ({id}).lnk")))
+    {
+        return Err("Некорректный путь ярлыка".into());
+    }
     if r.id != id || r.path != expected {
         return Err("Ярлык изменён; он оставлен на рабочем столе".into());
     }
@@ -203,7 +225,7 @@ mod tests {
         fs::create_dir(&desktop).unwrap();
         let receipts = t.path().join("receipts");
         let exe = std::env::current_exe().unwrap();
-        create_at(&desktop, &receipts, &exe, "123-45").unwrap();
+        create_at(&desktop, &receipts, &exe, "123-45", "Bloodborne").unwrap();
         let link = desktop.join("PORT - Bloodborne (123-45).lnk");
         let ps = PathBuf::from(std::env::var_os("SystemRoot").unwrap())
             .join("System32/WindowsPowerShell/v1.0/powershell.exe");
@@ -220,10 +242,17 @@ mod tests {
             .unwrap()
             .to_lowercase()
             .starts_with(&exe.display().to_string().to_lowercase()));
-        assert!(create_at(&desktop, &receipts, &exe, "123-45").is_err());
+        assert!(create_at(&desktop, &receipts, &exe, "123-45", "Bloodborne").is_err());
         remove_owned(&desktop, &receipts, "123-45").unwrap();
         assert!(!link.exists());
-        assert!(create_at(&t.path().join("missing"), &receipts, &exe, "5-6").is_err());
+        assert!(create_at(
+            &t.path().join("missing"),
+            &receipts,
+            &exe,
+            "5-6",
+            "Bloodborne"
+        )
+        .is_err());
     }
     #[test]
     fn strict_launch_contract() {
@@ -253,16 +282,23 @@ mod tests {
         fs::create_dir(&receipts).unwrap();
         let temp = t.path().join("qa.lnk");
         fs::write(&temp, b"fixture shortcut").unwrap();
-        publish(&temp, &desktop, &receipts, "1-2").unwrap();
+        publish(&temp, &desktop, &receipts, "1-2", "Bloodborne").unwrap();
         let link = desktop.join("PORT - Bloodborne (1-2).lnk");
-        assert!(publish(&temp, &desktop, &receipts, "1-2").is_err());
+        assert!(publish(&temp, &desktop, &receipts, "1-2", "Bloodborne").is_err());
         fs::write(&link, b"foreign modified").unwrap();
         assert!(remove_owned(&desktop, &receipts, "1-2").is_err());
         assert_eq!(fs::read(&link).unwrap(), b"foreign modified");
-        publish(&temp, &desktop, &receipts, "3-4").unwrap();
+        publish(&temp, &desktop, &receipts, "3-4", "Bloodborne").unwrap();
         remove_owned(&desktop, &receipts, "3-4").unwrap();
         assert!(!desktop.join("PORT - Bloodborne (3-4).lnk").exists());
-        assert!(publish(&temp, &desktop, &t.path().join("absent"), "5-6").is_err());
+        assert!(publish(
+            &temp,
+            &desktop,
+            &t.path().join("absent"),
+            "5-6",
+            "Bloodborne"
+        )
+        .is_err());
         assert!(!desktop.join("PORT - Bloodborne (5-6).lnk").exists());
     }
 }

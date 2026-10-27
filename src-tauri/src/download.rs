@@ -78,7 +78,7 @@ fn trusted(url: &Url) -> bool {
             Some("github.com" | "api.github.com" | "release-assets.githubusercontent.com")
         )
 }
-fn client() -> Result<Client, String> {
+pub(crate) fn client() -> Result<Client, String> {
     Client::builder()
         .user_agent("PORT-launcher/0.1.0")
         .https_only(true)

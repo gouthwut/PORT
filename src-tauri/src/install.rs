@@ -1,6 +1,8 @@
 //! Local installation lifecycle and durable staging; narrow updates live in install_inplace.rs.
 #[path = "install_experience.rs"]
 pub mod experience;
+#[path = "skate3.rs"]
+pub mod skate3;
 #[cfg(test)]
 #[path = "install_tests.rs"]
 mod tests;
@@ -99,6 +101,8 @@ fn open_read(path: &Path) -> Result<File> {
 #[derive(Clone, Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Status {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    collection_id: Option<String>,
     phase: String,
     completed: u64,
     total: u64,
@@ -111,6 +115,7 @@ pub struct Status {
 pub struct Installer {
     status: Arc<Mutex<Status>>,
     child: Arc<Mutex<Option<Child>>>,
+    runtime_lock: Arc<Mutex<Option<File>>>,
 }
 impl Installer {
     pub fn recovery_error(&self, error: &str) {
@@ -568,10 +573,12 @@ fn load_manifest(record: &Installation) -> Result<Manifest> {
 fn record_paths(record: &Installation) -> Result<()> {
     let root = Path::new(&record.root);
     safe(root)?;
-    if record.data_path != root.join("CUSA03173").display().to_string()
-        || record.runtime_path != root.join(RUNTIME).display().to_string()
+    let adapter = crate::adapters::get(&record.collection_id)?;
+    if (record.collection_id == "skate3" && !experience::valid_id(&record.id))
+        || record.data_path != root.join(adapter.data).display().to_string()
+        || record.runtime_path != root.join(adapter.runtime).display().to_string()
         || root.file_name().and_then(|s| s.to_str())
-            != Some(format!("PORT-Bloodborne-{}", record.id).as_str())
+            != Some(format!("PORT-{}-{}", adapter.name, record.id).as_str())
     {
         return Err("Некорректная запись установки".into());
     }
@@ -593,7 +600,13 @@ fn manifest_bytes(record: &Installation, bytes: &[u8]) -> Result<Manifest> {
     for e in &m.files {
         relative(&e.path)?;
         if !names.insert(e.path.to_lowercase())
-            || !(e.path.starts_with("CUSA03173/") || e.path.starts_with("bbport-windows/"))
+            || !(e.path.starts_with(&format!(
+                "{}/",
+                crate::adapters::get(&record.collection_id)?.data
+            )) || e.path.starts_with(&format!(
+                "{}/",
+                crate::adapters::get(&record.collection_id)?.runtime
+            )))
             || e.sha256.len() != 64
         {
             return Err("Некорректная запись манифеста".into());
@@ -602,6 +615,9 @@ fn manifest_bytes(record: &Installation, bytes: &[u8]) -> Result<Manifest> {
     Ok(m)
 }
 fn verify(record: &Installation, all: bool, s: &Arc<Mutex<Status>>) -> Result<()> {
+    if record.collection_id == "skate3" {
+        return skate3::verify(record, all, s);
+    }
     let m = load_manifest(record)?;
     let root = Path::new(&record.root);
     let runtime = scan(&root.join(RUNTIME), s)?;
@@ -920,9 +936,16 @@ pub fn recover(db: &Connection) -> Result<()> {
         let root = Path::new(&root);
         safe(stage)?;
         safe(root)?;
+        let adapter = if root.file_name().and_then(|v| v.to_str())
+            == Some(format!("PORT-Skate3-{id}").as_str())
+        {
+            &crate::adapters::SKATE3
+        } else {
+            &crate::adapters::BLOODBORNE
+        };
         if stage.file_name().and_then(|v| v.to_str()) != Some(format!(".port-stage-{id}").as_str())
             || root.file_name().and_then(|v| v.to_str())
-                != Some(format!("PORT-Bloodborne-{id}").as_str())
+                != Some(format!("PORT-{}-{id}", adapter.name).as_str())
             || stage.parent() != root.parent()
         {
             return Err("Некорректный журнал восстановления".into());
@@ -935,15 +958,19 @@ pub fn recover(db: &Connection) -> Result<()> {
             let m: Manifest = serde_json::from_slice(&bytes).map_err(err)?;
             let record = Installation {
                 id: id.clone(),
-                collection_id: "bloodborne".into(),
+                collection_id: adapter.id.into(),
                 root: root.display().to_string(),
-                data_path: root.join("CUSA03173").display().to_string(),
-                runtime_path: root.join(RUNTIME).display().to_string(),
+                data_path: root.join(adapter.data).display().to_string(),
+                runtime_path: root.join(adapter.runtime).display().to_string(),
                 version: m.version,
                 manifest_sha256: format!("{:x}", Sha256::digest(&bytes)),
             };
-            load_manifest(&record)?;
-            if root.join("CUSA03173").is_dir() {
+            if adapter.id == "skate3" {
+                verify(&record, true, &Arc::default())?;
+            } else {
+                load_manifest(&record)?;
+            }
+            if root.join(adapter.data).is_dir() {
                 let exists: Option<String> = db
                     .query_row("SELECT id FROM installations WHERE id=?1", [&id], |r| {
                         r.get(0)
@@ -962,6 +989,9 @@ pub fn recover(db: &Connection) -> Result<()> {
             // A crash before owner creation may leave an empty directory only.
             if !owner.exists() && fs::read_dir(stage).map_err(err)?.next().is_some() {
                 return Err("Нельзя очистить неизвестную временную папку".into());
+            }
+            if adapter.id == "skate3" {
+                skate3::preserve_profile(stage, &id)?;
             }
             cleanup(stage)?;
         }
@@ -993,7 +1023,13 @@ fn request_cancel(s: &mut Status) -> Result<()> {
     }
     if !matches!(
         s.phase.as_str(),
-        "validating" | "verifying" | "copying" | "extracting" | "updating"
+        "validating"
+            | "verifying"
+            | "copying"
+            | "extracting"
+            | "updating"
+            | "downloading"
+            | "setup"
     ) {
         return Err("Эта операция не поддерживает отмену".into());
     }
@@ -1147,6 +1183,7 @@ pub async fn launch_installation(
     let operation = operation(&state, "launching")?;
     let record = get(&app, &id)?;
     let child = state.child.clone();
+    let runtime_lock = state.runtime_lock.clone();
     tauri::async_runtime::spawn_blocking(move || {
         let _operation=operation;
         if in_use(Path::new(&record.root))? {return Err("Runtime этой установки уже работает. Закройте игровое окно перед повторным запуском.".into());}
@@ -1155,6 +1192,16 @@ pub async fn launch_installation(
             if process.try_wait().map_err(err)?.is_none() { return Err("Окно runtime уже открыто".into()); }
         }
         verify(&record, false, &Arc::default())?;
+        if record.collection_id == "skate3" {
+            // Prevent upstream's optional icon self-patch from changing the pinned image.
+            let pinned = open_read(&Path::new(&record.runtime_path).join("skate3.exe"))?;
+            let mut process = skate3::command(&record)?.spawn().map_err(err)?;
+            std::thread::sleep(std::time::Duration::from_millis(1200));
+            if let Some(code) = process.try_wait().map_err(err)? { return Err(format!("Skate 3 завершилась после старта: {code}")); }
+            let pid = process.id(); *current = Some(process);
+            *runtime_lock.lock().map_err(err)? = Some(pinned);
+            return Ok(format!("Создан процесс Skate 3, PID {pid}. Меню и gameplay ещё не подтверждены."));
+        }
         inspect(Path::new(&record.data_path), &Arc::default(), true)?;
         let state = Path::new(&record.root).join("user-data");
         safe(&state)?; fs::create_dir_all(state.join("roaming")).map_err(err)?;
@@ -1188,6 +1235,26 @@ pub fn launch_status(state: tauri::State<Installer>) -> Result<String> {
         None => Ok(String::new()),
     }
 }
+fn remove_payload(r: &Installation) -> Result<()> {
+    let manifest = load_manifest(r)?;
+    let root = Path::new(&r.root);
+    let data = crate::adapters::get(&r.collection_id)?.data;
+    if root.join(data).exists() {
+        scan(&root.join(data), &Arc::default())?;
+    }
+    for e in manifest
+        .files
+        .iter()
+        .filter(|e| e.path.starts_with(&format!("{data}/")))
+    {
+        let path = root.join(&e.path);
+        safe(&path)?;
+        if path.exists() {
+            fs::remove_file(path).map_err(err)?;
+        }
+    }
+    Ok(())
+}
 #[tauri::command]
 pub async fn remove_installation(
     app: tauri::AppHandle,
@@ -1205,14 +1272,8 @@ pub async fn remove_installation(
     }
     tauri::async_runtime::spawn_blocking(move || {
         let _operation=operation;
-        let manifest = load_manifest(&r)?;
-        let root = Path::new(&r.root);
-        // Only inventoried game files are removed. Entire runtime, user-data and unknown files survive.
-        if root.join("CUSA03173").exists() {scan(&root.join("CUSA03173"), &Arc::default())?;}
-        for e in manifest.files.iter().filter(|e| e.path.starts_with("CUSA03173/")) {
-            let path = root.join(&e.path); safe(&path)?;
-            if path.exists() { fs::remove_file(path).map_err(err)?; }
-        }
+        // Only inventoried game files; runtime, saves and unknown files survive.
+        remove_payload(&r)?;
         with_db(&app, |db| { db.execute("DELETE FROM installations WHERE id=?1", [&id]).map_err(err)?; Ok(()) })?;
         let warning=crate::shortcuts::remove(&app,&id).err().map(|_| " Ярлык не удалён: он изменён или недоступен.").unwrap_or("");
         Ok(format!("Игра удалена из библиотеки. Сохранения, настройки, runtime и неизвестные файлы сохранены в {}. Исходная папка не изменена.{warning}", r.root))

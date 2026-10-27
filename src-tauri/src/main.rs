@@ -1,5 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod adapters;
 mod catalog;
 mod download;
 mod install;
@@ -149,6 +150,8 @@ fn main() {
             download::start_download,
             download::control_download,
             install::inspect_game_folder,
+            install::skate3::inspect_skate3_iso,
+            install::skate3::install_skate3,
             install::install_status,
             install::cancel_install,
             install::import_game_folder,

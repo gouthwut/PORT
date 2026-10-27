@@ -20,6 +20,15 @@ pub(crate) fn valid_id(id: &str) -> bool {
             .all(|p| !p.is_empty() && p.bytes().all(|b| b.is_ascii_digit()))
 }
 pub(super) fn destination(parent: &Path, id: &str, installed: &[Installation]) -> Result<PathBuf> {
+    destination_for(parent, id, installed, "bloodborne")
+}
+pub(super) fn destination_for(
+    parent: &Path,
+    id: &str,
+    installed: &[Installation],
+    adapter_id: &str,
+) -> Result<PathBuf> {
+    let adapter = crate::adapters::get(adapter_id)?;
     safe(parent)?;
     if parent.to_string_lossy().len() > 2048 || parent.components().any(|c| matches!(c, Component::Normal(n) if n.to_str().is_none_or(|s| !download::safe_zip_name(s)))) {
         return Err("Папка содержит недопустимое имя Windows".into());
@@ -40,7 +49,7 @@ pub(super) fn destination(parent: &Path, id: &str, installed: &[Installation]) -
             }
         }
     }
-    let root = parent.join(format!("PORT-Bloodborne-{id}"));
+    let root = parent.join(format!("PORT-{}-{id}", adapter.name));
     for r in installed {
         if r.id == id {
             return Err(
@@ -50,7 +59,7 @@ pub(super) fn destination(parent: &Path, id: &str, installed: &[Installation]) -
         let existing = Path::new(&r.root);
         let canonical_root = fs::canonicalize(parent)
             .map_err(err)?
-            .join(format!("PORT-Bloodborne-{id}"));
+            .join(format!("PORT-{}-{id}", adapter.name));
         if overlaps_below(parent, existing) || overlaps_below(existing, &canonical_root) {
             return Err(
                 "Назначение пересекается с уже установленной игрой. Выберите другую папку".into(),
@@ -97,11 +106,19 @@ pub async fn check_install_destination(
     parent: String,
     bytes: u64,
     id: Option<String>,
+    adapter_id: Option<String>,
 ) -> Result<Destination> {
     tauri::async_runtime::spawn_blocking(move || {
         let id = id.map(Ok).unwrap_or_else(new_id)?;
         let p = Path::new(&parent);
-        let root = with_db(&app, |db| destination(p, &id, &records(db)?))?;
+        let root = with_db(&app, |db| {
+            destination_for(
+                p,
+                &id,
+                &records(db)?,
+                adapter_id.as_deref().unwrap_or("bloodborne"),
+            )
+        })?;
         let required = bytes
             .checked_add(3 * 1024 * 1024 * 1024)
             .ok_or("Размер слишком большой")?;
