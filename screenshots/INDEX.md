@@ -84,3 +84,9 @@ All paths below are beneath ignored `.local/evidence/`, because the personal bui
 The user confirmed the actual Bloodborne main menu after the native Play test. Allowed OS-window inventory independently returned Bloodborne™/installed bb-probe.exe, but computer-use capture/control was rejected; no automated game-window screenshot or in-world gameplay evidence is claimed. Local `.local/stage03` JSON/log files contain the installation/check observations. Historical browser/native evidence is retained separately.
 
 Additional actual-native captures: `03-native-final-restart-integrity.png` shows fresh-process SQLite and full primary integrity after the real launch; `03-native-final-release-library.png` shows the final release's Stage 03 library after cold startup. Both stay in ignored `.local/evidence/`.
+
+## Stage 04A — private local evidence
+
+- `.local/evidence/04a-browser-library-mocked.png`: Chromium with mocked native state; private local art, selected-game panel.
+- `.local/evidence/04a-native-home.png`, `04a-native-library-grid.png`, `04a-native-library-detail.png`: actual release WebView and Rust IPC; existing Stage 03 installation, no game launch/removal.
+- `.local/evidence/04a-record-recovery.json`: full manifest/hash verification and authorized baseline record recovery. SQLite backup and native result JSON also stay ignored locally.

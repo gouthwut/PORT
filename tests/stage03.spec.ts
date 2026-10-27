@@ -38,6 +38,11 @@ test("native IPC UI contract: folder import and explicit cancellation (mocked ba
       isTauri: true,
       __TAURI_INTERNALS__: {
         invoke: async (command: string, args: Record<string, unknown>) => {
+          if (
+            command === "running_installations" ||
+            command === "list_installations"
+          )
+            return [];
           if (command === "load_settings")
             return {
               theme: "dark",
@@ -141,6 +146,15 @@ test("native IPC UI contract: registered library, launch error, verify and confi
       isTauri: true,
       __TAURI_INTERNALS__: {
         invoke: async (command: string, args: Record<string, unknown>) => {
+          if (command === "running_installations") return [];
+          if (command === "install_status")
+            return {
+              phase: "",
+              active: false,
+              completed: 0,
+              total: 0,
+              message: "",
+            };
           if (command === "load_settings")
             return {
               theme: "dark",
@@ -167,14 +181,19 @@ test("native IPC UI contract: registered library, launch error, verify and confi
   });
   await page.goto("/");
   await page.getByRole("button", { name: "Библиотека", exact: true }).click();
-  await expect(page.getByText(/APP_VER 01.09/)).toBeVisible();
-  await expect(page.getByText(/Игровые данные: C:/)).toBeVisible();
+  await page.getByRole("button", { name: "Выбрать: Bloodborne" }).click();
+  await expect(
+    page.getByText("C:\\QA\\CUSA03173", { exact: true }),
+  ).toBeHidden();
   await page.getByRole("button", { name: "Играть", exact: true }).click();
   await expect(page.getByRole("alert")).toContainText("Windows отказал");
+  await page.getByText("Управление игрой", { exact: true }).click();
   await page
     .getByRole("button", { name: "Проверить целостность", exact: true })
     .click();
-  await expect(page.getByRole("status")).toContainText("SHA-256 совпадает");
+  await expect(page.getByRole("status")).toContainText(
+    "Целостность файлов подтверждена",
+  );
   await page.screenshot({
     path: ".local/evidence/03-browser-library-mocked-ipc.png",
   });

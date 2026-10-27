@@ -135,6 +135,7 @@ fn main() {
             install::install_packages,
             pkg_worker::pkg_install_available,
             install::list_installations,
+            install::running_installations,
             install::verify_installation,
             install::launch_installation,
             install::launch_status,

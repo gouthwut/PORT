@@ -1018,6 +1018,22 @@ pub fn list_installations(db: tauri::State<Database>) -> Result<Vec<Installation
     let conn = db.0.lock().map_err(err)?;
     records(&conn)
 }
+/// Reuses the launch/removal process-path guard, including after PORT restarts.
+#[tauri::command]
+pub fn running_installations(db: tauri::State<Database>) -> Result<Vec<String>> {
+    let items = {
+        let conn = db.0.lock().map_err(err)?;
+        records(&conn)?
+    };
+    items
+        .into_iter()
+        .filter_map(|item| match in_use(Path::new(&item.root)) {
+            Ok(true) => Some(Ok(item.id)),
+            Ok(false) => None,
+            Err(e) => Some(Err(e)),
+        })
+        .collect()
+}
 #[tauri::command]
 pub async fn verify_installation(
     app: tauri::AppHandle,

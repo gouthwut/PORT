@@ -64,6 +64,16 @@ for (const choice of ["single", "multiple", "cancel", "error"] as const) {
         isTauri: true,
         __TAURI_INTERNALS__: {
           invoke: async (command: string, args: Record<string, unknown>) => {
+            if (command === "running_installations") return [];
+            if (command === "list_installations") return [];
+            if (command === "install_status")
+              return {
+                phase: "",
+                active: false,
+                completed: 0,
+                total: 0,
+                message: "",
+              };
             if (command === "load_settings")
               return {
                 theme: "dark",

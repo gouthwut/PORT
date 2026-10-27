@@ -41,6 +41,9 @@ import { emptyMedia, mediaService, type MediaSet } from "./services/media";
 import { resolveMedia } from "./services/bundled-media";
 import { InstalledLibrary } from "./components/InstalledLibrary";
 
+import { useGameState } from "./services/game-state";
+import { GameAction } from "./components/GameAction";
+
 type Page =
   "home" | "catalog" | "details" | "library" | "downloads" | "settings";
 const navigation = [
@@ -96,10 +99,12 @@ function GameCard({
   title,
   onClick,
   cover,
+  status,
 }: {
   title: GameTitle;
   onClick: () => void;
   cover?: string;
+  status: string;
 }) {
   return (
     <button
@@ -122,13 +127,15 @@ function GameCard({
       </div>
       <div className="game-status">
         <span className="status-dot" />
-        Совместимость проверяется<span>Windows</span>
+        {status}
+        <span>Windows</span>
       </div>
     </button>
   );
 }
 
 export default function App() {
+  const games = useGameState();
   const [mediaOverrides, setMedia] = useState<MediaSet>(emptyMedia);
   const media = resolveMedia(mediaOverrides);
   const [page, setPage] = useState<Page>("home");
@@ -401,6 +408,17 @@ export default function App() {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.16 }}
                 >
+                  {games.error && (
+                    <p role="alert" className="installer-error">
+                      {games.error}
+                      <Button
+                        variant="ghost"
+                        onClick={() => void games.refresh().catch(() => {})}
+                      >
+                        Повторить загрузку состояния
+                      </Button>
+                    </p>
+                  )}
                   {page === "home" && (
                     <>
                       <div className="page-heading">
@@ -438,11 +456,11 @@ export default function App() {
                             Переживите ночь охоты.
                           </p>
                           <div className="hero-actions">
-                            <Button onClick={() => setInstaller(true)}>
-                              <Download size={17} />
-                              Установить
-                              <ArrowRight size={17} />
-                            </Button>
+                            <GameAction
+                              state={games}
+                              collectionId={collection.id}
+                              onInstall={() => setInstaller(true)}
+                            />
                             <Button
                               variant="secondary"
                               onClick={() => navigate("details")}
@@ -479,6 +497,13 @@ export default function App() {
                             key={title.id}
                             title={title}
                             cover={media.cover}
+                            status={
+                              games.items.some(
+                                (i) => i.collectionId === collection.id,
+                              )
+                                ? "В библиотеке"
+                                : "Доступна установка"
+                            }
                             onClick={() => navigate("details")}
                           />
                         ))}
@@ -563,6 +588,13 @@ export default function App() {
                             <GameCard
                               title={collection.titles[0]}
                               cover={media.cover}
+                              status={
+                                games.items.some(
+                                  (i) => i.collectionId === collection.id,
+                                )
+                                  ? "В библиотеке"
+                                  : "Доступна установка"
+                              }
                               onClick={() => navigate("details")}
                             />
                           </div>
@@ -731,13 +763,17 @@ export default function App() {
                             ночь охоты.
                           </h2>
                           <p>
-                            Подготовьте свои игровые файлы. PORT покажет
-                            доступные действия и ограничения.
+                            {games.items.some(
+                              (i) => i.collectionId === collection.id,
+                            )
+                              ? "Всё готово к следующей охоте."
+                              : "Подготовьте свои игровые файлы. PORT покажет доступные действия и ограничения."}
                           </p>
-                          <Button onClick={() => setInstaller(true)}>
-                            <Download size={17} />
-                            Установить
-                          </Button>
+                          <GameAction
+                            state={games}
+                            collectionId={collection.id}
+                            onInstall={() => setInstaller(true)}
+                          />
                           <div className="panel-rule" />
                           <div className="author-row">
                             <span>Windows-проект</span>
@@ -777,19 +813,10 @@ export default function App() {
                         </div>
                       </div>
                       <InstalledLibrary
-                        cover={media.cover}
+                        media={{ [collection.id]: media }}
+                        state={games}
                         onCatalog={() => navigate("catalog")}
                       />
-                      <div className="info-strip">
-                        <ShieldCheck size={20} />
-                        <div>
-                          <h3>Ваша библиотека — локальная</h3>
-                          <p>
-                            Без обязательной учётной записи. Игровые файлы
-                            остаются на вашем компьютере.
-                          </p>
-                        </div>
-                      </div>
                     </>
                   )}
                   {page === "downloads" && (
@@ -1000,7 +1027,10 @@ export default function App() {
         </div>
         <Modal
           open={installer}
-          onOpenChange={setInstaller}
+          onOpenChange={(open) => {
+            setInstaller(open);
+            if (!open) void games.refresh().catch(() => {});
+          }}
           title="Установка Bloodborne"
           description="Подготовка собственных игровых файлов. Ничего не устанавливается без проверенной совместимости."
         >

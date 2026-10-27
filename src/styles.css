@@ -2718,3 +2718,109 @@ footer small {
     width: 120px;
   }
 }
+
+/* Installed library: quiet covers, then an explicit selected-game panel. */
+.installed-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 26px;
+  margin: 24px 0 36px;
+}
+.installed-card {
+  text-align: left;
+  color: var(--text, #f5f5f7);
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 8px;
+  border-radius: 16px;
+  cursor: pointer;
+  max-width: 280px;
+}
+.installed-card:hover,
+.installed-card.selected {
+  background: #a78bfa0d;
+  border-color: #a78bfa66;
+}
+.installed-cover {
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 12px;
+  position: relative;
+  background: #20212a;
+}
+.installed-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.installed-card h2 {
+  font-size: 17px;
+  margin: 16px 0 7px;
+}
+.library-detail {
+  border: 1px solid #a0a0aa22;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #a0a0aa08;
+}
+.library-detail-art {
+  height: clamp(150px, 23vw, 290px);
+  position: relative;
+  overflow: hidden;
+}
+.library-detail-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.library-detail-body {
+  padding: 28px;
+}
+.library-detail h2 {
+  font-size: clamp(28px, 4vw, 42px);
+  margin: 8px 0 24px;
+}
+.game-management summary,
+.technical-info summary {
+  cursor: pointer;
+  padding: 12px 0;
+  font-size: 14px;
+}
+.management-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 0;
+}
+.technical-info {
+  border-top: 1px solid #a0a0aa22;
+  margin-top: 26px;
+  color: var(--muted, #a0a0aa);
+}
+.technical-info dl {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.technical-info dd {
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+}
+.game-install-progress {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.game-install-progress progress {
+  max-width: 140px;
+}
+@media (max-width: 600px) {
+  .installed-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .library-detail-body {
+    padding: 18px;
+  }
+}
