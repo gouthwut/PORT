@@ -29,6 +29,9 @@ jobs:
       - run: cargo test --locked --manifest-path src-tauri/Cargo.toml
       - run: cargo clippy --locked --manifest-path src-tauri/Cargo.toml -- -D warnings
       - run: ./scripts/test-extractor.ps1
+      - run: ./scripts/fetch-pkg-source.ps1
+      - run: ./scripts/test-extractor.ps1 -UpstreamRoot .local/stage03/pkgextract
+      - run: ./scripts/build-pkg-worker.ps1
       - run: npm run tauri build -- --no-bundle
       - uses: actions/upload-artifact@v4
         if: always()

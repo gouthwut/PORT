@@ -5,8 +5,7 @@ Stage 03 adds a narrow, separately built source reader for compatible user-owned
 Build from the exact unmodified [mathisto/pkgextract revision](https://github.com/mathisto/pkgextract/tree/4f9426e7dde5f04c42fb7e063992f730e3c308c8):
 
 ```powershell
-git clone https://github.com/mathisto/pkgextract.git .local/stage03/pkgextract
-git -C .local/stage03/pkgextract checkout 4f9426e7dde5f04c42fb7e063992f730e3c308c8
+powershell -ExecutionPolicy Bypass -File scripts/fetch-pkg-source.ps1
 powershell -ExecutionPolicy Bypass -File scripts/build-pkg-worker.ps1
 npm run tauri build -- --no-bundle
 ```
