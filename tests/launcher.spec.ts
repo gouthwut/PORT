@@ -55,10 +55,12 @@ test("search, filters, settings persistence and reset", async ({ page }) => {
   ).toBeVisible();
   await page.getByRole("button", { name: "Сбросить фильтры" }).click();
   await page.getByRole("button", { name: "Готовы к установке" }).click();
+  await expect(
+    page.getByRole("button", { name: "Подробнее: Bloodborne" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Без адаптера", exact: true }).click();
   await expect(page.getByText("Ничего не найдено")).toBeVisible();
-  await page
-    .getByRole("button", { name: "Запланировано", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Все", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Подробнее: Bloodborne" }),
   ).toBeVisible();

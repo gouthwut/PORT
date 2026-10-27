@@ -43,6 +43,19 @@ import { InstalledLibrary } from "./components/InstalledLibrary";
 
 import { useGameState } from "./services/game-state";
 import { GameAction } from "./components/GameAction";
+import {
+  useCatalog,
+  catalogMedia,
+  supportsInstall,
+  type PublishedGame,
+} from "./services/catalog";
+import {
+  CatalogDetail,
+  CatalogSettings,
+  CatalogStatus,
+  DynamicHome,
+  PublishedCards,
+} from "./components/OnlineCatalog";
 
 type Page =
   "home" | "catalog" | "details" | "library" | "downloads" | "settings";
@@ -136,6 +149,8 @@ function GameCard({
 
 export default function App() {
   const games = useGameState();
+  const catalog = useCatalog();
+  const [selectedGame, setSelectedGame] = useState<PublishedGame | null>(null);
   const [mediaOverrides, setMedia] = useState<MediaSet>(emptyMedia);
   const media = resolveMedia(mediaOverrides);
   const [page, setPage] = useState<Page>("home");
@@ -261,12 +276,45 @@ export default function App() {
     setPage(next);
     if (next !== "catalog") setQuery("");
   }
-  const matches =
-    !query ||
-    `${collection.title} ${collection.titles.map((t) => `${t.name} ${t.subtitle}`).join(" ")} SuperMedo FromSoftware RPG Ярнам охота`
-      .toLowerCase()
-      .includes(query.toLowerCase());
-  const showResult = matches && filter !== "available";
+  function openGame(game: PublishedGame) {
+    setSelectedGame(game);
+    navigate("details");
+  }
+  const gameMedia = (g: PublishedGame) => {
+    const remote = catalogMedia(g, catalog.snapshot.images);
+    if (g.id !== "bloodborne") return remote;
+    return {
+      cover: mediaOverrides.cover || remote.cover || media.cover,
+      banner: mediaOverrides.banner || remote.banner || media.banner,
+      hero: mediaOverrides.hero || remote.hero || media.hero,
+      gallery: mediaOverrides.gallery.length
+        ? mediaOverrides.gallery
+        : remote.gallery.length
+          ? remote.gallery
+          : media.gallery,
+    };
+  };
+  const catalogGames = catalog.snapshot.catalog.games.filter(
+    (g) =>
+      (!query ||
+        [
+          g.title,
+          g.description,
+          ...g.genres,
+          ...g.tags,
+          g.sourceConsole,
+          ...g.project.authors,
+        ]
+          .join(" ")
+          .toLowerCase()
+          .includes(query.toLowerCase())) &&
+      (filter === "all" ||
+        (filter === "available" ? supportsInstall(g) : !supportsInstall(g))),
+  );
+  const selectedPublished =
+    selectedGame &&
+    catalog.snapshot.catalog.games.find((g) => g.id === selectedGame.id);
+  const detailGame = selectedPublished || selectedGame;
   const isLight = settings.theme === "system";
   return (
     <MotionConfig reducedMotion={settings.reducedMotion ? "always" : "user"}>
@@ -298,21 +346,46 @@ export default function App() {
               </button>
             ))}
           </nav>
-          <div className="sidebar-collection">
-            <p className="eyebrow">В ФОКУСЕ</p>
-            <button
-              onClick={() => navigate("details")}
-              className="sidebar-feature"
-            >
-              <span className="small-cover">
-                <GameArt src={media.hero} />
-              </span>
-              <span>
-                Bloodborne<small>FromSoftware · 2015</small>
-              </span>
-              <ChevronRight size={14} />
-            </button>
-          </div>
+          {catalog.snapshot.source === "demo" ||
+          games.items.some((i) => i.collectionId === "bloodborne") ? (
+            <div className="sidebar-collection">
+              <p className="eyebrow">В ФОКУСЕ</p>
+              <button
+                onClick={() => {
+                  setSelectedGame(null);
+                  navigate("details");
+                }}
+                className="sidebar-feature"
+              >
+                <span className="small-cover">
+                  <GameArt src={media.hero} />
+                </span>
+                <span>
+                  Bloodborne<small>FromSoftware · 2015</small>
+                </span>
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          ) : catalog.snapshot.catalog.games[0] ? (
+            <div className="sidebar-collection">
+              <button
+                className="sidebar-feature"
+                onClick={() => openGame(catalog.snapshot.catalog.games[0])}
+              >
+                <span className="small-cover">
+                  <GameArt
+                    src={gameMedia(catalog.snapshot.catalog.games[0]).cover}
+                  />
+                </span>
+                <span>
+                  {catalog.snapshot.catalog.games[0].title}
+                  <small>
+                    {catalog.snapshot.catalog.games[0].sourceConsole}
+                  </small>
+                </span>
+              </button>
+            </div>
+          ) : null}
           <div className="sidebar-bottom">
             <div className="local-note">
               <ShieldCheck size={19} />
@@ -344,7 +417,11 @@ export default function App() {
           <header className="topbar">
             <div className="breadcrumb">
               Обзор <ChevronRight size={13} />
-              <span>{pageNames[page]}</span>
+              <span>
+                {page === "details" && detailGame
+                  ? detailGame.title
+                  : pageNames[page]}
+              </span>
             </div>
             <form
               className="search-box"
@@ -381,7 +458,7 @@ export default function App() {
               <span className="status-dot" />
               {native ? "WINDOWS" : "WEB PREVIEW"}
               <span className="build-divider" />
-              STAGE 03
+              STAGE 04C
             </div>
           </header>
           {!online && (
@@ -419,7 +496,16 @@ export default function App() {
                       </Button>
                     </p>
                   )}
-                  {page === "home" && (
+                  {page === "home" && catalog.snapshot.source !== "demo" && (
+                    <DynamicHome
+                      catalog={catalog}
+                      state={games}
+                      media={gameMedia}
+                      onOpen={openGame}
+                      onInstall={() => setInstaller(true)}
+                    />
+                  )}
+                  {page === "home" && catalog.snapshot.source === "demo" && (
                     <>
                       <div className="page-heading">
                         <div>
@@ -436,6 +522,7 @@ export default function App() {
                           Создано для Windows
                         </span>
                       </div>
+                      <CatalogStatus state={catalog} />
                       <section className="hero">
                         <GameArt src={media.hero} />
                         <div className="hero-shade" />
@@ -463,7 +550,10 @@ export default function App() {
                             />
                             <Button
                               variant="secondary"
-                              onClick={() => navigate("details")}
+                              onClick={() => {
+                                setSelectedGame(null);
+                                navigate("details");
+                              }}
                             >
                               Подробнее
                             </Button>
@@ -489,7 +579,10 @@ export default function App() {
                         eyebrow="ОХОТА НАЧИНАЕТСЯ ЗДЕСЬ."
                         title="Bloodborne"
                         action="Об игре"
-                        onAction={() => navigate("details")}
+                        onAction={() => {
+                          setSelectedGame(null);
+                          navigate("details");
+                        }}
                       />
                       <div className="game-grid">
                         {collection.titles.map((title) => (
@@ -504,7 +597,10 @@ export default function App() {
                                 ? "В библиотеке"
                                 : "Доступна установка"
                             }
-                            onClick={() => navigate("details")}
+                            onClick={() => {
+                              setSelectedGame(null);
+                              navigate("details");
+                            }}
                           />
                         ))}
                       </div>
@@ -559,7 +655,9 @@ export default function App() {
                             Каталог<span className="accent">.</span>
                           </h1>
                         </div>
-                        <span className="quiet-label">01 игра</span>
+                        <span className="quiet-label">
+                          {catalog.snapshot.catalog.games.length} игр
+                        </span>
                       </div>
                       <div className="filter-bar">
                         <div>
@@ -567,7 +665,7 @@ export default function App() {
                           <span>Доступность</span>
                           {[
                             { id: "all", label: "Все" },
-                            { id: "planned", label: "Запланировано" },
+                            { id: "planned", label: "Без адаптера" },
                             { id: "available", label: "Готовы к установке" },
                           ].map((f) => (
                             <button
@@ -582,34 +680,24 @@ export default function App() {
                         </div>
                         <Grid2X2 size={17} />
                       </div>
-                      {showResult ? (
-                        <>
-                          <div className="game-grid">
-                            <GameCard
-                              title={collection.titles[0]}
-                              cover={media.cover}
-                              status={
-                                games.items.some(
-                                  (i) => i.collectionId === collection.id,
-                                )
-                                  ? "В библиотеке"
-                                  : "Доступна установка"
-                              }
-                              onClick={() => navigate("details")}
-                            />
-                          </div>
-                          <p className="catalog-note">
-                            <Info size={15} />
-                            Установка из собственной папки или совместимого
-                            основного PKG. Windows-runtime загружается отдельно;
-                            данные игры не скачиваются.
-                          </p>
-                        </>
+                      <CatalogStatus state={catalog} />
+                      {catalogGames.length ? (
+                        <PublishedCards
+                          games={catalogGames}
+                          state={games}
+                          media={gameMedia}
+                          onOpen={(g) =>
+                            catalog.snapshot.source === "demo" &&
+                            g.id === "bloodborne"
+                              ? (setSelectedGame(null), navigate("details"))
+                              : openGame(g)
+                          }
+                        />
                       ) : (
                         <Empty
                           icon={Search}
                           title="Ничего не найдено"
-                          description="Попробуйте другой запрос или измените фильтр доступности."
+                          description="Измените запрос или фильтр. Установленные игры доступны в библиотеке."
                         >
                           <Button
                             variant="secondary"
@@ -624,7 +712,17 @@ export default function App() {
                       )}
                     </>
                   )}
-                  {page === "details" && (
+                  {page === "details" && detailGame && (
+                    <CatalogDetail
+                      published={!!selectedPublished}
+                      game={detailGame}
+                      state={games}
+                      media={gameMedia(detailGame)}
+                      onBack={() => navigate("catalog")}
+                      onInstall={() => setInstaller(true)}
+                    />
+                  )}
+                  {page === "details" && !detailGame && (
                     <>
                       <button
                         className="back-link"
@@ -813,7 +911,21 @@ export default function App() {
                         </div>
                       </div>
                       <InstalledLibrary
-                        media={{ [collection.id]: media }}
+                        media={{
+                          ...Object.fromEntries(
+                            [
+                              ...catalog.snapshot.known,
+                              ...catalog.snapshot.catalog.games,
+                            ].map((g) => [g.collectionId, gameMedia(g)]),
+                          ),
+                          [collection.id]: media,
+                        }}
+                        names={Object.fromEntries(
+                          [
+                            ...catalog.snapshot.known,
+                            ...catalog.snapshot.catalog.games,
+                          ].map((g) => [g.collectionId, g.title]),
+                        )}
                         state={games}
                         onCatalog={() => navigate("catalog")}
                       />
@@ -854,6 +966,7 @@ export default function App() {
                           {saving ? "Сохранение…" : "Локальное сохранение"}
                         </span>
                       </div>
+                      <CatalogSettings state={catalog} />
                       <div className="settings-layout">
                         <div>
                           <SettingsSection
@@ -1017,7 +1130,8 @@ export default function App() {
                       PORT// <span>Миры становятся ближе.</span>
                     </span>
                     <span>
-                      Независимый проект<small>·</small>Stage 03 / Bloodborne
+                      Независимый проект<small>·</small>Stage 04C / Online
+                      Catalog
                     </span>
                   </footer>
                 </motion.div>
@@ -1040,7 +1154,7 @@ export default function App() {
           open={about}
           onOpenChange={setAbout}
           title="Миры становятся ближе."
-          description="PORT// — независимый Windows-лаунчер. Версия 0.1.0, Stage 03."
+          description="PORT// — независимый Windows-лаунчер. Версия 0.1.0, Stage 04C."
         >
           <div className="about-dialog-content">
             <Compass size={46} strokeWidth={1} />

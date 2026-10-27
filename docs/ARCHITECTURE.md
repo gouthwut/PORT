@@ -1,5 +1,11 @@
 # Architecture
 
+## Stage 04C online catalog
+
+`catalog.rs` owns a bounded HTTPS metadata/image fetcher, a process-wide synchronization lock and independent SQLite `catalog_config`, `catalog_cache`, `catalog_known` tables; installation schema stays at 4. Commands: `load_catalog`, `configure_catalog({endpoint})`, `sync_catalog`. Both Rust and browser-preview TypeScript validate `docs/catalog.schema.json` with the same restricted schema interpreter and semantic rules. `src/services/catalog.ts` manages startup, reconnect, five-minute and manual refresh, native IPC versus explicit localStorage preview, and a compiled adapter allowlist. `OnlineCatalog.tsx` renders publication state, API settings, dynamic home/cards/details and honest unavailable actions. The curated local Bloodborne view remains available as installed identity/default fixture presentation. Existing installation/update/runtime code is unchanged.
+
+Public catalog and installed library are independent: remote deletion cannot modify installations. Retained installed metadata names removed titles, with the original Bloodborne fallback and local media preserved. No remote field is executable or used as a runtime download/launch argument. Images are checked WebP/SHA-256 local data URLs under the existing restrictive image CSP. Full CMS publication, limits, persistence and security contract: [CATALOG.md](CATALOG.md). Historical architecture sections below retain their original stage-specific context.
+
 ## Stage 04B update contract
 
 `install_inplace.rs` owns `update_installation({id,path,updatedId?})`. The user's continuation supersedes the initial separate-copy implementation. SQLite schema 4 adds `update_jobs(id,value)` alongside existing settings/media/installations/installation_jobs. Updates retain the same installation ID/root/runtime and library card. They stage only the pinned patch, then move replaced originals into an undo backup. No full game/runtime copy or download occurs; normal updates never rewrite user-data.

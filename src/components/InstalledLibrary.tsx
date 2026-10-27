@@ -10,10 +10,12 @@ export function InstalledLibrary({
   media,
   state,
   onCatalog,
+  names = {},
 }: {
   media: Record<string, { cover?: string; banner?: string }>;
   state: GameState;
   onCatalog: () => void;
+  names?: Record<string, string>;
 }) {
   const detailRef = useRef<HTMLElement>(null);
   const [selected, setSelected] = useState<string | null>(null);
@@ -57,7 +59,9 @@ export function InstalledLibrary({
   }, [selected]);
   const item = state.items.find((i) => i.id === selected);
   const name = (i: Installation) =>
-    i.collectionId === collection.id ? collection.title : i.collectionId;
+    i.collectionId === collection.id
+      ? collection.title
+      : names[i.collectionId] || i.collectionId;
   async function action(command: string, i: Installation, setup = false) {
     setMessage("");
     const result = await state.action(command, i, setup);

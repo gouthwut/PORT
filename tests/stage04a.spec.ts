@@ -213,7 +213,7 @@ test("unavailable SQLite state disables primary action instead of assuming not i
     };
   });
   await page.goto("/");
-  await expect(page.getByRole("alert")).toContainText(
+  await expect(page.locator(".installer-error")).toContainText(
     "QA database unavailable",
   );
   await expect(

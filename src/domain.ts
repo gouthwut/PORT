@@ -16,9 +16,11 @@ export interface Collection {
   status: "planned";
   titles: GameTitle[];
 }
-export interface CatalogService {
-  collections(): Promise<Collection[]>;
-}
+export type {
+  PublishedCatalog,
+  PublishedGame,
+  CatalogSnapshot,
+} from "./services/catalog";
 export interface Installation {
   id: string;
   collectionId: string;
@@ -83,7 +85,4 @@ export const collection: Collection = {
       number: "01",
     },
   ],
-};
-export const catalogService: CatalogService = {
-  collections: async () => [collection],
 };

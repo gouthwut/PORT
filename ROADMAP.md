@@ -1,5 +1,13 @@
 # Roadmap
 
+## Stage 04C — online catalog client foundation
+
+Authorized 2026-10-27. Versioned published metadata/API contract, configurable public HTTPS synchronization, bounded validation and local image/catalog cache, dynamic client cards/details, offline library independent of publication. CMS is not deployed; default data is an explicitly labelled local fixture. Installer adapters remain compiled/allowlisted; Bloodborne 1.09 installation/runtime/profile must remain unchanged. See docs/CATALOG.md and actual exit evidence in PROGRESS.md.
+
+## Stage 05 — PORT Catalog CMS (future)
+
+Separate private web project: owner authentication, draft/editor workflows, authorized image uploads/optimization, free infrastructure selection, atomic publication to a stable public v1 HTTPS endpoint and end-to-end client synchronization. No CMS source/secrets in the public client repository. Stage 04C does not authorize creating hosting accounts or this admin project. Additional game installers require independent reviewed adapters, not catalog-provided code. Distribution/signing gates in the historical table remain separate.
+
 ## Stage 04B — narrow Bloodborne 1.09 update
 
 Authorized separately on 2026-10-27. The user subsequently requested IN-PLACE updates and one library card. Keep the installation identity/paths, stage the confirmed patch only, and use schema 4 per-file undo/recovery before committing 01.09. Consolidate the already verified separate 1.09 without losing its current profile, preserve the older profile as backup, then retire only the duplicate game payload/row. Reuse the worker, path/hash boundaries and process guards. Actual exit evidence is recorded in PROGRESS.md. General deltas, update catalogs and combined initial base+update automation remain deferred.

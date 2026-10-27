@@ -119,7 +119,13 @@ export function MediaEditor({
     </section>
   );
 }
-export function Gallery({ images }: { images: string[] }) {
+export function Gallery({
+  images,
+  title = "Bloodborne",
+}: {
+  images: string[];
+  title?: string;
+}) {
   const [index, setIndex] = useState<number | null>(null);
   const returnFocus = useRef<HTMLButtonElement | null>(null);
   const change = (n: number) =>
@@ -128,7 +134,9 @@ export function Gallery({ images }: { images: string[] }) {
     );
   return (
     <section className="gallery-section">
-      <h2>Ночь в Ярнаме</h2>
+      <h2>
+        {title === "Bloodborne" ? "Ночь в Ярнаме" : `Скриншоты · ${title}`}
+      </h2>
       <p className="muted small">
         Галерея · {images.length} / 10 · изображения доступны без интернета
       </p>
@@ -145,7 +153,7 @@ export function Gallery({ images }: { images: string[] }) {
             >
               <img
                 src={src}
-                alt={`Bloodborne — скриншот ${i + 1}`}
+                alt={`${title} — скриншот ${i + 1}`}
                 loading="lazy"
                 onError={(e) => {
                   e.currentTarget.alt = "Не удалось загрузить изображение";
@@ -155,8 +163,7 @@ export function Gallery({ images }: { images: string[] }) {
           ))
         ) : (
           <p className="gallery-empty">
-            Скриншоты ещё не добавлены. Выберите изображения в разделе
-            оформления ниже.
+            Скриншоты ещё не добавлены или недоступны в кэше.
           </p>
         )}
       </div>
@@ -186,7 +193,7 @@ export function Gallery({ images }: { images: string[] }) {
             }}
           >
             <Dialog.Title>
-              Bloodborne · скриншот {(index ?? 0) + 1} / {images.length}
+              {title} · скриншот {(index ?? 0) + 1} / {images.length}
             </Dialog.Title>
             <Dialog.Description>
               Стрелки переключают изображения. Escape закрывает просмотр.
@@ -204,7 +211,7 @@ export function Gallery({ images }: { images: string[] }) {
             {index !== null && (
               <img
                 src={images[index]}
-                alt={`Bloodborne — скриншот ${index + 1}`}
+                alt={`${title} — скриншот ${index + 1}`}
               />
             )}
             <Button

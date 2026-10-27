@@ -10,7 +10,8 @@
       "allow": [
         { "url": "https://github.com/Supermedo/bloodborne_pc" },
         { "url": "https://github.com/Supermedo/bloodborne_pc#requirements" },
-        { "url": "https://github.com/Supermedo/bloodborne_pc/*" }
+        { "url": "https://github.com/Supermedo/bloodborne_pc/*" },
+        { "url": "https://github.com/*/*" }
       ]
     }
   ]

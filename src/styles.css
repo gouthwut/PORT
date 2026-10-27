@@ -2831,3 +2831,80 @@ footer small {
     padding: 18px;
   }
 }
+/* Published catalog controls share the existing typography and card system. */
+.catalog-sync {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 22px;
+  margin: 0 0 26px;
+  border: 1px solid var(--border, #30313c);
+  border-radius: 14px;
+  background: var(--surface, #17181f);
+  overflow-wrap: anywhere;
+}
+.catalog-sync p {
+  margin: 6px 0 0;
+}
+.catalog-sync [role="alert"] {
+  color: #e8ad83;
+}
+.catalog-sync .button {
+  flex-shrink: 0;
+}
+.catalog-settings {
+  margin-bottom: 26px;
+}
+.catalog-settings form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+}
+.catalog-settings label {
+  width: 100%;
+}
+.catalog-settings input {
+  min-width: 0;
+  flex: 1 1 300px;
+  border: 1px solid var(--border, #30313c);
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  padding: 12px;
+}
+.catalog-description {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.unavailable-action {
+  border: 1px solid var(--border, #30313c);
+  border-radius: 10px;
+  padding: 14px;
+  color: var(--muted, #b1afbf);
+}
+.game-card > .small {
+  padding: 0 0 14px;
+  text-align: left;
+}
+.detail-layout li {
+  margin-bottom: 10px;
+  overflow-wrap: anywhere;
+}
+.detail-banner h1,
+.game-meta h3,
+.hero-content h1 {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 700px) {
+  .catalog-sync {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+  }
+  .catalog-settings form > .button {
+    width: 100%;
+  }
+}
