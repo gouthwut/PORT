@@ -1,4 +1,4 @@
-//! Local installation lifecycle and durable staging; narrow updates live in install_update.rs.
+//! Local installation lifecycle and durable staging; narrow updates live in install_inplace.rs.
 #[cfg(test)]
 #[path = "install_tests.rs"]
 mod tests;
