@@ -333,7 +333,7 @@ export function DynamicHome({
   state: GameState;
   media: (g: PublishedGame) => MediaSet;
   onOpen: (g: PublishedGame) => void;
-  onInstall: () => void;
+  onInstall: (game: PublishedGame) => void;
 }) {
   const g = catalog.snapshot.catalog.games[0];
   return (
@@ -355,7 +355,11 @@ export function DynamicHome({
             <h1>{g.title}</h1>
             <p>{g.description.slice(0, 220)}</p>
             <div className="hero-actions">
-              <PublishedAction game={g} state={state} onInstall={onInstall} />
+              <PublishedAction
+                game={g}
+                state={state}
+                onInstall={() => onInstall(g)}
+              />
               <Button variant="secondary" onClick={() => onOpen(g)}>
                 Подробнее
               </Button>

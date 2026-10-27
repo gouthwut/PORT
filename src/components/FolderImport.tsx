@@ -24,11 +24,14 @@ export function FolderImport({
   packagePaths = [],
   defaultParent = "",
   packageBytes = 0,
+  sourceKind = "folder",
 }: {
+  sourceKind?: "folder" | "xbox360-iso";
   packagePaths?: string[];
   defaultParent?: string;
   packageBytes?: number;
 }) {
+  const iso = sourceKind === "xbox360-iso";
   const [folder, setFolder] = useState<Folder | null>(null);
   const [parent, setParent] = useState(defaultParent);
   const [busy, setBusy] = useState(false);
@@ -59,6 +62,7 @@ export function FolderImport({
       void invoke<InstallationDestination>("check_install_destination", {
         parent,
         bytes,
+        adapterId: iso ? "skate3" : "bloodborne",
       })
         .then((d) => {
           if (active) setDestination(d);
@@ -74,7 +78,7 @@ export function FolderImport({
       active = false;
       clearTimeout(timer);
     };
-  }, [parent, sourceReady, bytes]);
+  }, [parent, sourceReady, bytes, iso]);
   useEffect(() => {
     if (!native) return;
     void invoke<boolean>("pkg_install_available")
@@ -104,16 +108,27 @@ export function FolderImport({
     try {
       const { open } = await import("@tauri-apps/plugin-dialog");
       const p = await open({
-        directory: true,
+        directory: !(source && iso),
+        filters:
+          source && iso
+            ? [{ name: "Xbox 360 ISO", extensions: ["iso"] }]
+            : undefined,
         multiple: false,
-        title: source
-          ? "Bloodborne — папка с eboot.bin, sce_module, sce_sys, dvdroot_ps4"
-          : "Отдельная папка назначения PORT (вне исходной папки)",
+        title:
+          source && iso
+            ? "Skate 3 — Xbox 360 ISO"
+            : source
+              ? "Bloodborne — папка с eboot.bin, sce_module, sce_sys, dvdroot_ps4"
+              : "Отдельная папка назначения PORT (вне исходной папки)",
       });
       if (typeof p === "string") {
         if (source) {
           setFolder(null);
-          setFolder(await invoke<Folder>("inspect_game_folder", { path: p }));
+          const info = await invoke<Folder>(
+            iso ? "inspect_skate3_iso" : "inspect_game_folder",
+            { path: p },
+          );
+          setFolder({ ...info, path: p });
         } else setParent(p);
       }
     } catch (e) {
@@ -148,13 +163,28 @@ export function FolderImport({
   return (
     <section
       className="installer-section"
-      aria-label="Импорт подготовленной папки"
+      aria-label={
+        iso ? "Установка из Xbox 360 ISO" : "Импорт подготовленной папки"
+      }
     >
+      {iso && (
+        <>
+          <h3>01 · Xbox 360 ISO</h3>
+          <Button
+            disabled={!native || locked}
+            onClick={() => void choose(true)}
+          >
+            Выбрать Xbox 360 ISO
+          </Button>
+        </>
+      )}
       <h3>02 · Место установки</h3>
       <p className="muted small">
         {sourceReady
           ? "Выберите, где хранить игру и её компоненты."
-          : "Сначала выберите PKG или подготовленную папку игры."}
+          : iso
+            ? "Выберите собственный Xbox 360 ISO Skate 3."
+            : "Сначала выберите PKG или подготовленную папку игры."}
       </p>
       <label className="install-field-label" htmlFor="install-parent">
         Папка установки
@@ -215,25 +245,30 @@ export function FolderImport({
         </span>
         <Monitor size={20} aria-hidden="true" />
       </label>
-      <div className="media-actions">
-        <Button
-          disabled={
-            !native ||
-            locked ||
-            !parent ||
-            !packagePaths.length ||
-            !pkgAvailable ||
-            !destination ||
-            checking
-          }
-          onClick={() => void action("install_packages")}
-        >
-          Проверить и установить основной PKG
-        </Button>
-        <Button disabled={!native || locked} onClick={() => void choose(true)}>
-          Выбрать папку с файлами игры
-        </Button>
-      </div>
+      {!iso && (
+        <div className="media-actions">
+          <Button
+            disabled={
+              !native ||
+              locked ||
+              !parent ||
+              !packagePaths.length ||
+              !pkgAvailable ||
+              !destination ||
+              checking
+            }
+            onClick={() => void action("install_packages")}
+          >
+            Проверить и установить основной PKG
+          </Button>
+          <Button
+            disabled={!native || locked}
+            onClick={() => void choose(true)}
+          >
+            Выбрать папку с файлами игры
+          </Button>
+        </div>
+      )}
       {!native && (
         <p className="muted small">
           Импорт, подготовка runtime и запуск доступны только в
@@ -262,17 +297,21 @@ export function FolderImport({
       <div className="media-actions">
         <Button
           disabled={!native || locked || !folder || !destination || checking}
-          onClick={() => void action("import_game_folder")}
+          onClick={() =>
+            void action(iso ? "install_skate3" : "import_game_folder")
+          }
         >
-          Установить из папки
+          {iso ? "Установить из ISO" : "Установить из папки"}
         </Button>
-        <Button
-          variant="secondary"
-          disabled={!native || locked || !parent}
-          onClick={() => void action("prepare_runtime")}
-        >
-          Подготовить только runtime
-        </Button>
+        {!iso && (
+          <Button
+            variant="secondary"
+            disabled={!native || locked || !parent}
+            onClick={() => void action("prepare_runtime")}
+          >
+            Подготовить только runtime
+          </Button>
+        )}
         <Button
           variant="secondary"
           disabled={!status?.active || busy || status.phase === "finishing"}
@@ -282,10 +321,11 @@ export function FolderImport({
         </Button>
       </div>
       <p className="muted small">
-        Компоненты Windows-проекта доступны ниже. Проверенный кэш работает без
-        интернета. Подготовка только runtime не добавляет игру в библиотеку.
+        {iso
+          ? "Skate 3 Recomp v2.0.2 будет проверена по SHA-256. Официальный мастер запросит Title Update 3: завершите его, затем закройте игру для проверки и добавления в библиотеку. ISO остаётся без изменений. Сохранения: user-data."
+          : "Компоненты Windows-проекта доступны ниже. Проверенный кэш работает без интернета. Подготовка только runtime не добавляет игру в библиотеку."}
       </p>
-      {native && !pkgAvailable && (
+      {native && !iso && !pkgAvailable && (
         <p className="muted small">
           Эта сборка не содержит PKG worker; импорт собственной папки доступен.
         </p>
@@ -304,7 +344,7 @@ export function FolderImport({
           {status.active && status.total > 0 && (
             <>
               <progress
-                aria-label="Установка Bloodborne"
+                aria-label={iso ? "Установка Skate 3" : "Установка Bloodborne"}
                 max={status.total}
                 value={Math.min(status.completed, status.total)}
               />

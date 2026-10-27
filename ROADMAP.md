@@ -50,3 +50,7 @@ The user authorized Bloodborne UI, verified runtime downloads, local PKG handlin
 | 02D Installation / library | Gated; no game installs, launch, repair or removal                                                                              | Harden/test decoder; encrypted user payloads not extracted; establish data/patch/launch contract, then atomic install and SQLite records |
 
 Stages 03/04 outside the installation/library scope explicitly requested here remain future work. Do not mark Stage 02 complete until user-file integration and native gameplay evidence satisfy its gates.
+
+## Stage 06 — Skate 3 adapter
+
+Authorized: compiled Skate 3 native-recompilation adapter, read-only owner ISO validation and real isolated/native installation/launch checks, shared lifecycle, exact future CMS identity. CMS publication/admin/Cloudflare changes are forbidden; owner alone publishes the card. See docs/SKATE3.md and PROGRESS.md for completion evidence and limits.

@@ -34,6 +34,7 @@ import {
 } from "./services/settings";
 import { Button, Modal, Switch, gameCount } from "./components/ui";
 import { GameArt, Gallery } from "./components/BloodborneMedia";
+import { FolderImport } from "./components/FolderImport";
 import { InstallerPanel, DownloadPanel } from "./components/Installer";
 import { emptyMedia, mediaService, type MediaSet } from "./services/media";
 import { resolveMedia } from "./services/bundled-media";
@@ -153,6 +154,11 @@ export default function App() {
   const [choosingFolder, setChoosingFolder] = useState(false);
   const folderDialogOpen = useRef(false);
   const [installer, setInstaller] = useState(false);
+  const [installAdapter, setInstallAdapter] = useState("bloodborne");
+  const beginInstall = (id = "bloodborne") => {
+    setInstallAdapter(id);
+    setInstaller(true);
+  };
   const [about, setAbout] = useState(false);
   const [reset, setReset] = useState(false);
   const [toast, setToast] = useState("");
@@ -431,7 +437,7 @@ export default function App() {
                       state={games}
                       media={gameMedia}
                       onOpen={openGame}
-                      onInstall={() => setInstaller(true)}
+                      onInstall={(g) => beginInstall(g.adapterId)}
                     />
                   )}
                   {page === "home" && catalog.snapshot.source === "demo" && (
@@ -455,7 +461,7 @@ export default function App() {
                             <GameAction
                               state={games}
                               collectionId={collection.id}
-                              onInstall={() => setInstaller(true)}
+                              onInstall={() => beginInstall()}
                             />
                             <Button
                               variant="secondary"
@@ -571,7 +577,7 @@ export default function App() {
                       state={games}
                       media={gameMedia(detailGame)}
                       onBack={() => navigate("catalog")}
-                      onInstall={() => setInstaller(true)}
+                      onInstall={() => beginInstall(detailGame.adapterId)}
                     />
                   )}
                   {page === "details" && !detailGame && (
@@ -719,7 +725,7 @@ export default function App() {
                           <GameAction
                             state={games}
                             collectionId={collection.id}
-                            onInstall={() => setInstaller(true)}
+                            onInstall={() => beginInstall()}
                           />
                           <div className="panel-rule" />
                           <div className="author-row">
@@ -929,13 +935,24 @@ export default function App() {
             setInstaller(open);
             if (!open) void games.refresh().catch(() => {});
           }}
-          title="Установка Bloodborne"
+          title={
+            installAdapter === "skate3"
+              ? "Установка Skate 3"
+              : "Установка Bloodborne"
+          }
           description="Выберите файлы игры и папку установки."
         >
-          <InstallerPanel
-            installDir={settings.installDir}
-            artwork={media.banner || media.hero || media.cover}
-          />
+          {installAdapter === "skate3" ? (
+            <FolderImport
+              sourceKind="xbox360-iso"
+              defaultParent={settings.installDir}
+            />
+          ) : (
+            <InstallerPanel
+              installDir={settings.installDir}
+              artwork={media.banner || media.hero || media.cover}
+            />
+          )}
         </Modal>
         <Modal
           open={about}

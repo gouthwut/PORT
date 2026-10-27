@@ -23,8 +23,12 @@ export function GameAction({
   );
   const running = item && state.running.includes(item.id);
   const active = state.operation?.active;
+  const ownOperation =
+    !state.operation?.collectionId ||
+    state.operation.collectionId === collectionId;
   const installing =
     active &&
+    ownOperation &&
     (!item ||
       [
         "copying",
@@ -32,6 +36,7 @@ export function GameAction({
         "downloading",
         "validating",
         "preparing",
+        "setup",
         "hashing",
         "installing",
         "updating",
@@ -62,10 +67,12 @@ export function GameAction({
           : running
             ? "Уже запущена"
             : installing
-              ? state.operation?.phase === "updating" ||
-                state.operation?.phase === "finalizing"
-                ? "Обновление…"
-                : "Установка…"
+              ? state.operation?.phase === "setup"
+                ? "Завершите мастер…"
+                : state.operation?.phase === "updating" ||
+                    state.operation?.phase === "finalizing"
+                  ? "Обновление…"
+                  : "Установка…"
               : state.busy
                 ? "Подождите…"
                 : item
@@ -107,7 +114,7 @@ export function GameAction({
           </Button>
         </div>
       )}
-      {!compact && state.operation?.phase === "error" && (
+      {!compact && ownOperation && state.operation?.phase === "error" && (
         <p className="muted small">
           Установка не завершена.{" "}
           {state.operation.message || "Повторите выбор файлов."}

@@ -207,13 +207,7 @@ const initialSnapshot = (): CatalogSnapshot =>
         source: "empty",
       };
 // This registry is compiled code. Remote IDs never provide commands, URLs or flags to installers.
-export const supportsInstall = (g: PublishedGame) =>
-  g.id === "bloodborne" &&
-  g.collectionId === "bloodborne" &&
-  g.adapterId === "bloodborne" &&
-  g.implementation === "compatibility-runtime" &&
-  g.windowsBuild === "available" &&
-  g.compatibility.status !== "unavailable";
+export { adapterRegistry, supportsInstall } from "./adapters";
 export function catalogMedia(
   g: PublishedGame,
   images: Record<string, string>,

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "revision": "local-fixture-stage06",
+  "publishedAt": "2026-10-27T00:00:00Z",
+  "games": [
+    {
+      "id": "skate3",
+      "collectionId": "skate3",
+      "status": "published",
+      "title": "Skate 3",
+      "description": "Неофициальная нативная рекомпиляция Xbox 360-версии Skate 3. Требует собственный совместимый ISO; не является официальным PC-релизом.",
+      "genres": ["Sports"],
+      "tags": ["Skateboarding"],
+      "sourceConsole": "Xbox 360",
+      "implementation": "recompilation",
+      "media": {
+        "gallery": []
+      },
+      "requirements": {
+        "os": "Windows x64",
+        "cpu": "Upstream Windows x64 build; minimum CPU not independently established",
+        "gpu": "Direct3D 12 or Vulkan; current driver",
+        "memory": "Minimum not independently established",
+        "storage": "Game data plus Windows runtime and reserve; PORT checks free space",
+        "notes": "Pinned v2.0.2; gameplay and performance depend on hardware"
+      },
+      "compatibility": {
+        "status": "experimental",
+        "notes": "Owner reports working gameplay after official TU3 setup. Broad hardware/region compatibility remains unverified."
+      },
+      "project": {
+        "github": "https://github.com/mchughalex/skate3recomp",
+        "authors": ["mchughalex and contributors"],
+        "license": "No project license declared in upstream v2.0.2; dependency notices apply"
+      },
+      "requiredFiles": [
+        "Own compatible retail Xbox 360 XDVDFS ISO, Title ID 454108E6 / Media ID 5C087C2C / base 3.0.0.0",
+        "Title Update 3 (3.0.3.0), acquired by the user through the official upstream setup; close the game to finish PORT installation"
+      ],
+      "windowsBuild": "available",
+      "adapterId": "skate3"
+    }
+  ]
+}

@@ -1,3 +1,9 @@
+# Upstream reviews — 2026-10-27
+
+## Skate 3, Stage 06
+
+Reviewed latest v2.0.2/source/Windows archive and actual read-only owner ISO. See [SKATE3.md](SKATE3.md) for exact source and SDK commits, artifact digest/layout, original bounded XDVDFS import, documented launch/user-data cvars, absent project-license declaration, supported identity and limits. Native install/launch evidence is in PROGRESS.md; no claim about other regions or gameplay follows from metadata.
+
 # Bloodborne upstream review — 2026-10-27
 
 ## Stage 04B — confirmed cumulative update (supersedes earlier no-update statements)

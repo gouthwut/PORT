@@ -63,7 +63,8 @@ export function InstalledLibrary({
   const name = (i: Installation) =>
     i.collectionId === collection.id
       ? collection.title
-      : names[i.collectionId] || i.collectionId;
+      : names[i.collectionId] ||
+        (i.collectionId === "skate3" ? "Skate 3" : i.collectionId);
   async function action(command: string, i: Installation, setup = false) {
     setMessage("");
     const result = await state.action(command, i, setup);
@@ -228,7 +229,7 @@ export function InstalledLibrary({
             <p className="eyebrow">ВАША КОЛЛЕКЦИЯ</p>
             <h2>{name(item)}</h2>
             <p className="muted">Версия {item.version || "не определена"}</p>
-            {item.version === "01.00" && (
+            {item.collectionId === "bloodborne" && item.version === "01.00" && (
               <p className="muted small">
                 Обновление заменяет файлы в этой установке. На случай сбоя PORT
                 резервирует заменяемые файлы и восстанавливает их при отмене.
@@ -258,33 +259,34 @@ export function InstalledLibrary({
                   >
                     Просмотреть локальные файлы
                   </Button>
-                  {item.version === "01.00" && (
-                    <Button
-                      variant="secondary"
-                      disabled={
-                        picking ||
-                        state.busy ||
-                        !!state.loadError ||
-                        !!state.operation?.active ||
-                        state.items.some(
-                          (i) =>
-                            i.collectionId === item.collectionId &&
-                            state.running.includes(i.id),
-                        )
-                      }
-                      onClick={() => void update(item)}
-                    >
-                      {picking
-                        ? "Выбор PKG…"
-                        : state.items.some(
-                              (i) =>
-                                i.collectionId === item.collectionId &&
-                                i.version === "01.09",
-                            )
-                          ? "Объединить версии"
-                          : "Установить обновление"}
-                    </Button>
-                  )}
+                  {item.collectionId === "bloodborne" &&
+                    item.version === "01.00" && (
+                      <Button
+                        variant="secondary"
+                        disabled={
+                          picking ||
+                          state.busy ||
+                          !!state.loadError ||
+                          !!state.operation?.active ||
+                          state.items.some(
+                            (i) =>
+                              i.collectionId === item.collectionId &&
+                              state.running.includes(i.id),
+                          )
+                        }
+                        onClick={() => void update(item)}
+                      >
+                        {picking
+                          ? "Выбор PKG…"
+                          : state.items.some(
+                                (i) =>
+                                  i.collectionId === item.collectionId &&
+                                  i.version === "01.09",
+                              )
+                            ? "Объединить версии"
+                            : "Установить обновление"}
+                      </Button>
+                    )}
                   <Button
                     variant="secondary"
                     disabled={

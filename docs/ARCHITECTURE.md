@@ -1,5 +1,9 @@
 # Architecture
 
+## Stage 06 compiled adapter extension
+
+`adapters.rs` owns fixed collection/root/data/runtime/entrypoint identities; `services/adapters.ts` binds exact published game/collection/adapter IDs and implementation (plus Xbox 360 for Skate). `skate3.rs` implements bounded read-only XDVDFS validation, pinned Windows download, staged copy/hash, user-driven official TU3 wizard, pinned-payload verification and atomic schema-4 registration. Shared destination, status, recovery, library, shortcuts, process guards, Explorer, verification and payload-only removal resolve local records. Bloodborne paths/pins/update algorithms and records are preserved. No CMS changes or permanent local Skate catalog card. See [SKATE3.md](SKATE3.md) for the pinned source, import/license limits and owner publication fields.
+
 ## Stage 05C production endpoint
 
 `src/catalog-endpoint.json` supplies the same permanent anonymous endpoint to Rust and TypeScript. Missing/empty native configuration resolves to it without rewriting existing rows; nonempty configuration and exact-endpoint cache scoping survive. Release UI starts empty until validated cache/network data is available, with no fixture fallback or endpoint editor. `configure_catalog` rejects release mutations. Vite development fixtures require an explicit test/development flag; ordinary development defaults to the online API. No player OAuth, installation migration, remote command or new adapter is added. Catalog synchronization writes only its separate catalog cache/retained metadata tables.
