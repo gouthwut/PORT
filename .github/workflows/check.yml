@@ -11,6 +11,9 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
@@ -25,6 +28,7 @@ jobs:
       - run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
       - run: cargo test --locked --manifest-path src-tauri/Cargo.toml
       - run: cargo clippy --locked --manifest-path src-tauri/Cargo.toml -- -D warnings
+      - run: ./scripts/test-extractor.ps1
       - run: npm run tauri build -- --no-bundle
       - uses: actions/upload-artifact@v4
         if: always()
@@ -33,3 +37,4 @@ jobs:
           path: |
             screenshots/
             test-results/
+            .local/evidence/
