@@ -1,5 +1,9 @@
 # Roadmap
 
+## Stage 05C — production catalog integration
+
+Authorized 2026-10-27. Verified real anonymous HTTPS API and six immutable WebP assets, embedded stable default endpoint, developer-only override/diagnostics, production interface without fixtures, automatic refresh and durable offline cache. Actual native release receives Bloodborne with the existing one-record 01.09 library/Play preserved. Publication changes/unpublication/network failures use isolated tests; no owner publication was changed. See current PROGRESS for final verification, commits and CI. Metadata publication needs no client rebuild; new installation methods still need reviewed compiled adapters. Earlier deployment-pending entries below are historical.
+
 ## Stage 04E — Dark Violet Liquid Glass UI/UX
 
 Authorized 2026-10-27. Visual layer, typography, player-facing copy and existing screen composition only. Inspect local references and Figma, create a coherent editable direction, implement in React/CSS, preserve navigation and all Stage 04A–04D handlers. No Rust/schema/library/runtime/PKG/update/path/shortcut changes, no CMS or new games. Exit evidence: before/after screenshots, keyboard/reduced-motion/responsive review, existing regression suite, native release startup, exact Bloodborne 01.09 preservation, commits/push and Windows CI. Actual outcomes and limits are recorded in PROGRESS.md.

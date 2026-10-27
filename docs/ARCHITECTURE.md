@@ -1,5 +1,9 @@
 # Architecture
 
+## Stage 05C production endpoint
+
+`src/catalog-endpoint.json` supplies the same permanent anonymous endpoint to Rust and TypeScript. Missing/empty native configuration resolves to it without rewriting existing rows; nonempty configuration and exact-endpoint cache scoping survive. Release UI starts empty until validated cache/network data is available, with no fixture fallback or endpoint editor. `configure_catalog` rejects release mutations. Vite development fixtures require an explicit test/development flag; ordinary development defaults to the online API. No player OAuth, installation migration, remote command or new adapter is added. Catalog synchronization writes only its separate catalog cache/retained metadata tables.
+
 ## Stage 04D installation experience
 
 The existing Bloodborne installer/extractor/update algorithms remain in place. `check_install_destination({parent,bytes,id?})` returns a stable ID in a plan (no SQLite write), previews the exact `PORT-Bloodborne-<id>` child, checks capacity plus runtime/reserve, performs an exclusive write probe and rejects invalid Windows names, system directories, linked ancestors and installed-root overlaps. The selected parent must already exist on a local disk. `default_install_parent` suggests Documents; a saved settings preference takes precedence. `install_packages` / `import_game_folder` accept optional `destinationId` and `desktopShortcut`; omitted values retain prior API behavior. The installer rechecks the destination, actual source size/space and exclusive staging/final paths before writing. The existing manifest/recovery journal and SQLite registration store actual root/data/runtime paths; all lifecycle actions continue resolving them locally. Schema remains 4; no installation rows are migrated or rewritten.
