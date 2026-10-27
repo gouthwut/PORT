@@ -17,3 +17,4 @@ native-metadata.tmp.json
 src-tauri/gen/
 src-tauri/icons/android/
 src-tauri/icons/ios/
+screenshots/14-native-window.png
