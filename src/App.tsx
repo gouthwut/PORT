@@ -374,7 +374,7 @@ export default function App() {
               <span className="status-dot" />
               {native ? "WINDOWS" : "WEB PREVIEW"}
               <span className="build-divider" />
-              STAGE 02
+              STAGE 03
             </div>
           </header>
           {!online && (
@@ -961,7 +961,7 @@ export default function App() {
                           </p>
                           <div className="panel-rule" />
                           <p className="small">
-                            Stage 02 · Bloodborne
+                            Stage 03 · Bloodborne
                             <br />
                             Доступны собственная папка и совместимые основные
                             PKG. Патч 1.09 не применяется автоматически;
