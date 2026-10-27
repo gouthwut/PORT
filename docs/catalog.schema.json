@@ -1,0 +1,287 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://port-launcher.invalid/catalog.schema.json",
+  "title": "PORT published catalog v1",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "revision": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "publishedAt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 30,
+      "format": "timestamp"
+    },
+    "games": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "format": "id"
+          },
+          "collectionId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "format": "id"
+          },
+          "status": {
+            "const": "published"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 12000
+          },
+          "genres": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60
+            },
+            "maxItems": 8
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60
+            },
+            "maxItems": 16
+          },
+          "sourceConsole": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "implementation": {
+            "enum": ["compatibility-runtime", "recompilation", "native-port"]
+          },
+          "media": {
+            "type": "object",
+            "properties": {
+              "cover": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2048,
+                    "format": "https"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "format": "sha256"
+                  }
+                },
+                "required": ["url", "sha256"],
+                "additionalProperties": false
+              },
+              "banner": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2048,
+                    "format": "https"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "format": "sha256"
+                  }
+                },
+                "required": ["url", "sha256"],
+                "additionalProperties": false
+              },
+              "hero": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2048,
+                    "format": "https"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "format": "sha256"
+                  }
+                },
+                "required": ["url", "sha256"],
+                "additionalProperties": false
+              },
+              "gallery": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2048,
+                      "format": "https"
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64,
+                      "format": "sha256"
+                    }
+                  },
+                  "required": ["url", "sha256"],
+                  "additionalProperties": false
+                },
+                "maxItems": 6
+              }
+            },
+            "required": ["gallery"],
+            "additionalProperties": false
+          },
+          "requirements": {
+            "type": "object",
+            "properties": {
+              "os": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "cpu": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "gpu": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "memory": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "storage": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "notes": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            },
+            "required": ["os", "cpu", "gpu", "memory", "storage", "notes"],
+            "additionalProperties": false
+          },
+          "compatibility": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "enum": ["experimental", "playable", "verified", "unavailable"]
+              },
+              "notes": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            },
+            "required": ["status", "notes"],
+            "additionalProperties": false
+          },
+          "project": {
+            "type": "object",
+            "properties": {
+              "github": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048,
+                "format": "github"
+              },
+              "authors": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                "maxItems": 12
+              },
+              "license": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              }
+            },
+            "required": ["github", "authors", "license"],
+            "additionalProperties": false
+          },
+          "requiredFiles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            },
+            "maxItems": 16
+          },
+          "windowsBuild": {
+            "enum": ["available", "unavailable"]
+          },
+          "adapterId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "format": "id"
+          }
+        },
+        "required": [
+          "id",
+          "collectionId",
+          "status",
+          "title",
+          "description",
+          "genres",
+          "tags",
+          "sourceConsole",
+          "implementation",
+          "media",
+          "requirements",
+          "compatibility",
+          "project",
+          "requiredFiles",
+          "windowsBuild",
+          "adapterId"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 100
+    }
+  },
+  "required": ["schemaVersion", "revision", "publishedAt", "games"],
+  "additionalProperties": false
+}

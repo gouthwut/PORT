@@ -1,5 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod catalog;
 mod download;
 mod install;
 mod media;
@@ -91,6 +92,7 @@ fn main() {
     tauri::Builder::default()
         .manage(download::Download::default())
         .manage(install::Installer::default())
+        .manage(catalog::SyncLock::default())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
@@ -110,6 +112,7 @@ fn main() {
             app.manage(InstanceLock { _lock: lock });
             let conn = Connection::open(dir.join("port.db"))?;
             init(&conn)?;
+            catalog::init(&conn)?;
             if let Err(error) = install::recover(&conn) {
                 app.state::<install::Installer>().recovery_error(&error);
             }
@@ -120,6 +123,9 @@ fn main() {
             load_settings,
             save_settings,
             reset_settings,
+            catalog::load_catalog,
+            catalog::configure_catalog,
+            catalog::sync_catalog,
             media::load_media,
             media::save_media,
             package::inspect_package,
