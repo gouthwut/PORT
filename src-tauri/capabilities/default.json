@@ -1,0 +1,17 @@
+{
+  "identifier": "main",
+  "description": "Main window: native folder picker and narrowly scoped external links",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "dialog:allow-open",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        { "url": "https://github.com/Supermedo/uncharted_pc" },
+        { "url": "https://github.com/Supermedo/uncharted_pc#requirements" },
+        { "url": "https://github.com/Supermedo/uncharted_pc/*" }
+      ]
+    }
+  ]
+}
