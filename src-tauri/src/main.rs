@@ -1,5 +1,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod download;
+mod media;
+mod package;
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
@@ -39,7 +42,7 @@ impl Settings {
 }
 struct Database(Mutex<Connection>);
 fn init(conn: &Connection) -> rusqlite::Result<()> {
-    conn.execute_batch("PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY CHECK(id=1), value TEXT NOT NULL); PRAGMA user_version=1;")
+    conn.execute_batch("PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY CHECK(id=1), value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS media (id INTEGER PRIMARY KEY CHECK(id=1), value TEXT NOT NULL); PRAGMA user_version=2;")
 }
 fn read(conn: &Connection) -> Result<Settings, String> {
     let mut stmt = conn
@@ -81,6 +84,7 @@ fn reset_settings(db: tauri::State<Database>) -> Result<Settings, String> {
 }
 fn main() {
     tauri::Builder::default()
+        .manage(download::Download::default())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
@@ -94,7 +98,13 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             load_settings,
             save_settings,
-            reset_settings
+            reset_settings,
+            media::load_media,
+            media::save_media,
+            package::inspect_package,
+            download::download_status,
+            download::start_download,
+            download::control_download
         ])
         .run(tauri::generate_context!())
         .expect("PORT failed to start");
@@ -117,13 +127,23 @@ mod tests {
         )
         .unwrap();
         assert_eq!(read(&conn).unwrap(), s);
+        // Schema v1 -> v2 migration must preserve the user's settings.
+        init(&conn).unwrap();
+        assert_eq!(read(&conn).unwrap(), s);
+        assert_eq!(
+            conn.query_row("PRAGMA user_version", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            2
+        );
         conn.execute("DELETE FROM settings", []).unwrap();
         assert_eq!(read(&conn).unwrap(), Settings::default());
     }
     #[test]
     fn rejects_invalid_settings() {
-        let mut s = Settings::default();
-        s.theme = "invalid".into();
+        let mut s = Settings {
+            theme: "invalid".into(),
+            ..Settings::default()
+        };
         assert!(s.validate().is_err());
         s.theme = "dark".into();
         s.install_dir = "relative/path".into();

@@ -1,0 +1,13 @@
+{
+  "repository": "Supermedo/bloodborne_pc",
+  "tag": "windows-v1.9.4",
+  "asset": "Bloodborne-Windows.zip",
+  "url": "https://github.com/Supermedo/bloodborne_pc/releases/download/windows-v1.9.4/Bloodborne-Windows.zip",
+  "size": 189268960,
+  "sha256": "b94390545fa72c05f0800f7cd7b5aa9fa4424fbb0e268a5b25bfa48331fa8f5a",
+  "digestSource": "https://api.github.com/repos/Supermedo/bloodborne_pc/releases/tags/windows-v1.9.4",
+  "reviewedAt": "2026-10-27",
+  "entrypoint": "Bloodborne.exe",
+  "titleId": "CUSA03173",
+  "patchVersion": "01.09"
+}

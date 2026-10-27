@@ -1,5 +1,5 @@
-/** Contracts only: no Stage 02 installer, network downloads or process execution. */
-export type TitleId = "u1" | "u2" | "u3";
+/** Extensible catalog and future installation contracts. Runtime download is separate from an installation. */
+export type TitleId = string;
 export interface GameTitle {
   id: TitleId;
   name: string;
@@ -52,49 +52,33 @@ export interface GameAdapter {
   installationGroup: string;
   titles: TitleId[];
   repository: string;
-  entrypoint: string;
+  entrypoint: string | null;
   individualLaunch: "unverified";
   packageSupport: "unverified";
 }
-export const unchartedAdapter: GameAdapter = {
-  id: "uncharted",
-  installationGroup: "nathan-drake-collection",
-  titles: ["u1", "u2", "u3"],
-  repository: "Supermedo/uncharted_pc",
-  entrypoint: "Uncharted.exe",
+export const bloodborneAdapter: GameAdapter = {
+  id: "bloodborne",
+  installationGroup: "bloodborne",
+  titles: ["bloodborne"],
+  repository: "Supermedo/bloodborne_pc",
+  entrypoint: "Bloodborne.exe",
   individualLaunch: "unverified",
   packageSupport: "unverified",
 };
 export const collection: Collection = {
-  id: "uncharted",
-  title: "Uncharted: The Nathan Drake Collection",
-  upstream: "https://github.com/Supermedo/uncharted_pc",
-  installationGroup: unchartedAdapter.installationGroup,
+  id: "bloodborne",
+  title: "Bloodborne",
+  upstream: "https://github.com/Supermedo/bloodborne_pc",
+  installationGroup: bloodborneAdapter.installationGroup,
   status: "planned",
   titles: [
     {
-      id: "u1",
-      name: "Uncharted",
-      subtitle: "Drake’s Fortune",
-      year: 2007,
-      art: "jungle",
+      id: "bloodborne",
+      name: "Bloodborne",
+      subtitle: "Action RPG · FromSoftware · PS4",
+      year: 2015,
+      art: "bloodborne",
       number: "01",
-    },
-    {
-      id: "u2",
-      name: "Uncharted 2",
-      subtitle: "Among Thieves",
-      year: 2009,
-      art: "snow",
-      number: "02",
-    },
-    {
-      id: "u3",
-      name: "Uncharted 3",
-      subtitle: "Drake’s Deception",
-      year: 2011,
-      art: "desert",
-      number: "03",
     },
   ],
 };

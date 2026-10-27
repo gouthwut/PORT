@@ -2,11 +2,11 @@
 
 Read AGENTS.md and PROGRESS.md first in every session.
 
-PORT is a Windows launcher for independently developed native console ports. Current authorization covers Stage 00 Foundation and Stage 01 UI Prototype only. Do not implement Stage 02 without a new user request. Never imply arbitrary encrypted PS4 PKG support.
+PORT is a Windows launcher for independently developed console game runtimes. Describe bbport/shadPS4-derived execution and Vulkan translation accurately; do not imply an official native PC release. Stage 02 Bloodborne is authorized by the 2026-10-27 request, including installer/library integration within its explicit gates. Stage 02C extraction and Stage 02D are currently gated by the unaudited extractor write boundary; inspect docs/UPSTREAM.md before continuing. Never imply arbitrary encrypted PS4 PKG support.
 
 Stack: Tauri 2, Rust, SQLite (rusqlite), React, TypeScript, Tailwind 4, Radix/shadcn-style components, Motion, Playwright. Frontend is in src/, native backend in src-tauri/, service contracts in src/domain.ts. One collection may own multiple display titles and one shared runtime. Do not invent launch arguments.
 
-Quality: accessible keyboard navigation, explicit unavailable states, no fake downloads/installations, responsive layouts, original SVG artwork only. Native settings use SQLite in the Tauri app-data directory; browser preview uses clearly identified localStorage. Keep persistence implementations consistent.
+Quality: accessible keyboard navigation, explicit unavailable states, no fake downloads/installations, responsive layouts, bundle only original or redistribution-authorized artwork. Bloodborne artwork without confirmed redistribution rights must be imported locally, never committed or hotlinked. Native settings use SQLite in the Tauri app-data directory; browser preview uses clearly identified localStorage. Keep persistence implementations consistent.
 
 Checks: npm ci; npm run build; npm test; cargo fmt --manifest-path src-tauri/Cargo.toml -- --check; cargo test --manifest-path src-tauri/Cargo.toml; npm run tauri build -- --no-bundle. Launch the actual native exe after backend changes. Tests run in Chromium; they are not proof of native behavior. Save screenshots and distinguish browser/native evidence.
 

@@ -8,9 +8,9 @@
     {
       "identifier": "opener:allow-open-url",
       "allow": [
-        { "url": "https://github.com/Supermedo/uncharted_pc" },
-        { "url": "https://github.com/Supermedo/uncharted_pc#requirements" },
-        { "url": "https://github.com/Supermedo/uncharted_pc/*" }
+        { "url": "https://github.com/Supermedo/bloodborne_pc" },
+        { "url": "https://github.com/Supermedo/bloodborne_pc#requirements" },
+        { "url": "https://github.com/Supermedo/bloodborne_pc/*" }
       ]
     }
   ]

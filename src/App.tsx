@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
-  Check,
   CheckCircle2,
   ChevronRight,
   CircleHelp,
@@ -21,7 +20,6 @@ import {
   Library,
   Monitor,
   Package,
-  Pause,
   Search,
   Settings as SettingsIcon,
   ShieldCheck,
@@ -37,7 +35,9 @@ import {
   type Settings,
 } from "./services/settings";
 import { Button, Modal, Switch } from "./components/ui";
-import { Landscape } from "./components/Landscape";
+import { GameArt, Gallery, MediaEditor } from "./components/BloodborneMedia";
+import { InstallerPanel, DownloadPanel } from "./components/Installer";
+import { emptyMedia, mediaService, type MediaSet } from "./services/media";
 
 type Page =
   "home" | "catalog" | "details" | "library" | "downloads" | "settings";
@@ -50,7 +50,7 @@ const navigation = [
 const pageNames: Record<Page, string> = {
   home: "Главная",
   catalog: "Каталог",
-  details: "Uncharted",
+  details: "Bloodborne",
   library: "Библиотека",
   downloads: "Загрузки",
   settings: "Настройки",
@@ -93,30 +93,20 @@ function SectionTitle({
 function GameCard({
   title,
   onClick,
+  cover,
 }: {
   title: GameTitle;
   onClick: () => void;
+  cover?: string;
 }) {
   return (
     <button
-      className={`game-card ${title.art}`}
+      className="game-card bloodborne"
       onClick={onClick}
-      aria-label={`Подробнее: ${title.name} — ${title.subtitle}`}
+      aria-label={`Подробнее: ${title.name}`}
     >
       <div className="game-cover">
-        <Landscape kind={title.art} />
-        <span className="cover-number">{title.number}</span>
-        <span className="cover-edition">THE NATHAN DRAKE COLLECTION</span>
-        <div className="cover-wordmark">
-          UNCHARTED
-          <span>
-            {title.id === "u1"
-              ? "DRAKE’S FORTUNE"
-              : title.id === "u2"
-                ? "AMONG THIEVES"
-                : "DRAKE’S DECEPTION"}
-          </span>
-        </div>
+        <GameArt src={cover} label="Обложка Bloodborne" />
         <span className="cover-arrow">
           <ArrowUpRight size={18} />
         </span>
@@ -129,13 +119,15 @@ function GameCard({
         <span>{title.year}</span>
       </div>
       <div className="game-status">
-        <span className="status-dot" />В составе коллекции<span>PC</span>
+        <span className="status-dot" />
+        Совместимость проверяется<span>Windows</span>
       </div>
     </button>
   );
 }
 
 export default function App() {
+  const [media, setMedia] = useState<MediaSet>(emptyMedia);
   const [page, setPage] = useState<Page>("home");
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
@@ -150,6 +142,16 @@ export default function App() {
   const [reset, setReset] = useState(false);
   const [toast, setToast] = useState("");
   const [online, setOnline] = useState(navigator.onLine);
+  useEffect(() => {
+    mediaService
+      .load()
+      .then(setMedia)
+      .catch(() => setToast("Не удалось загрузить оформление"));
+  }, []);
+  async function saveMedia(next: MediaSet) {
+    await mediaService.save(next);
+    setMedia(next);
+  }
   const mainRef = useRef<HTMLElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -251,7 +253,7 @@ export default function App() {
   }
   const matches =
     !query ||
-    `${collection.title} ${collection.titles.map((t) => `${t.name} ${t.subtitle}`).join(" ")} SuperMedo приключение`
+    `${collection.title} ${collection.titles.map((t) => `${t.name} ${t.subtitle}`).join(" ")} SuperMedo FromSoftware RPG Ярнам охота`
       .toLowerCase()
       .includes(query.toLowerCase());
   const showResult = matches && filter !== "available";
@@ -283,7 +285,6 @@ export default function App() {
               >
                 <Icon size={19} strokeWidth={1.7} />
                 <span>{label}</span>
-                {id === "downloads" && <span className="nav-count">0</span>}
               </button>
             ))}
           </nav>
@@ -294,10 +295,10 @@ export default function App() {
               className="sidebar-feature"
             >
               <span className="small-cover">
-                <Landscape />
+                <GameArt src={media.hero} />
               </span>
               <span>
-                Uncharted<small>The Nathan Drake Collection</small>
+                Bloodborne<small>FromSoftware · 2015</small>
               </span>
               <ChevronRight size={14} />
             </button>
@@ -370,7 +371,7 @@ export default function App() {
               <span className="status-dot" />
               {native ? "WINDOWS" : "WEB PREVIEW"}
               <span className="build-divider" />
-              PREVIEW 01
+              STAGE 02
             </div>
           </header>
           {!online && (
@@ -415,21 +416,23 @@ export default function App() {
                         </span>
                       </div>
                       <section className="hero">
-                        <Landscape />
+                        <GameArt src={media.hero} />
                         <div className="hero-shade" />
                         <div className="hero-content">
                           <div className="hero-kicker">
                             <span className="tiny-line" />
-                            КОЛЛЕКЦИЯ В ФОКУСЕ
-                            <span className="pill">НАТИВНЫЙ ПОРТ</span>
+                            ИГРА В ФОКУСЕ
+                            <span className="pill">
+                              СОВМЕСТИМОСТЬ PS4 → WINDOWS
+                            </span>
                           </div>
                           <div className="hero-wordmark">
-                            UNCHARTED<span>THE NATHAN DRAKE COLLECTION</span>
+                            BLOODBORNE<span>HUNT YOUR NIGHTMARES</span>
                           </div>
                           <p>
-                            Три легендарных приключения.
+                            Тайны Ярнама ждут своего охотника.
                             <br />
-                            Один новый горизонт.
+                            Переживите ночь охоты.
                           </p>
                           <div className="hero-actions">
                             <Button onClick={() => setInstaller(true)}>
@@ -441,12 +444,12 @@ export default function App() {
                               variant="secondary"
                               onClick={() => navigate("details")}
                             >
-                              О коллекции
+                              Подробнее
                             </Button>
                           </div>
                           <div className="hero-caption">
                             <Info size={13} />
-                            Установка появится на следующем этапе
+                            Собственные игровые файлы · без передачи в сеть
                           </div>
                         </div>
                         <div className="hero-bottom">
@@ -457,12 +460,14 @@ export default function App() {
                           <span>ИССЛЕДУЙТЕ НЕИЗВЕДАННОЕ</span>
                           <Compass size={22} />
                         </div>
-                        <span className="art-label">PORT ORIGINAL ARTWORK</span>
+                        <span className="art-label">
+                          ВАШЕ ЛОКАЛЬНОЕ ОФОРМЛЕНИЕ
+                        </span>
                       </section>
                       <SectionTitle
-                        eyebrow="ТРИ ИСТОРИИ. ОДНО ПРИКЛЮЧЕНИЕ."
-                        title="Коллекция Натана Дрейка"
-                        action="Вся коллекция"
+                        eyebrow="ОХОТА НАЧИНАЕТСЯ ЗДЕСЬ."
+                        title="Bloodborne"
+                        action="Об игре"
                         onAction={() => navigate("details")}
                       />
                       <div className="game-grid">
@@ -470,6 +475,7 @@ export default function App() {
                           <GameCard
                             key={title.id}
                             title={title}
+                            cover={media.cover}
                             onClick={() => navigate("details")}
                           />
                         ))}
@@ -484,7 +490,7 @@ export default function App() {
                             <div>
                               <h3>Большие открытия впереди</h3>
                               <p>
-                                Каталог начинается с одной коллекции.
+                                Каталог начинается с Bloodborne.
                                 <br />
                                 Новые порты появятся после проверки
                                 совместимости.
@@ -525,7 +531,7 @@ export default function App() {
                             Каталог<span className="accent">.</span>
                           </h1>
                         </div>
-                        <span className="quiet-label">01 коллекция</span>
+                        <span className="quiet-label">01 игра</span>
                       </div>
                       <div className="filter-bar">
                         <div>
@@ -550,35 +556,18 @@ export default function App() {
                       </div>
                       {showResult ? (
                         <>
-                          <button
-                            className="collection-card"
-                            onClick={() => navigate("details")}
-                          >
-                            <div className="catalog-cover">
-                              <Landscape />
-                              <div className="cover-wordmark">
-                                UNCHARTED
-                                <span>THE NATHAN DRAKE COLLECTION</span>
-                              </div>
-                              <Badge>КОЛЛЕКЦИЯ · 3 ИГРЫ</Badge>
-                            </div>
-                            <div className="collection-card-content">
-                              <div>
-                                <h2>The Nathan Drake Collection</h2>
-                                <p>Uncharted · Нативный порт от SuperMedo</p>
-                              </div>
-                              <ArrowUpRight size={25} />
-                            </div>
-                            <div className="catalog-status">
-                              <span className="status-dot" />
-                              Интеграция запланирована{" "}
-                              <span>Windows · Приключение</span>
-                            </div>
-                          </button>
+                          <div className="game-grid">
+                            <GameCard
+                              title={collection.titles[0]}
+                              cover={media.cover}
+                              onClick={() => navigate("details")}
+                            />
+                          </div>
                           <p className="catalog-note">
                             <Info size={15} />
-                            PORT пока не устанавливает игры. Доступность сборок
-                            проверяется на следующем этапе.
+                            PORT пока не устанавливает игры. Архив
+                            Windows-проекта доступен отдельно; установка
+                            заблокирована до безопасного извлечения.
                           </p>
                         </>
                       ) : (
@@ -610,75 +599,107 @@ export default function App() {
                         Назад в каталог
                       </button>
                       <section className="detail-banner">
-                        <Landscape />
+                        <GameArt
+                          src={media.banner}
+                          label="Широкий баннер Bloodborne"
+                        />
                         <div className="hero-shade" />
                         <div>
-                          <Badge>НАТИВНЫЙ ПОРТ · WINDOWS</Badge>
-                          <h1>UNCHARTED</h1>
-                          <p>THE NATHAN DRAKE COLLECTION</p>
+                          <Badge>FROM SOFTWARE · 2015 · PS4</Badge>
+                          <h1>BLOODBORNE</h1>
+                          <p>HUNT YOUR NIGHTMARES</p>
                         </div>
                       </section>
                       <div className="detail-layout">
                         <div>
-                          <p className="eyebrow">ПРИКЛЮЧЕНИЕ / КОЛЛЕКЦИЯ</p>
+                          <p className="eyebrow">
+                            ACTION RPG / ГОТИЧЕСКИЙ ХОРРОР
+                          </p>
                           <h2 className="detail-title">
-                            Каждая легенда
-                            <br />с чего-то начинается.
+                            Станьте охотником.
+                            <br />
+                            Переживите ночь.
                           </h2>
                           <p className="body-copy">
-                            От затерянных джунглей до заснеженных вершин и
-                            бескрайней пустыни. Три истории Натана Дрейка в
-                            одной коллекции, для которой SuperMedo развивает
-                            независимый нативный порт на Windows.
+                            В древнем Ярнаме ищут исцеления — и находят кошмар.
+                            Пройдите по улицам, где за каждой дверью прячется
+                            тайна, а за каждым поворотом ждёт новая охота.
+                            Узнайте, какая цена стоит за чудесной кровью.
                           </p>
                           <div className="detail-tags">
-                            <Badge>3 игры</Badge>
-                            <Badge>Общая установка</Badge>
-                            <Badge>Собственные игровые файлы</Badge>
+                            <Badge>FromSoftware</Badge>
+                            <Badge>Sony Computer Entertainment</Badge>
+                            <Badge>Оригинал: PlayStation 4 · 2015</Badge>
                           </div>
-                          <SectionTitle title="Внутри коллекции" />
-                          <div className="detail-titles">
-                            {collection.titles.map((t) => (
-                              <div key={t.id}>
-                                <span className="mini-art">
-                                  <Landscape kind={t.art} />
-                                </span>
-                                <span>
-                                  <strong>{t.name}</strong>
-                                  <small>{t.subtitle}</small>
-                                </span>
-                                <span>{t.number}</span>
-                              </div>
-                            ))}
-                          </div>
+                          <section className="game-features">
+                            <h2>Искусство охоты</h2>
+                            <h3>Рискните, чтобы выжить</h3>
+                            <p className="body-copy">
+                              Стремительные бои, огнестрельное парирование и
+                              возвращение здоровья ответными ударами поощряют
+                              решительные действия.
+                            </p>
+                            <h3>Оружие с двумя характерами</h3>
+                            <p className="body-copy">
+                              Трансформируйте оружие посреди схватки и
+                              подбирайте стиль против чудовищ, охотников и
+                              боссов.
+                            </p>
+                            <h3>Город, который хранит секреты</h3>
+                            <p className="body-copy">
+                              Исследуйте переплетённые улицы и соборы Ярнама.
+                              Срезы пути, потайные встречи и подземелья Чаш
+                              углубляют каждое возвращение.
+                            </p>
+                          </section>
+                          <Gallery images={media.gallery} />
+                          <MediaEditor media={media} onSave={saveMedia} />
+                          <SectionTitle title="Bloodborne на Windows" />
+                          <p className="body-copy">
+                            Выбран SuperMedo / bloodborne_pc, windows-v1.9.4.
+                            Неофициальный проект на основе bbport и shadPS4:
+                            x86-64 код игры выполняется на CPU, графика
+                            переводится в Vulkan. PORT не представляет это как
+                            официальный нативный PC-релиз.
+                          </p>
                           <SectionTitle title="Системные требования" />
                           <p className="muted small">
-                            По README автора порта · проверено 27 октября 2026
+                            По README SuperMedo · проверено 27 октября 2026 · не
+                            измерения PORT
                           </p>
                           <div className="requirements">
                             <div>
-                              <span>Операционная система</span>
-                              <strong>Windows 10 (1903+) / 11, x64</strong>
+                              <span>Система</span>
+                              <strong>Windows 10 1903+ / 11 · x64</strong>
                             </div>
                             <div>
                               <span>Процессор</span>
                               <strong>
-                                Intel Core 3-го поколения+ / Ryzen / AMD FX*
+                                Intel Core 4-го поколения+ / AMD Ryzen
                               </strong>
                             </div>
                             <div>
-                              <span>Видеокарта</span>
-                              <strong>Vulkan 1.3 · от 6 ГБ видеопамяти</strong>
+                              <span>Графика</span>
+                              <strong>Vulkan 1.3 · актуальный драйвер</strong>
                             </div>
                             <div>
                               <span>Свободная память</span>
-                              <strong>Около 8 ГБ RAM + файл подкачки</strong>
+                              <strong>
+                                RAM + page file: ~6 ГБ; 1440p/4K: ~10 ГБ
+                              </strong>
                             </div>
                           </div>
-                          <p className="muted small">
-                            * У старых процессоров есть ограничения. Полные
-                            требования и известные проблемы — в документации
-                            автора.
+                          <SectionTitle title="Совместимые файлы и ограничения" />
+                          <p className="body-copy">
+                            Собственный расшифрованный дамп CUSA03173. Для
+                            патчей требуется 1.09. Данные игры не входят в
+                            загрузку. Зашифрованные retail PKG не поддерживаются
+                            автоматически. На некоторых AMD GPU возможны сбои;
+                            сетевой режим — beta. На старых Intel CPU перевод
+                            инструкций работает без гарантии; CPU без AVX не
+                            поддерживаются. Upstream поддерживает импорт
+                            сохранений, но PORT не проверял его на игровых
+                            данных.
                           </p>
                           <button
                             className="text-link"
@@ -686,7 +707,7 @@ export default function App() {
                               external(`${collection.upstream}#requirements`)
                             }
                           >
-                            Требования в README
+                            Требования и известные проблемы upstream
                             <ExternalLink size={14} />
                           </button>
                         </div>
@@ -694,45 +715,42 @@ export default function App() {
                           <div className="install-panel-icon">
                             <Download size={24} />
                           </div>
-                          <Badge>ИНТЕГРАЦИЯ ЗАПЛАНИРОВАНА</Badge>
+                          <Badge>ЗАПУСК В PORT НЕ ПРОВЕРЕН</Badge>
                           <h2>
-                            Приключение
+                            Следующая
                             <br />
-                            почти рядом.
+                            ночь охоты.
                           </h2>
                           <p>
-                            Установщик PORT появится на следующем этапе
-                            разработки.
+                            Подготовьте свои игровые файлы. PORT покажет
+                            доступные действия и ограничения.
                           </p>
                           <Button onClick={() => setInstaller(true)}>
                             <Download size={17} />
                             Установить
                           </Button>
-                          <span className="small muted">
-                            Сейчас откроется план установки
-                          </span>
                           <div className="panel-rule" />
                           <div className="author-row">
-                            <span>Разработчик порта</span>
+                            <span>Windows-проект</span>
                             <strong>SuperMedo</strong>
                           </div>
                           <div className="author-row">
-                            <span>Игры</span>
-                            <strong>Naughty Dog / Bluepoint</strong>
+                            <span>Версия</span>
+                            <strong>windows-v1.9.4</strong>
                           </div>
-                          <button
-                            className="button secondary"
+                          <Button
+                            variant="secondary"
                             onClick={() => external()}
                           >
                             <Github size={17} />
                             Проект на GitHub
                             <ArrowUpRight size={16} />
-                          </button>
+                          </Button>
                           <div className="file-notice">
                             <ShieldCheck size={18} />
                             <p>
-                              Нужен собственный расшифрованный дамп коллекции.
-                              Поддержка произвольных PKG не заявлена.
+                              Нужны ваши игровые файлы. Успешный запуск
+                              Bloodborne в PORT пока не подтверждён.
                             </p>
                           </div>
                         </aside>
@@ -753,7 +771,7 @@ export default function App() {
                       <Empty
                         icon={Library}
                         title="Здесь начнётся ваша история"
-                        description="Установленные коллекции будут ждать вас здесь. Найдите своё первое приключение в каталоге PORT."
+                        description="Установленная Bloodborne появится здесь. Найдите своё первое приключение в каталоге PORT."
                       >
                         <Button onClick={() => navigate("catalog")}>
                           Открыть каталог
@@ -795,66 +813,14 @@ export default function App() {
                             Загрузки<span className="accent">.</span>
                           </h1>
                         </div>
-                        <Badge>ОЧЕРЕДЬ ПУСТА</Badge>
+                        <Badge>КОМПОНЕНТЫ WINDOWS</Badge>
                       </div>
-                      <Empty
-                        icon={ArrowDownToLine}
-                        title="Всё спокойно"
-                        description="Активных загрузок нет. Здесь появится очередь, когда установщик PORT будет готов."
-                      >
-                        <Button
-                          variant="secondary"
-                          onClick={() => navigate("catalog")}
-                        >
-                          Посмотреть каталог
-                          <ArrowRight size={17} />
-                        </Button>
-                      </Empty>
-                      <section className="queue-preview">
-                        <div className="section-heading">
-                          <h3>Будущий вид загрузки</h3>
-                          <Badge>МАКЕТ · НЕ ЗАГРУЗКА</Badge>
-                        </div>
-                        <div className="queue-row">
-                          <span className="queue-icon">
-                            <Download size={23} />
-                          </span>
-                          <div>
-                            <strong>Коллекция Uncharted</strong>
-                            <p>Ожидание реализации установщика</p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            disabled
-                            aria-label="Приостановить загрузку"
-                          >
-                            <Pause size={18} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            disabled
-                            aria-label="Отменить загрузку"
-                          >
-                            <X size={18} />
-                          </Button>
-                        </div>
-                        <div
-                          className="progress-track"
-                          role="progressbar"
-                          aria-label="Загрузка не начата"
-                          aria-valuenow={0}
-                          aria-valuemin={0}
-                          aria-valuemax={100}
-                        >
-                          <span />
-                        </div>
-                        <div className="queue-stats">
-                          <span>0% · не начато</span>
-                          <span>
-                            — МБ/с <span>·</span> — / — ГБ
-                          </span>
-                        </div>
-                      </section>
+                      <p className="body-copy">
+                        Компоненты Windows-проекта загружаются отдельно от ваших
+                        игровых данных. Проверенный архив останется в локальном
+                        кэше PORT.
+                      </p>
+                      <DownloadPanel />
                     </>
                   )}
                   {page === "settings" && (
@@ -1002,11 +968,12 @@ export default function App() {
                             Новый дом.
                           </h3>
                           <p>
-                            Независимый лаунчер нативных портов для Windows.
+                            Независимый лаунчер Windows-проектов для консольных
+                            игр.
                           </p>
                           <div className="panel-rule" />
                           <p className="small">
-                            Stage 00–01 · UI Prototype
+                            Stage 02 · Bloodborne
                             <br />
                             Установка и запуск игр ещё не реализованы.
                           </p>
@@ -1033,7 +1000,7 @@ export default function App() {
                       PORT// <span>Миры становятся ближе.</span>
                     </span>
                     <span>
-                      Независимый проект<small>·</small>Stage 01 / UI Prototype
+                      Независимый проект<small>·</small>Stage 02 / Bloodborne
                     </span>
                   </footer>
                 </motion.div>
@@ -1044,66 +1011,27 @@ export default function App() {
         <Modal
           open={installer}
           onOpenChange={setInstaller}
-          title="Следующая остановка — приключение"
-          description="Предварительный план установки Uncharted. Функция ещё не реализована."
+          title="Установка Bloodborne"
+          description="Подготовка собственных игровых файлов. Ничего не устанавливается без проверенной совместимости."
         >
-          <div className="installer-art">
-            <Landscape />
-            <span className="cover-wordmark">
-              UNCHARTED<span>THE NATHAN DRAKE COLLECTION</span>
-            </span>
-          </div>
-          <div className="install-steps">
-            {[
-              {
-                title: "Ваши игровые файлы",
-                text: "Собственный совместимый расшифрованный дамп коллекции.",
-              },
-              {
-                title: "Проверенная сборка порта",
-                text: "В будущем — получение совместимой версии из GitHub Releases.",
-              },
-              {
-                title: "Одна коллекция в библиотеке",
-                text: "Общие данные и runtime. Способ запуска частей ещё предстоит проверить.",
-              },
-            ].map((step, i) => (
-              <div key={step.title}>
-                <span>{`0${i + 1}`}</span>
-                <div>
-                  <h3>{step.title}</h3>
-                  <p>{step.text}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="dialog-note">
-            <Info size={18} />
-            <span>
-              PORT сейчас не выбирает PKG, не скачивает сборки и не изменяет
-              игровые файлы.
-            </span>
-          </div>
-          <Button className="full" onClick={() => setInstaller(false)}>
-            Понятно
-            <Check size={17} />
-          </Button>
+          <InstallerPanel />
         </Modal>
         <Modal
           open={about}
           onOpenChange={setAbout}
           title="Миры становятся ближе."
-          description="PORT// — независимый Windows-лаунчер. Версия 0.1.0, Stage 00–01."
+          description="PORT// — независимый Windows-лаунчер. Версия 0.1.0, Stage 02."
         >
           <div className="about-dialog-content">
             <Compass size={46} strokeWidth={1} />
             <p>
-              Мы создаём удобный дом для нативных портов. Каждый порт остаётся
-              работой его авторов. PORT не распространяет оригинальные игры.
+              Мы создаём удобный дом для независимых Windows-проектов. Каждый
+              порт остаётся работой его авторов. PORT не распространяет
+              оригинальные игры.
             </p>
             <p className="muted">
-              Uncharted PC — проект SuperMedo (Mohammed Albarghouthi). PORT не
-              связан с Sony, Naughty Dog или Bluepoint Games.
+              Bloodborne PC — проект SuperMedo (Mohammed Albarghouthi). PORT не
+              связан с Sony или FromSoftware.
             </p>
             <Button variant="secondary" onClick={() => external()}>
               <Github size={17} />

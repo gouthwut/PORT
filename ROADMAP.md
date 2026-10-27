@@ -8,4 +8,15 @@
 | 03 Library & runtime                   | Shared collection install, verified launch lifecycle, repair/remove                                                    | No invented per-title CLI; safe saves and uninstall                                    |
 | 04 Distribution                        | Signed installers, update channel, accessibility and hardware QA                                                       | Release checklist and license compliance complete                                      |
 
-Only 00–01 are authorized now. Later stages are design intent, not implemented functionality.
+## Stage 02 authorization — 2026-10-27
+
+The user authorized Bloodborne UI, verified runtime downloads, local PKG handling and installer/library integration with an explicit critical-blocker gate.
+
+| Substage                   | Current state                                                                                                                   | Remaining gate                                                                                                                          |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| 02A Bloodborne UI          | One-title catalog, original shell, detailed page, local art import and keyboard gallery                                         | Actual Bloodborne imagery must be imported locally or carry documented redistribution permission                                        |
+| 02B Research / downloader  | SuperMedo windows-v1.9.4 selected; pinned release API/digest, streamed transfer, pause/Range resume/cancel, hash/ZIP validation | Native end-to-end evidence recorded in PROGRESS.md; downloaded components are not an installation                                       |
+| 02C PKG                    | Native picker and bounded read-only CNT/SFO metadata inspection                                                                 | Extractor write boundary is not safe enough to integrate; no PKG extraction supported                                                   |
+| 02D Installation / library | Gated; no game installs, launch, repair or removal                                                                              | Harden/test extraction, validate real user-owned data, establish data/launch contract, then implement atomic install and SQLite records |
+
+Stages 03/04 outside the installation/library scope explicitly requested here remain future work. Do not mark Stage 02 complete until user-file integration and native gameplay evidence satisfy its gates.
