@@ -109,6 +109,11 @@ test("published cards sync, image cache survives offline restart, refresh and in
   // Dev assets still need localhost; block only the API for the cold-cache check.
   await page.reload();
   await page.getByRole("button", { name: "Каталог", exact: true }).click();
+  // Home and catalog both contain the published card. Wait for the destination
+  // page, not a shared card on the outgoing AnimatePresence screen.
+  await expect(
+    page.getByRole("heading", { name: "Каталог.", exact: true }),
+  ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Подробнее: Coast · QA fixture" }),
   ).toBeVisible();
@@ -126,9 +131,11 @@ test("published cards sync, image cache survives offline restart, refresh and in
     localStorage.getItem("port.catalog.cache.v1"),
   );
   await page.setViewportSize({ width: 480, height: 850 });
-  expect(
-    await page.locator("main").evaluate((e) => e.scrollWidth <= e.clientWidth),
-  ).toBeTruthy();
+  await expect
+    .poll(() =>
+      page.locator("main").evaluate((e) => e.scrollWidth <= e.clientWidth),
+    )
+    .toBeTruthy();
   await page.screenshot({
     path: ".local/evidence/04c/browser-catalog-mobile.png",
   });
