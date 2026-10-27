@@ -102,6 +102,7 @@ fn main() {
             media::load_media,
             media::save_media,
             package::inspect_package,
+            package::inspect_packages,
             download::download_status,
             download::start_download,
             download::control_download

@@ -7,7 +7,7 @@ use std::{
     path::Path,
 };
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Inspection {
     format: String,
@@ -16,6 +16,9 @@ pub struct Inspection {
     region: String,
     version: Option<String>,
     package_type: String,
+    role: String,
+    category: Option<String>,
+    pfs_encrypted: Option<bool>,
     size: u64,
     compatible: bool,
     reason: String,
@@ -67,7 +70,7 @@ pub fn sfo(b: &[u8]) -> Result<BTreeMap<String, String>, String> {
             return Err("Некорректный ключ SFO".into());
         }
         let key = text(&b[key..values])?;
-        if ["APP_VER", "TITLE_ID", "CATEGORY", "TITLE"].contains(&key.as_str()) {
+        if ["APP_VER", "TITLE_ID", "CATEGORY", "TITLE", "CONTENT_ID"].contains(&key.as_str()) {
             let format = u16::from_le_bytes(b[p + 2..p + 4].try_into().unwrap());
             if format != 0x204 {
                 continue;
@@ -147,9 +150,48 @@ pub fn inspect<R: Read + Seek>(r: &mut R, size: u64) -> Result<Inspection, Strin
     if meta.get("TITLE_ID").is_some_and(|s| s != &content_title) {
         return Err("TITLE_ID и Content ID не совпадают".into());
     }
+    if meta.get("CONTENT_ID").is_some_and(|s| s != &content) {
+        return Err("CONTENT_ID в SFO и заголовке не совпадают".into());
+    }
+    if meta
+        .get("APP_VER")
+        .is_some_and(|v| version_number(v).is_none())
+    {
+        return Err("Некорректная версия APP_VER".into());
+    }
+    let flags = be32(&h, 0x78);
+    let patch = flags & 0x60100000 != 0;
+    let delta = flags & 0x41000000 == 0x41000000 || be32(&h, 0x74) == 0x1e;
+    let category = meta.remove("CATEGORY");
+    let role = match (be32(&h, 0x74), category.as_deref(), patch, delta) {
+        (_, _, _, true) => "delta",
+        (0x1a, Some("gd"), false, false) => "base",
+        (0x1a, Some("gp"), true, false) => "update",
+        (0x1a, Some("gp"), false, false) | (0x1a, Some("gd"), true, false) => {
+            return Err("CATEGORY в SFO противоречит флагам типа пакета".into());
+        }
+        _ => "unknown",
+    };
+    let pfs_offset = be64(&h, 0x410);
+    let pfs_size = be64(&h, 0x418);
+    let pfs_encrypted = if pfs_size >= 0x400 {
+        r.seek(SeekFrom::Start(pfs_offset))
+            .map_err(|e| e.to_string())?;
+        let mut header = [0u8; 0x400];
+        r.read_exact(&mut header).map_err(|e| e.to_string())?;
+        if u64::from_le_bytes(header[..8].try_into().unwrap()) != 1
+            || u64::from_le_bytes(header[8..16].try_into().unwrap()) != 20130315
+        {
+            return Err("Некорректный заголовок PFS".into());
+        }
+        let mode = u16::from_le_bytes(header[0x1c..0x1e].try_into().unwrap());
+        Some(mode & 4 != 0)
+    } else {
+        None
+    };
     let kind = match be32(&h, 0x74) {
         0x1a => {
-            if be32(&h, 0x78) & 0x60100000 != 0 {
+            if patch {
                 "PS4 обновление / patch"
             } else {
                 "PS4 приложение"
@@ -162,7 +204,7 @@ pub fn inspect<R: Read + Seek>(r: &mut R, size: u64) -> Result<Inspection, Strin
     let reason = if content_title != "CUSA03173" {
         "Этот Title ID не входит в проверяемый профиль Bloodborne CUSA03173."
     } else {
-        "Title ID соответствует профилю Bloodborne. Это не подтверждает подлинность, расшифровку или возможность извлечения. Retail/fake по заголовку надёжно не различаются. Безопасный PKG-экстрактор ещё не интегрирован; используйте собственный подготовленный расшифрованный дамп. Установка пока недоступна."
+        "Title ID соответствует профилю Bloodborne. Это не подтверждает подлинность, целостность или доступность содержимого. Автоматическое извлечение зашифрованного PFS не поддерживается. Нужна собственная подготовленная расшифрованная папка игры; ключи и обход DRM не предоставляются."
     };
     Ok(Inspection {
         format: "PS4 Orbis CNT · проверка метаданных".into(),
@@ -171,10 +213,139 @@ pub fn inspect<R: Read + Seek>(r: &mut R, size: u64) -> Result<Inspection, Strin
         region,
         version: meta.remove("APP_VER"),
         package_type: kind.into(),
+        role: role.into(),
+        category,
+        pfs_encrypted,
         size,
         compatible: false,
         reason: reason.into(),
     })
+}
+fn version_number(s: &str) -> Option<u32> {
+    let b = s.as_bytes();
+    if b.len() != 5 || b[2] != b'.' || ![b[0], b[1], b[3], b[4]].iter().all(u8::is_ascii_digit) {
+        return None;
+    }
+    Some(s[..2].parse::<u32>().ok()? * 100 + s[3..].parse::<u32>().ok()?)
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PackageItem {
+    file_name: String,
+    inspection: Option<Inspection>,
+    error: Option<String>,
+}
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Selection {
+    items: Vec<PackageItem>,
+    metadata_compatible: bool,
+    installable: bool,
+    issues: Vec<String>,
+    summary: String,
+}
+fn assess(items: Vec<PackageItem>) -> Selection {
+    let mut issues = Vec::new();
+    let mut bases = Vec::new();
+    let mut updates = Vec::new();
+    for item in &items {
+        if let Some(e) = &item.error {
+            issues.push(format!("{}: {e}", item.file_name));
+        }
+        if let Some(p) = &item.inspection {
+            if p.title_id != "CUSA03173" {
+                issues.push("Чужой Title ID: нужен Bloodborne CUSA03173.".into());
+            }
+            if p.version.is_none() {
+                issues.push("APP_VER недоступна: версию нельзя подтвердить.".into());
+            }
+            match p.role.as_str() {
+                "base" => bases.push(p),
+                "update" => updates.push(p),
+                "delta" => issues.push("Delta patch требует отдельного алгоритма применения; такой пакет не поддерживается.".into()),
+                _ => issues.push("Тип пакета не подтверждён согласованными CATEGORY и флагами CNT.".into()),
+            }
+        }
+    }
+    if bases.len() != 1 {
+        issues.push(
+            "Выберите ровно один основной PKG; обновление можно выбрать вместе с ним.".into(),
+        );
+    }
+    if updates.len() > 1 {
+        issues.push("Выбрано несколько конфликтующих обновлений. Оставьте одно.".into());
+    }
+    if let (Some(base), Some(update)) = (bases.first(), updates.first()) {
+        if base.content_id != update.content_id || base.title_id != update.title_id {
+            issues.push("Обновление и основная игра имеют разные Content ID / Title ID.".into());
+        }
+        if let (Some(b), Some(u)) = (&base.version, &update.version) {
+            if version_number(u) <= version_number(b) {
+                issues.push("Версия обновления должна быть выше версии основной игры.".into());
+            }
+        }
+        if update.version.as_deref() != Some("01.09") {
+            issues.push("Для этого профиля исследовано только обновление 1.09; другое обновление не подтверждено.".into());
+        }
+    }
+    let metadata_compatible = issues.is_empty();
+    let summary = if !metadata_compatible {
+        "Выбор требует исправления. Исходные файлы сохранены."
+    } else if updates.is_empty() {
+        "Основная игра распознана. Обновление необязательно: upstream описывает версии без 1.09 при 30 FPS, без community patches. Метаданные не доказывают готовность игровых файлов."
+    } else {
+        "Основная игра и обновление 1.09 согласованы по метаданным. Это не подтверждает доступность содержимого или успешное применение патча."
+    }.into();
+    Selection {
+        items,
+        metadata_compatible,
+        installable: false,
+        issues,
+        summary,
+    }
+}
+fn inspect_file(path: &str) -> Result<Inspection, String> {
+    let p = Path::new(path);
+    regular_file(p)?;
+    let mut file = File::open(p).map_err(|e| e.to_string())?;
+    let size = file.metadata().map_err(|e| e.to_string())?.len();
+    inspect(&mut file, size)
+}
+#[tauri::command]
+pub async fn inspect_packages(paths: Vec<String>) -> Result<Selection, String> {
+    if paths.is_empty() || paths.len() > 8 {
+        return Err("Выберите от одного до восьми PKG.".into());
+    }
+    tauri::async_runtime::spawn_blocking(move || {
+        let mut seen = std::collections::HashSet::new();
+        let mut items = Vec::new();
+        for path in paths {
+            let p = Path::new(&path);
+            let name = p
+                .file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .into_owned();
+            let result = if !seen.insert(path.to_lowercase()) {
+                Err("Этот файл выбран повторно".into())
+            } else {
+                inspect_file(&path)
+            };
+            let (inspection, error) = match result {
+                Ok(p) => (Some(p), None),
+                Err(e) => (None, Some(e)),
+            };
+            items.push(PackageItem {
+                file_name: name,
+                inspection,
+                error,
+            });
+        }
+        assess(items)
+    })
+    .await
+    .map_err(|e| e.to_string())
 }
 pub fn regular_file(path: &Path) -> Result<(), String> {
     if !path.is_absolute() {
@@ -200,15 +371,9 @@ pub fn regular_file(path: &Path) -> Result<(), String> {
 }
 #[tauri::command]
 pub async fn inspect_package(path: String) -> Result<Inspection, String> {
-    tauri::async_runtime::spawn_blocking(move || {
-        let p = Path::new(&path);
-        regular_file(p)?;
-        let mut file = File::open(p).map_err(|e| e.to_string())?;
-        let size = file.metadata().map_err(|e| e.to_string())?.len();
-        inspect(&mut file, size)
-    })
-    .await
-    .map_err(|e| e.to_string())?
+    tauri::async_runtime::spawn_blocking(move || inspect_file(&path))
+        .await
+        .map_err(|e| e.to_string())?
 }
 #[cfg(test)]
 mod tests {
@@ -224,6 +389,135 @@ mod tests {
         b[0x74..0x78].copy_from_slice(&0x1au32.to_be_bytes());
         b[0x430..0x438].copy_from_slice(&0x600u64.to_be_bytes());
         b
+    }
+    fn component(category: &str, version: &str, flags: u32, title: &str) -> Vec<u8> {
+        let content = format!("EP9000-{title}_00-BLOODBORNE0000EU");
+        let fields = [
+            ("APP_VER", version),
+            ("TITLE_ID", title),
+            ("CATEGORY", category),
+            ("CONTENT_ID", &content),
+        ];
+        let mut keys = Vec::new();
+        let mut values = Vec::new();
+        let mut sfo = vec![0u8; 20 + fields.len() * 16];
+        sfo[..4].copy_from_slice(b"\0PSF");
+        let key_start = sfo.len() as u32;
+        sfo[8..12].copy_from_slice(&key_start.to_le_bytes());
+        sfo[16..20].copy_from_slice(&(fields.len() as u32).to_le_bytes());
+        for (i, (key, value)) in fields.iter().enumerate() {
+            let p = 20 + i * 16;
+            sfo[p..p + 2].copy_from_slice(&(keys.len() as u16).to_le_bytes());
+            sfo[p + 2..p + 4].copy_from_slice(&0x204u16.to_le_bytes());
+            sfo[p + 4..p + 8].copy_from_slice(&(value.len() as u32 + 1).to_le_bytes());
+            sfo[p + 12..p + 16].copy_from_slice(&(values.len() as u32).to_le_bytes());
+            keys.extend(key.as_bytes());
+            keys.push(0);
+            values.extend(value.as_bytes());
+            values.push(0);
+        }
+        sfo[12..16].copy_from_slice(&(key_start + keys.len() as u32).to_le_bytes());
+        sfo.extend(keys);
+        sfo.extend(values);
+        let mut b = pkg();
+        b[0x40..0x70].fill(0);
+        b[0x40..0x40 + content.len()].copy_from_slice(content.as_bytes());
+        b[0x78..0x7c].copy_from_slice(&flags.to_be_bytes());
+        b[0x5a0..0x5a4].copy_from_slice(&0x1000u32.to_be_bytes());
+        let sfo_offset = b.len() as u32;
+        b[0x5b0..0x5b4].copy_from_slice(&sfo_offset.to_be_bytes());
+        b[0x5b4..0x5b8].copy_from_slice(&(sfo.len() as u32).to_be_bytes());
+        b.extend(sfo);
+        let offset = b.len() as u64;
+        b[0x410..0x418].copy_from_slice(&offset.to_be_bytes());
+        b[0x418..0x420].copy_from_slice(&0x400u64.to_be_bytes());
+        let mut pfs = vec![0u8; 0x400];
+        pfs[..8].copy_from_slice(&1u64.to_le_bytes());
+        pfs[8..16].copy_from_slice(&20130315u64.to_le_bytes());
+        pfs[0x1c..0x1e].copy_from_slice(&0xdu16.to_le_bytes());
+        b.extend(pfs);
+        let size = b.len() as u64;
+        b[0x430..0x438].copy_from_slice(&size.to_be_bytes());
+        b
+    }
+    fn item(bytes: &[u8]) -> PackageItem {
+        PackageItem {
+            file_name: "misleading-name.pkg".into(),
+            inspection: Some(inspect(&mut Cursor::new(bytes), bytes.len() as u64).unwrap()),
+            error: None,
+        }
+    }
+    #[test]
+    fn one_base_does_not_require_update_and_encryption_is_reported() {
+        let b = component("gd", "01.00", 0x0a000000, "CUSA03173");
+        let result = assess(vec![item(&b)]);
+        assert!(result.metadata_compatible);
+        assert!(!result.installable);
+        assert!(result.summary.contains("30 FPS"));
+        assert_eq!(
+            result.items[0].inspection.as_ref().unwrap().pfs_encrypted,
+            Some(true)
+        );
+    }
+    #[test]
+    fn identifies_base_and_update_in_either_order_without_filename_heuristics() {
+        let base = component("gd", "01.00", 0x0a000000, "CUSA03173");
+        let update = component("gp", "01.09", 0x62100000, "CUSA03173");
+        for items in [
+            vec![item(&base), item(&update)],
+            vec![item(&update), item(&base)],
+        ] {
+            let result = assess(items);
+            assert!(result.metadata_compatible);
+            assert!(!result.installable);
+            assert!(result.issues.is_empty());
+        }
+    }
+    #[test]
+    fn conflicts_foreign_updates_missing_base_and_unknown_types_are_blocked() {
+        let base = component("gd", "01.00", 0x0a000000, "CUSA03173");
+        let update = component("gp", "01.09", 0x62100000, "CUSA03173");
+        let foreign = component("gp", "01.09", 0x62100000, "CUSA03174");
+        let delta = component("gp", "01.09", 0x41000000, "CUSA03173");
+        let older = component("gp", "01.00", 0x62100000, "CUSA03173");
+        for items in [
+            vec![item(&base), item(&foreign)],
+            vec![item(&base), item(&update), item(&update)],
+            vec![item(&base), item(&base)],
+            vec![item(&update)],
+            vec![item(&pkg())],
+            vec![item(&base), item(&delta)],
+            vec![item(&base), item(&older)],
+        ] {
+            let result = assess(items);
+            assert!(!result.metadata_compatible);
+            assert!(!result.installable);
+            assert!(!result.issues.is_empty());
+        }
+        let mut mismatched = item(&update);
+        mismatched.inspection.as_mut().unwrap().content_id.push('X');
+        assert!(!assess(vec![item(&base), mismatched]).metadata_compatible);
+        let bad = PackageItem {
+            file_name: "broken.pkg".into(),
+            inspection: None,
+            error: Some("Повреждён".into()),
+        };
+        assert!(!assess(vec![item(&base), bad]).metadata_compatible);
+    }
+    #[test]
+    fn inconsistent_type_invalid_version_and_pfs_header_are_rejected() {
+        for (category, version, flags) in [
+            ("gp", "01.09", 0),
+            ("gd", "01.00", 0x62100000),
+            ("gd", "1.0", 0),
+        ] {
+            let b = component(category, version, flags, "CUSA03173");
+            assert!(inspect(&mut Cursor::new(&b), b.len() as u64).is_err());
+        }
+        let mut b = component("gd", "01.00", 0, "CUSA03173");
+        let offset = be64(&b, 0x410) as usize;
+        b[offset] = 0;
+        assert!(inspect(&mut Cursor::new(&b), b.len() as u64).is_err());
     }
     #[test]
     fn recognizes_candidate_without_claiming_extractability() {

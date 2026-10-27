@@ -10,9 +10,23 @@ interface Inspection {
   region: string;
   version: string | null;
   packageType: string;
+  role: string;
+  category: string | null;
+  pfsEncrypted: boolean | null;
   size: number;
   compatible: boolean;
   reason: string;
+}
+interface Selection {
+  items: {
+    fileName: string;
+    inspection: Inspection | null;
+    error: string | null;
+  }[];
+  metadataCompatible: boolean;
+  installable: boolean;
+  issues: string[];
+  summary: string;
 }
 interface DownloadStatus {
   phase: string;
@@ -25,10 +39,13 @@ interface DownloadStatus {
 }
 const mb = (n: number) => (n / 1024 / 1024).toFixed(1);
 export function InstallerPanel() {
-  const [result, setResult] = useState<Inspection | null>(null);
+  const [result, setResult] = useState<Selection | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const guard = useRef(false);
+  useEffect(() => {
+    if (native) void choose();
+  }, []);
   async function choose() {
     if (guard.current) return;
     guard.current = true;
@@ -36,16 +53,20 @@ export function InstallerPanel() {
     setError("");
     try {
       const { open } = await import("@tauri-apps/plugin-dialog");
-      const path = await open({
-        multiple: false,
+      const paths = await open({
+        multiple: true,
         directory: false,
         title:
-          "Выберите собственный PKG Bloodborne — только проверка метаданных",
+          "Bloodborne — выберите основной PKG и, при наличии, обновление (Ctrl / Shift)",
         filters: [{ name: "PS4 PKG", extensions: ["pkg"] }],
       });
-      if (typeof path === "string") {
+      if (paths && (typeof paths === "string" || paths.length)) {
         setResult(null);
-        setResult(await invoke<Inspection>("inspect_package", { path }));
+        setResult(
+          await invoke<Selection>("inspect_packages", {
+            paths: typeof paths === "string" ? [paths] : paths,
+          }),
+        );
       }
     } catch (e) {
       setError(String(e));
@@ -56,11 +77,12 @@ export function InstallerPanel() {
   }
   return (
     <div className="installer-section">
-      <h3>01 · Проверка вашего PKG</h3>
+      <h3>01 · Выбрать PKG → Проверка</h3>
       <p className="muted small">
-        Только чтение заголовка и доступного PARAM.SFO. Исходный файл не
-        изменяется и не отправляется на серверы. Это ещё не проверка целостности
-        игровых данных.
+        Только чтение заголовка и доступного PARAM.SFO. Выберите основную игру
+        и, при наличии, обновление в одном окне через Ctrl / Shift, в любом
+        порядке. PORT определит компоненты по метаданным. Исходные файлы не
+        изменяются и не отправляются на серверы.
       </p>
       <Button disabled={!native || busy} onClick={() => void choose()}>
         {busy ? "Ожидание выбора / проверка…" : "Выбрать PKG"}
@@ -78,36 +100,72 @@ export function InstallerPanel() {
       )}
       {result && (
         <div className="inspection" role="status">
-          <dl>
-            <dt>Формат</dt>
-            <dd>{result.format}</dd>
-            <dt>Тип</dt>
-            <dd>{result.packageType}</dd>
-            <dt>Content ID / Title ID</dt>
-            <dd>
-              {result.contentId} / {result.titleId}
-            </dd>
-            <dt>Регион</dt>
-            <dd>{result.region}</dd>
-            <dt>Версия приложения</dt>
-            <dd>{result.version || "Недоступна в открытых метаданных"}</dd>
-            <dt>Размер</dt>
-            <dd>{mb(result.size)} МБ</dd>
-          </dl>
-          <p>{result.reason}</p>
+          {result.items.map(({ fileName, inspection: p, error }, i) => (
+            <section key={i} className="package-component">
+              <h4>
+                {p?.role === "base"
+                  ? "Bloodborne — основная игра"
+                  : p?.role === "update"
+                    ? `Bloodborne — обновление ${p.version || "?"}`
+                    : "Пакет не подтверждён"}
+              </h4>
+              <p className="small">{fileName}</p>
+              {error && <p role="alert">{error}</p>}
+              {p && (
+                <dl>
+                  <dt>Формат / тип</dt>
+                  <dd>
+                    {p.format} · {p.packageType} · CATEGORY {p.category || "?"}
+                  </dd>
+                  <dt>Content ID / Title ID</dt>
+                  <dd>
+                    {p.contentId} / {p.titleId}
+                  </dd>
+                  <dt>Регион</dt>
+                  <dd>{p.region}</dd>
+                  <dt>Версия / размер</dt>
+                  <dd>
+                    {p.version || "Версия недоступна"} · {mb(p.size)} МБ
+                  </dd>
+                  <dt>Содержимое PFS</dt>
+                  <dd>
+                    {p.pfsEncrypted === true
+                      ? "Зашифровано — автоматическое извлечение недоступно"
+                      : p.pfsEncrypted === false
+                        ? "Флаг шифрования не установлен; извлечение ещё не проверено"
+                        : "Не определено"}
+                  </dd>
+                </dl>
+              )}
+            </section>
+          ))}
+          <p>{result.summary}</p>
+          {result.issues.length > 0 && (
+            <ul>
+              {result.issues.map((issue, i) => (
+                <li key={i}>{issue}</li>
+              ))}
+            </ul>
+          )}
+          <p className="muted small">
+            Проверка метаданных не проверяет подпись и полную целостность PKG.
+            Установка не выполнена.
+          </p>
         </div>
       )}
       <div className="dialog-note">
         <p>
-          Автоматическое извлечение PKG заблокировано: исследованный экстрактор
-          пишет пути из пакета без подтверждённой защиты от выхода из папки.
-          Подключать его к вашим файлам пока нельзя. Подготовленная папка — путь
-          для следующей интеграции; её импорт и установка ещё недоступны.
+          Зашифрованный PFS не извлекается: PORT не запрашивает ключи и не
+          обходит DRM. Для Windows-runtime нужна собственная подготовленная
+          расшифрованная папка с eboot.bin и sce_sys/param.sfo. Безопасная
+          граница записи экстрактора исследуется отдельно; её наличие ещё не
+          подтверждает безопасность всего декодера. Импорт папки и установка
+          пока недоступны.
         </p>
       </div>
       <h3>02 · Компоненты Windows-проекта</h3>
       <DownloadPanel />
-      <h3>03 · Установка и запуск</h3>
+      <h3>03 · Установка → Готово</h3>
       <p className="muted small">
         Выбор папки, извлечение, регистрация в библиотеке и запуск остаются
         недоступны до устранения блокера экстрактора и проверки игровых данных.

@@ -54,11 +54,17 @@ try {
     call("inspect_package", { path: path.join(directory, "not-pkg.pkg") }),
   ).rejects.toBeTruthy();
   await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
-  await page.screenshot({ path: "screenshots/02-native-home.png" });
-  await page.getByRole("button", { name: "Установить", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Выбрать PKG" })).toBeEnabled();
-  await page.screenshot({ path: "screenshots/02-native-inspector.png" });
-  await page.keyboard.press("Escape");
+  await page.screenshot({ path: ".local/evidence/02-native-home.png" });
+  // The current installer opens an OS dialog immediately; native-continuation
+  // and Computer Use cover it separately. Keep this downloader smoke non-modal.
+  await page.getByRole("button", { name: /^Загрузки/ }).click();
+  await expect(
+    page.getByRole("button", { name: "Скачать компоненты" }),
+  ).toBeEnabled();
+  await page.screenshot({
+    path: ".local/evidence/02-native-download-panel.png",
+  });
+  await page.getByRole("button", { name: "Главная", exact: true }).click();
   const originalMedia = await call("load_media");
   try {
     const png = await page.evaluate(() => {
@@ -76,6 +82,9 @@ try {
     const imagePath = path.join(directory, "qa-media.png");
     await fs.writeFile(imagePath, Buffer.from(png, "base64"));
     await page.getByRole("button", { name: "Подробнее: Bloodborne" }).click();
+    await page
+      .getByText("Заменить оформление на своё", { exact: true })
+      .click();
     await page.getByRole("button", { name: /^Главный hero/ }).click();
     // The native WebView file input uses the OS picker. Playwright supplies only our QA image.
     await page.locator('input[type="file"]').setInputFiles(imagePath);
@@ -142,7 +151,7 @@ try {
     await expect(page.getByText(/Архив проверен ·/)).toBeVisible();
     await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
     await page.screenshot({
-      path: "screenshots/02-native-verified-download.png",
+      path: ".local/evidence/02-native-verified-download.png",
     });
     console.log(
       "Official release artifact verified: exact size, SHA-256, ZIP CRC and entry checks passed. Nothing extracted or executed.",
