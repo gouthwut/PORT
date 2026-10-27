@@ -13,6 +13,7 @@ The personal executable now embeds supplied Bloodborne artwork. Its redistributi
 | 02-cont-native-two-packages.png        | Actual window, recognized gd/base 01.00 and gp/update 01.09, encrypted PFS/unavailable extraction                |
 | 02-cont-native-packages.json           | Private read-only native IPC metadata assessment (no package bytes or keys)                                      |
 | 02-cont-home.png / other 02-cont-*.png | Chromium preview/regression evidence; distinguish from native files above                                        |
+| 02-cont-native-final-window.png        | Final normal launch with actual Windows title bar; loopback debugging environment removed                        |
 
 `scripts/native-continuation.mjs` checks actual native SQLite save/reload then restores original settings/media, offline default artwork, gallery, invalid PKG, reverse-order real package assessment, base-only and duplicate rejection. Before/after source size/mtime/bounded-header SHA match; no full payload hash or extraction claim. Browser IPC mocks are explicitly labelled in `tests/continuation.spec.ts`. The native multi-select OS interaction was additionally performed through Computer Use; its accessibility-index action failed, a fresh screenshot/coordinate action succeeded, and both selected components appeared in the real app. No gameplay evidence exists.
 
