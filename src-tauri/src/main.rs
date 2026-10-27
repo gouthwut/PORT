@@ -1,8 +1,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod download;
+mod install;
 mod media;
 mod package;
+mod pkg_worker;
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
@@ -41,8 +43,11 @@ impl Settings {
     }
 }
 struct Database(Mutex<Connection>);
+struct InstanceLock {
+    _lock: std::fs::File,
+}
 fn init(conn: &Connection) -> rusqlite::Result<()> {
-    conn.execute_batch("PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY CHECK(id=1), value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS media (id INTEGER PRIMARY KEY CHECK(id=1), value TEXT NOT NULL); PRAGMA user_version=2;")
+    conn.execute_batch("PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY CHECK(id=1), value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS media (id INTEGER PRIMARY KEY CHECK(id=1), value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS installations(id TEXT PRIMARY KEY, value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS installation_jobs(id TEXT PRIMARY KEY, staging TEXT NOT NULL, root TEXT NOT NULL); PRAGMA user_version=3;")
 }
 fn read(conn: &Connection) -> Result<Settings, String> {
     let mut stmt = conn
@@ -85,13 +90,29 @@ fn reset_settings(db: tauri::State<Database>) -> Result<Settings, String> {
 fn main() {
     tauri::Builder::default()
         .manage(download::Download::default())
+        .manage(install::Installer::default())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             let dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&dir)?;
+            download::safe_existing(&dir).map_err(std::io::Error::other)?;
+            download::safe_existing(&dir.join("port-session.lock"))
+                .map_err(std::io::Error::other)?;
+            download::safe_existing(&dir.join("port.db")).map_err(std::io::Error::other)?;
+            let lock = std::fs::OpenOptions::new()
+                .create(true)
+                .truncate(false)
+                .read(true)
+                .write(true)
+                .open(dir.join("port-session.lock"))?;
+            fs2::FileExt::try_lock_exclusive(&lock)?;
+            app.manage(InstanceLock { _lock: lock });
             let conn = Connection::open(dir.join("port.db"))?;
             init(&conn)?;
+            if let Err(error) = install::recover(&conn) {
+                app.state::<install::Installer>().recovery_error(&error);
+            }
             app.manage(Database(Mutex::new(conn)));
             Ok(())
         })
@@ -105,7 +126,19 @@ fn main() {
             package::inspect_packages,
             download::download_status,
             download::start_download,
-            download::control_download
+            download::control_download,
+            install::inspect_game_folder,
+            install::install_status,
+            install::cancel_install,
+            install::import_game_folder,
+            install::prepare_runtime,
+            install::install_packages,
+            pkg_worker::pkg_install_available,
+            install::list_installations,
+            install::verify_installation,
+            install::launch_installation,
+            install::launch_status,
+            install::remove_installation
         ])
         .run(tauri::generate_context!())
         .expect("PORT failed to start");
@@ -134,7 +167,7 @@ mod tests {
         assert_eq!(
             conn.query_row("PRAGMA user_version", [], |r| r.get::<_, u32>(0))
                 .unwrap(),
-            2
+            3
         );
         conn.execute("DELETE FROM settings", []).unwrap();
         assert_eq!(read(&conn).unwrap(), Settings::default());

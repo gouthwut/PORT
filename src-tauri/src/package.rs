@@ -11,12 +11,12 @@ use std::{
 #[serde(rename_all = "camelCase")]
 pub struct Inspection {
     format: String,
-    content_id: String,
-    title_id: String,
+    pub(crate) content_id: String,
+    pub(crate) title_id: String,
     region: String,
-    version: Option<String>,
+    pub(crate) version: Option<String>,
     package_type: String,
-    role: String,
+    pub(crate) role: String,
     category: Option<String>,
     pfs_encrypted: Option<bool>,
     size: u64,
@@ -305,7 +305,7 @@ fn assess(items: Vec<PackageItem>) -> Selection {
         summary,
     }
 }
-fn inspect_file(path: &str) -> Result<Inspection, String> {
+pub(crate) fn inspect_file(path: &str) -> Result<Inspection, String> {
     let p = Path::new(path);
     regular_file(p)?;
     let mut file = File::open(p).map_err(|e| e.to_string())?;

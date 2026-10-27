@@ -102,7 +102,7 @@ fn network_error(e: reqwest::Error) -> String {
     }
     format!("Сетевая ошибка: {cause}. Повторите для продолжения.")
 }
-fn safe_existing(p: &Path) -> Result<(), String> {
+pub(crate) fn safe_existing(p: &Path) -> Result<(), String> {
     for ancestor in p.ancestors() {
         match fs::symlink_metadata(ancestor) {
             Ok(m) => {
@@ -176,7 +176,7 @@ fn hash_file(path: &Path, s: &Arc<Mutex<Status>>) -> Result<String, String> {
     }
     Ok(format!("{:x}", h.finalize()))
 }
-fn safe_zip_name(name: &str) -> bool {
+pub(crate) fn safe_zip_name(name: &str) -> bool {
     if name.len() > 240
         || name.starts_with(['/', '\\'])
         || name.contains(['\\', ':'])
