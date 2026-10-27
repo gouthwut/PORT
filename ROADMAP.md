@@ -2,7 +2,7 @@
 
 ## Stage 04B — narrow Bloodborne 1.09 update
 
-Authorized separately on 2026-10-27. Implement a confirmed package digest/metadata gate and a separate staged 1.09 installation retaining the working 1.00 and its profile. Reuse existing worker, manifest, journal, SQLite, process guard and UI state; verify real cancel/interruption/error paths and complete new bytes before registration. Actual exit evidence is recorded in PROGRESS.md. General deltas, update catalogs and combined initial base+update automation remain deferred.
+Authorized separately on 2026-10-27. The user subsequently requested IN-PLACE updates and one library card. Keep the installation identity/paths, stage the confirmed patch only, and use schema 4 per-file undo/recovery before committing 01.09. Consolidate the already verified separate 1.09 without losing its current profile, preserve the older profile as backup, then retire only the duplicate game payload/row. Reuse the worker, path/hash boundaries and process guards. Actual exit evidence is recorded in PROGRESS.md. General deltas, update catalogs and combined initial base+update automation remain deferred.
 
 ## Stage 03 authorization and current override — 2026-10-27
 

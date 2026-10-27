@@ -33,7 +33,17 @@ export function InstalledLibrary({
         filters: [{ name: "PS4 PKG", extensions: ["pkg"] }],
       });
       if (typeof path === "string") {
-        await invoke("update_installation", { id: i.id, path });
+        const updated = state.items.find(
+          (other) =>
+            other.id !== i.id &&
+            other.collectionId === i.collectionId &&
+            other.version === "01.09",
+        );
+        await invoke("update_installation", {
+          id: i.id,
+          path,
+          updatedId: updated?.id || null,
+        });
         await state.refresh();
       }
     } catch (e) {
@@ -128,9 +138,9 @@ export function InstalledLibrary({
             <p className="muted">Версия {item.version || "не определена"}</p>
             {item.version === "01.00" && (
               <p className="muted small">
-                Обновление создаёт отдельную 1.09 и копирует профиль. Эта 1.00 и
-                её сохранения остаются доступны. Требуется место для полной
-                копии; PORT проверит объём до записи.
+                Обновление заменяет файлы в этой установке. На случай сбоя PORT
+                резервирует заменяемые файлы и восстанавливает их при отмене.
+                Полная копия игры не создаётся.
               </p>
             )}
             <div className="media-actions">
@@ -151,16 +161,23 @@ export function InstalledLibrary({
                         state.busy ||
                         !!state.loadError ||
                         !!state.operation?.active ||
-                        state.running.includes(item.id) ||
                         state.items.some(
                           (i) =>
                             i.collectionId === item.collectionId &&
-                            i.version === "01.09",
+                            state.running.includes(i.id),
                         )
                       }
                       onClick={() => void update(item)}
                     >
-                      {picking ? "Выбор PKG…" : "Установить обновление"}
+                      {picking
+                        ? "Выбор PKG…"
+                        : state.items.some(
+                              (i) =>
+                                i.collectionId === item.collectionId &&
+                                i.version === "01.09",
+                            )
+                          ? "Объединить версии"
+                          : "Установить обновление"}
                     </Button>
                   )}
                   <Button
@@ -198,7 +215,7 @@ export function InstalledLibrary({
               </details>
             </div>
             {state.operation?.active &&
-              ["verifying", "updating"].includes(state.operation.phase) && (
+              state.operation.phase === "verifying" && (
                 <Button
                   variant="ghost"
                   onClick={() =>
@@ -207,9 +224,7 @@ export function InstalledLibrary({
                     )
                   }
                 >
-                  {state.operation.phase === "updating"
-                    ? "Отменить обновление"
-                    : "Отменить проверку"}
+                  Отменить проверку
                 </Button>
               )}
             {state.operation?.message && (

@@ -18,6 +18,10 @@ try {
   const records = await call("list_installations");
   const updated = records.find((r) => r.version === "01.09");
   expect(updated).toBeTruthy();
+  const metadata = await call("inspect_game_folder", {
+    path: updated.dataPath,
+  });
+  expect(metadata.version).toBe("01.09");
   expect((await call("running_installations")).includes(updated.id)).toBe(
     false,
   );
@@ -44,8 +48,7 @@ try {
     } catch {}
     if (
       fresh &&
-      /01\.09|1\.09/.test(text) &&
-      /GPU:|guest threads|Patches:/.test(text)
+      /GPU: window and Vulkan presenter ready|splash screen hidden/.test(text)
     )
       break;
     await new Promise((r) => setTimeout(r, 1000));
@@ -56,7 +59,8 @@ try {
     launchStatus: await call("launch_status"),
     running: running.includes(updated.id),
     freshLog: fresh,
-    version109InLog: /01\.09|1\.09/.test(text),
+    version109InMetadata: metadata.version === "01.09",
+    patchesInLog: /^Patches:/m.test(text),
     logTail: text.slice(-16000),
     gameplayConfirmed: false,
   };
@@ -68,7 +72,7 @@ try {
     JSON.stringify({ ...result, logTail: result.logTail.slice(-2000) }),
   );
   expect(result.freshLog).toBe(true);
-  expect(result.version109InLog).toBe(true);
+  expect(result.version109InMetadata).toBe(true);
 } finally {
   await browser.close();
 }

@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("update selection, progress, cancellation, retained fallback and preferred launch", async ({
+test("update selection, progress, cancellation and one installation with the same identity", async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -20,6 +20,7 @@ test("update selection, progress, cancellation, retained fallback and preferred 
       cancels: 0,
       picks: 0,
       launched: "",
+      mergeId: "",
       operation: {
         phase: "",
         active: false,
@@ -53,6 +54,7 @@ test("update selection, progress, cancellation, retained fallback and preferred 
             if (args.id !== "base" || args.path !== "C:/QA/update.pkg")
               throw Error("Wrong selection");
             q.updates++;
+            q.mergeId = String(args.updatedId || "");
             q.operation = {
               phase: "updating",
               active: true,
@@ -125,7 +127,29 @@ test("update selection, progress, cancellation, retained fallback and preferred 
   expect(await page.evaluate(() => (window as any).qa.cancels)).toBe(1);
   await page.evaluate(() => {
     const q = (window as any).qa;
-    q.items.push({ ...q.items[0], id: "updated", version: "01.09" });
+    q.items.push({ ...q.items[0], id: "side", version: "01.09" });
+  });
+  const merge = page.getByRole("button", {
+    name: "Объединить версии",
+    exact: true,
+  });
+  await expect(merge).toBeEnabled();
+  await page.evaluate(() => {
+    (window as any).qa.running = ["side"];
+  });
+  await expect(merge).toBeDisabled();
+  await page.evaluate(() => {
+    (window as any).qa.running = [];
+  });
+  await expect(merge).toBeEnabled();
+  await merge.click();
+  await expect
+    .poll(() => page.evaluate(() => (window as any).qa.mergeId))
+    .toBe("side");
+  await page.evaluate(() => {
+    const q = (window as any).qa;
+    q.items = q.items.filter((i: { id: string }) => i.id === "base");
+    q.items[0].version = "01.09";
     q.operation = {
       phase: "ready",
       active: false,
@@ -134,15 +158,14 @@ test("update selection, progress, cancellation, retained fallback and preferred 
       message: "Обновление проверено",
     };
   });
-  await expect(page.locator(".installed-card")).toHaveCount(2);
-  await expect(update).toBeDisabled();
+  await expect(page.locator(".installed-card")).toHaveCount(1);
+  await expect(update).toHaveCount(0);
+  await expect(merge).toHaveCount(0);
   await expect(page.locator(".installed-card").first()).toContainText("01.09");
   await page.getByRole("button", { name: "Главная", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "За пределами консоли." }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Играть", exact: true }).click();
-  expect(await page.evaluate(() => (window as any).qa.launched)).toBe(
-    "updated",
-  );
+  expect(await page.evaluate(() => (window as any).qa.launched)).toBe("base");
 });

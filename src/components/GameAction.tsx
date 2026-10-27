@@ -30,6 +30,7 @@ export function GameAction({
         "hashing",
         "installing",
         "updating",
+        "finalizing",
       ].includes(state.operation!.phase));
   return (
     <div className="game-primary-action">
@@ -50,7 +51,10 @@ export function GameAction({
           : running
             ? "Уже запущена"
             : installing
-              ? "Установка…"
+              ? state.operation?.phase === "updating" ||
+                state.operation?.phase === "finalizing"
+                ? "Обновление…"
+                : "Установка…"
               : state.busy
                 ? "Подождите…"
                 : item
@@ -78,13 +82,17 @@ export function GameAction({
           )}
           <Button
             variant="ghost"
+            disabled={state.operation?.phase === "finalizing"}
             onClick={() =>
               void invoke("cancel_install")
                 .then(state.refresh)
                 .catch(() => onInstall())
             }
           >
-            Отменить установку
+            {state.operation?.phase === "updating" ||
+            state.operation?.phase === "finalizing"
+              ? "Отменить обновление"
+              : "Отменить установку"}
           </Button>
         </div>
       )}
