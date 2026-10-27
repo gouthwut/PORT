@@ -99,9 +99,7 @@ test("update selection, progress, cancellation and one installation with the sam
   ).toHaveAttribute("value", "25");
   await expect(update).toBeDisabled();
   await page.getByRole("button", { name: "Главная", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "За пределами консоли." }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Главная." })).toBeVisible();
   await page.setViewportSize({ width: 480, height: 850 });
   await expect(
     page.getByRole("progressbar", { name: "Прогресс установки" }),
@@ -111,9 +109,11 @@ test("update selection, progress, cancellation and one installation with the sam
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
-  const caption = await page.locator(".hero-caption").boundingBox();
-  const bottom = await page.locator(".hero-bottom").boundingBox();
-  expect(caption!.y + caption!.height).toBeLessThan(bottom!.y);
+  const progress = await page
+    .getByRole("progressbar", { name: "Прогресс установки" })
+    .boundingBox();
+  const hero = await page.locator(".hero").boundingBox();
+  expect(progress!.y + progress!.height).toBeLessThan(hero!.y + hero!.height);
   await page.screenshot({
     path: ".local/evidence/04b/browser-mobile-update-mocked.png",
   });
@@ -164,9 +164,7 @@ test("update selection, progress, cancellation and one installation with the sam
   await expect(merge).toHaveCount(0);
   await expect(page.locator(".installed-card").first()).toContainText("01.09");
   await page.getByRole("button", { name: "Главная", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "За пределами консоли." }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Главная." })).toBeVisible();
   await page.getByRole("button", { name: "Играть", exact: true }).click();
   expect(await page.evaluate(() => (window as any).qa.launched)).toBe("base");
 });

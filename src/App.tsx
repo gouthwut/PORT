@@ -8,7 +8,6 @@ import {
   ArrowRight,
   ArrowUpRight,
   CheckCircle2,
-  ChevronRight,
   CircleHelp,
   Compass,
   Download,
@@ -18,10 +17,7 @@ import {
   Grid2X2,
   HardDrive,
   Home,
-  Info,
   Library,
-  Monitor,
-  Package,
   Search,
   Settings as SettingsIcon,
   ShieldCheck,
@@ -37,7 +33,7 @@ import {
   type Settings,
 } from "./services/settings";
 import { Button, Modal, Switch, gameCount } from "./components/ui";
-import { GameArt, Gallery, MediaEditor } from "./components/BloodborneMedia";
+import { GameArt, Gallery } from "./components/BloodborneMedia";
 import { InstallerPanel, DownloadPanel } from "./components/Installer";
 import { emptyMedia, mediaService, type MediaSet } from "./services/media";
 import { resolveMedia } from "./services/bundled-media";
@@ -67,14 +63,6 @@ const navigation = [
   { id: "library", label: "Библиотека", icon: Library },
   { id: "downloads", label: "Загрузки", icon: ArrowDownToLine },
 ] as const;
-const pageNames: Record<Page, string> = {
-  home: "Главная",
-  catalog: "Каталог",
-  details: "Bloodborne",
-  library: "Библиотека",
-  downloads: "Загрузки",
-  settings: "Настройки",
-};
 function Badge({
   children,
   green = false,
@@ -173,12 +161,8 @@ export default function App() {
     mediaService
       .load()
       .then(setMedia)
-      .catch(() => setToast("Не удалось загрузить оформление"));
+      .catch(() => setToast("Не удалось загрузить изображения"));
   }, []);
-  async function saveMedia(next: MediaSet) {
-    await mediaService.save(next);
-    setMedia(next);
-  }
   const mainRef = useRef<HTMLElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -334,7 +318,6 @@ export default function App() {
           >
             PORT<span>//</span>
           </button>
-          <div className="workspace-label">ВАШИ НОВЫЕ ГОРИЗОНТЫ</div>
           <nav aria-label="Основная навигация">
             {navigation.map(({ id, label, icon: Icon }) => (
               <button
@@ -349,54 +332,7 @@ export default function App() {
               </button>
             ))}
           </nav>
-          {catalog.snapshot.source === "demo" ||
-          games.items.some((i) => i.collectionId === "bloodborne") ? (
-            <div className="sidebar-collection">
-              <p className="eyebrow">В ФОКУСЕ</p>
-              <button
-                onClick={() => {
-                  setSelectedGame(null);
-                  navigate("details");
-                }}
-                className="sidebar-feature"
-              >
-                <span className="small-cover">
-                  <GameArt src={media.hero} />
-                </span>
-                <span>
-                  Bloodborne<small>FromSoftware · 2015</small>
-                </span>
-                <ChevronRight size={14} />
-              </button>
-            </div>
-          ) : catalog.snapshot.catalog.games[0] ? (
-            <div className="sidebar-collection">
-              <button
-                className="sidebar-feature"
-                onClick={() => openGame(catalog.snapshot.catalog.games[0])}
-              >
-                <span className="small-cover">
-                  <GameArt
-                    src={gameMedia(catalog.snapshot.catalog.games[0]).cover}
-                  />
-                </span>
-                <span>
-                  {catalog.snapshot.catalog.games[0].title}
-                  <small>
-                    {catalog.snapshot.catalog.games[0].sourceConsole}
-                  </small>
-                </span>
-              </button>
-            </div>
-          ) : null}
           <div className="sidebar-bottom">
-            <div className="local-note">
-              <ShieldCheck size={19} />
-              <div>
-                Ваши игры. Ваш компьютер.
-                <small>Игровые файлы остаются у вас.</small>
-              </div>
-            </div>
             <button
               className={`nav-item ${page === "settings" ? "active" : ""}`}
               aria-label="Настройки"
@@ -406,12 +342,14 @@ export default function App() {
               <SettingsIcon size={19} strokeWidth={1.7} />
               <span>Настройки</span>
             </button>
-            <button className="profile" onClick={() => setAbout(true)}>
-              <span className="profile-icon">
-                P<span />
-              </span>
+            <button
+              className="profile"
+              aria-label="О PORT"
+              onClick={() => setAbout(true)}
+            >
+              <span className="profile-icon">P</span>
               <span>
-                Локальный профиль<small>PORT// · 0.1.0</small>
+                О PORT<small>0.1.0</small>
               </span>
               <CircleHelp size={17} />
             </button>
@@ -419,14 +357,6 @@ export default function App() {
         </aside>
         <div className="content-shell">
           <header className="topbar">
-            <div className="breadcrumb">
-              Обзор <ChevronRight size={13} />
-              <span>
-                {page === "details" && detailGame
-                  ? detailGame.title
-                  : pageNames[page]}
-              </span>
-            </div>
             <form
               className="search-box"
               role="search"
@@ -458,17 +388,12 @@ export default function App() {
                 <kbd>Ctrl K</kbd>
               )}
             </form>
-            <div className="build-label">
-              <span className="status-dot" />
-              {native ? "WINDOWS" : "WEB PREVIEW"}
-              <span className="build-divider" />
-              PORT//
-            </div>
+            {!native && <div className="build-label">WEB PREVIEW</div>}
           </header>
           {!online && (
             <div role="status" className="offline-banner">
               <WifiOff size={15} />
-              Нет сети. Каталог и локальные настройки доступны.
+              Нет подключения к интернету.
             </div>
           )}
           {storageError && (
@@ -513,39 +438,19 @@ export default function App() {
                     <>
                       <div className="page-heading">
                         <div>
-                          <p className="eyebrow">
-                            ЗНАКОМЫЕ МИРЫ. НОВЫЕ ВОЗМОЖНОСТИ.
-                          </p>
                           <h1>
-                            За пределами консоли
+                            Главная
                             <span className="accent">.</span>
                           </h1>
                         </div>
-                        <span className="quiet-label">
-                          <Monitor size={14} />
-                          Создано для Windows
-                        </span>
                       </div>
                       <CatalogStatus state={catalog} />
                       <section className="hero">
                         <GameArt src={media.hero} />
                         <div className="hero-shade" />
                         <div className="hero-content">
-                          <div className="hero-kicker">
-                            <span className="tiny-line" />
-                            ИГРА В ФОКУСЕ
-                            <span className="pill">
-                              СОВМЕСТИМОСТЬ PS4 → WINDOWS
-                            </span>
-                          </div>
-                          <div className="hero-wordmark">
-                            BLOODBORNE<span>HUNT YOUR NIGHTMARES</span>
-                          </div>
-                          <p>
-                            Тайны Ярнама ждут своего охотника.
-                            <br />
-                            Переживите ночь охоты.
-                          </p>
+                          <div className="hero-wordmark">BLOODBORNE</div>
+                          <p>Тайны Ярнама ждут своего охотника.</p>
                           <div className="hero-actions">
                             <GameAction
                               state={games}
@@ -562,26 +467,10 @@ export default function App() {
                               Подробнее
                             </Button>
                           </div>
-                          <div className="hero-caption">
-                            <Info size={13} />
-                            Собственные игровые файлы · без передачи в сеть
-                          </div>
                         </div>
-                        <div className="hero-bottom">
-                          <span>
-                            01 <span>/ 01</span>
-                          </span>
-                          <div className="hero-progress" />
-                          <span>ИССЛЕДУЙТЕ НЕИЗВЕДАННОЕ</span>
-                          <Compass size={22} />
-                        </div>
-                        <span className="art-label">
-                          ВАШЕ ЛОКАЛЬНОЕ ОФОРМЛЕНИЕ
-                        </span>
                       </section>
                       <SectionTitle
-                        eyebrow="ОХОТА НАЧИНАЕТСЯ ЗДЕСЬ."
-                        title="Bloodborne"
+                        title="В каталоге"
                         action="Об игре"
                         onAction={() => {
                           setSelectedGame(null);
@@ -608,50 +497,12 @@ export default function App() {
                           />
                         ))}
                       </div>
-                      <div className="home-bottom">
-                        <section className="new-ports">
-                          <SectionTitle title="Ваша коллекция — ваши файлы" />
-                          <div className="new-ports-content">
-                            <span className="outline-icon">
-                              <Package size={25} strokeWidth={1.4} />
-                            </span>
-                            <div>
-                              <h3>Всё остаётся на компьютере</h3>
-                              <p>
-                                PORT устанавливает совместимые файлы игры,
-                                которые уже есть у вас.
-                              </p>
-                            </div>
-                          </div>
-                        </section>
-                        <section className="manifesto">
-                          <span className="eyebrow">
-                            ПРОСТРАНСТВО ДЛЯ ВАШИХ ИГР
-                          </span>
-                          <h3>
-                            Легенды обретают
-                            <br />
-                            новый дом<span className="accent">.</span>
-                          </h3>
-                          <button
-                            className="text-link"
-                            onClick={() => setAbout(true)}
-                          >
-                            Познакомиться с PORT
-                            <ArrowUpRight size={16} />
-                          </button>
-                          <span className="manifesto-mark">//</span>
-                        </section>
-                      </div>
                     </>
                   )}
                   {page === "catalog" && (
                     <>
                       <div className="page-heading">
                         <div>
-                          <p className="eyebrow">
-                            ОТКРОЙТЕ СЛЕДУЮЩЕЕ ПРИКЛЮЧЕНИЕ
-                          </p>
                           <h1>
                             Каталог<span className="accent">.</span>
                           </h1>
@@ -666,8 +517,8 @@ export default function App() {
                           <span>Доступность</span>
                           {[
                             { id: "all", label: "Все" },
-                            { id: "planned", label: "Без адаптера" },
-                            { id: "available", label: "Готовы к установке" },
+                            { id: "planned", label: "Недоступны" },
+                            { id: "available", label: "Доступны" },
                           ].map((f) => (
                             <button
                               key={f.id}
@@ -787,13 +638,6 @@ export default function App() {
                               углубляют каждое возвращение.
                             </p>
                           </details>
-                          <details className="media-customization">
-                            <summary>Заменить оформление на своё</summary>
-                            <MediaEditor
-                              media={mediaOverrides}
-                              onSave={saveMedia}
-                            />
-                          </details>
                           <details className="technical-info runtime-info">
                             <summary>
                               Как Bloodborne работает на Windows
@@ -909,7 +753,6 @@ export default function App() {
                     <>
                       <div className="page-heading">
                         <div>
-                          <p className="eyebrow">ВСЁ ВАШЕ. В ОДНОМ МЕСТЕ.</p>
                           <h1>
                             Библиотека<span className="accent">.</span>
                           </h1>
@@ -940,18 +783,12 @@ export default function App() {
                     <>
                       <div className="page-heading">
                         <div>
-                          <p className="eyebrow">ПУТЬ К НОВЫМ МИРАМ</p>
                           <h1>
                             Загрузки<span className="accent">.</span>
                           </h1>
                         </div>
                         <Badge>КОМПОНЕНТЫ WINDOWS</Badge>
                       </div>
-                      <p className="body-copy">
-                        Компоненты Windows-проекта загружаются отдельно от ваших
-                        игровых данных. Проверенный архив останется в локальном
-                        кэше PORT.
-                      </p>
                       <DownloadPanel />
                     </>
                   )}
@@ -959,9 +796,6 @@ export default function App() {
                     <>
                       <div className="page-heading">
                         <div>
-                          <p className="eyebrow">
-                            ПРОСТРАНСТВО ПО ВАШИМ ПРАВИЛАМ
-                          </p>
                           <h1>
                             Настройки<span className="accent">.</span>
                           </h1>
@@ -973,14 +807,10 @@ export default function App() {
                       </div>
                       <div className="settings-layout">
                         <div>
-                          <SettingsSection
-                            title="Внешний вид"
-                            description="Небольшие детали, которые меняют ощущение."
-                          >
+                          <SettingsSection title="Внешний вид">
                             <div className="setting-row">
                               <div>
                                 <h3>Тема приложения</h3>
-                                <p>Тёмная тема или цветовая схема Windows</p>
                               </div>
                               <select
                                 aria-label="Тема приложения"
@@ -999,7 +829,6 @@ export default function App() {
                             <div className="setting-row">
                               <div>
                                 <h3>Меньше анимаций</h3>
-                                <p>Спокойные переходы без движения</p>
                               </div>
                               <Switch
                                 label="Меньше анимаций"
@@ -1013,7 +842,6 @@ export default function App() {
                             <div className="setting-row">
                               <div>
                                 <h3>Компактные карточки</h3>
-                                <p>Больше места для вашей коллекции</p>
                               </div>
                               <Switch
                                 label="Компактные карточки"
@@ -1025,10 +853,7 @@ export default function App() {
                               />
                             </div>
                           </SettingsSection>
-                          <SettingsSection
-                            title="Установка и хранение"
-                            description="Подготовьте место для будущих приключений."
-                          >
+                          <SettingsSection title="Установка и хранение">
                             <div className="setting-row folder-setting">
                               <div>
                                 <h3>Папка установки</h3>
@@ -1070,14 +895,14 @@ export default function App() {
                             title="Локальные данные"
                             description={
                               native
-                                ? "Настройки хранятся на этом компьютере."
+                                ? undefined
                                 : "Режим браузера: настройки хранятся в localStorage."
                             }
                           >
                             <div className="setting-row">
                               <div>
                                 <h3>Сбросить настройки</h3>
-                                <p>Вернуть параметры интерфейса по умолчанию</p>
+                                <p>Игры и сохранения останутся</p>
                               </div>
                               <Button
                                 variant="secondary"
@@ -1090,54 +915,9 @@ export default function App() {
                           </SettingsSection>
                           <CatalogSettings state={catalog} />
                         </div>
-                        <aside className="about-panel">
-                          <div className="brand">
-                            PORT<span>//</span>
-                          </div>
-                          <Badge>VERSION 0.1.0</Badge>
-                          <h3>
-                            Знакомые миры.
-                            <br />
-                            Новый дом.
-                          </h3>
-                          <p>
-                            Независимый лаунчер Windows-проектов для консольных
-                            игр.
-                          </p>
-                          <div className="panel-rule" />
-                          <p className="small">
-                            Bloodborne на Windows
-                            <br />
-                            Неофициальный проект на основе bbport / shadPS4.
-                            Нужны собственные игровые файлы. Совместимость
-                            зависит от оборудования и версии игры.
-                          </p>
-                          <button
-                            className="text-link"
-                            onClick={() => external()}
-                          >
-                            GitHub автора порта
-                            <ArrowUpRight size={15} />
-                          </button>
-                          <button
-                            className="text-link"
-                            onClick={() => setAbout(true)}
-                          >
-                            О проекте PORT
-                            <Info size={15} />
-                          </button>
-                        </aside>
                       </div>
                     </>
                   )}
-                  <footer>
-                    <span>
-                      PORT// <span>Миры становятся ближе.</span>
-                    </span>
-                    <span>
-                      Независимый проект<small>·</small>Windows
-                    </span>
-                  </footer>
                 </motion.div>
               </AnimatePresence>
             )}
@@ -1150,7 +930,7 @@ export default function App() {
             if (!open) void games.refresh().catch(() => {});
           }}
           title="Установка Bloodborne"
-          description="Подготовка собственных игровых файлов. Ничего не устанавливается без проверенной совместимости."
+          description="Выберите файлы игры и папку установки."
         >
           <InstallerPanel
             installDir={settings.installDir}
@@ -1160,24 +940,14 @@ export default function App() {
         <Modal
           open={about}
           onOpenChange={setAbout}
-          title="Миры становятся ближе."
-          description="PORT// — независимый Windows-лаунчер. Версия 0.1.0."
+          title="О PORT"
+          description="Лаунчер и установщик независимых Windows-проектов для консольных игр. Версия 0.1.0."
         >
           <div className="about-dialog-content">
-            <Compass size={46} strokeWidth={1} />
             <p>
-              Мы создаём удобный дом для независимых Windows-проектов. Каждый
-              порт остаётся работой его авторов. PORT не распространяет
-              оригинальные игры.
+              PORT не распространяет игровые файлы. Совместимость и способ
+              запуска указаны на странице каждой игры.
             </p>
-            <p className="muted">
-              Bloodborne PC — проект SuperMedo (Mohammed Albarghouthi). PORT не
-              связан с Sony или FromSoftware.
-            </p>
-            <Button variant="secondary" onClick={() => external()}>
-              <Github size={17} />
-              Открыть проект SuperMedo
-            </Button>
             <details className="technical-info font-notices">
               <summary>Шрифты и лицензии</summary>
               <p>
@@ -1267,7 +1037,6 @@ function Empty({
           <Icon size={35} strokeWidth={1.25} />
         </div>
       </div>
-      <p className="eyebrow">МЕСТО ДЛЯ НОВОГО</p>
       <h2>{title}</h2>
       <p>{description}</p>
       {children}
@@ -1280,13 +1049,13 @@ function SettingsSection({
   children,
 }: {
   title: string;
-  description: string;
+  description?: string;
   children: React.ReactNode;
 }) {
   return (
     <section className="settings-section">
       <h2>{title}</h2>
-      <p className="muted">{description}</p>
+      {description && <p className="muted">{description}</p>}
       {children}
     </section>
   );

@@ -83,7 +83,7 @@ test("published cards sync, image cache survives offline restart, refresh and in
   await page
     .getByRole("button", { name: "Подробнее: Coast · QA fixture" })
     .click();
-  await expect(page.getByText(/Установка недоступна: адаптер/)).toBeVisible();
+  await expect(page.getByText(/Установка недоступна: поддержка/)).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Установить", exact: true }),
   ).toHaveCount(0);

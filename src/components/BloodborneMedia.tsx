@@ -2,11 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowLeft, ArrowRight, ImageOff, X } from "lucide-react";
 import { Button } from "./ui";
-import { importPhoto, type MediaSet } from "../services/media";
 
 export function GameArt({
   src,
-  label = "Bloodborne",
+  label = "Обложка",
 }: {
   src?: string;
   label?: string;
@@ -24,99 +23,7 @@ export function GameArt({
     <div className="art-empty">
       <ImageOff size={28} strokeWidth={1} />
       <span>{label}</span>
-      <small>ЛОКАЛЬНЫЕ ИЗОБРАЖЕНИЯ</small>
     </div>
-  );
-}
-export function MediaEditor({
-  media,
-  onSave,
-}: {
-  media: MediaSet;
-  onSave: (next: MediaSet) => Promise<void>;
-}) {
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const input = useRef<HTMLInputElement>(null);
-  const slot = useRef<keyof MediaSet>("hero");
-  async function selected(files: FileList | null) {
-    if (!files?.length) return;
-    setBusy(true);
-    setError("");
-    try {
-      const target = slot.current;
-      if (target === "gallery" && files.length > 10)
-        throw new Error("Выберите не более 10 скриншотов.");
-      const photos = [];
-      for (const file of Array.from(files).slice(
-        0,
-        target === "gallery" ? 10 : 1,
-      ))
-        photos.push(await importPhoto(file, target === "cover"));
-      await onSave({
-        ...media,
-        [target]: target === "gallery" ? photos : photos[0],
-      });
-    } catch (e) {
-      setError(String(e));
-    } finally {
-      setBusy(false);
-      if (input.current) input.current.value = "";
-    }
-  }
-  return (
-    <section className="media-editor">
-      <h3>Ваше оформление Bloodborne</h3>
-      <p className="muted small">
-        Импортируйте материалы, которыми вправе пользоваться. Файлы
-        обрабатываются локально и не отправляются в интернет. Галерея: до 10
-        изображений. В браузерном preview лимит хранения зависит от
-        localStorage.
-      </p>
-      <input
-        ref={input}
-        type="file"
-        hidden
-        accept="image/png,image/jpeg,image/webp"
-        onChange={(e) => void selected(e.target.files)}
-      />
-      <div className="media-actions">
-        {(
-          [
-            ["hero", "Главный hero"],
-            ["cover", "Обложка 2:3"],
-            ["banner", "Баннер страницы"],
-            ["gallery", "Скриншоты"],
-          ] as const
-        ).map(([id, name]) => (
-          <Button
-            key={id}
-            variant="secondary"
-            disabled={busy}
-            onClick={() => {
-              slot.current = id;
-              input.current!.multiple = id === "gallery";
-              input.current!.click();
-            }}
-          >
-            {name}
-            {id === "gallery"
-              ? ` (${media.gallery.length}/10)`
-              : media[id]
-                ? " ✓"
-                : ""}
-          </Button>
-        ))}
-      </div>
-      {busy && <p role="status">Обработка и сохранение…</p>}
-      {error && (
-        <p role="alert">
-          {error.includes("quota")
-            ? "Недостаточно места в localStorage. Используйте Windows-приложение."
-            : error}
-        </p>
-      )}
-    </section>
   );
 }
 export function Gallery({
@@ -134,12 +41,7 @@ export function Gallery({
     );
   return (
     <section className="gallery-section">
-      <h2>
-        {title === "Bloodborne" ? "Ночь в Ярнаме" : `Скриншоты · ${title}`}
-      </h2>
-      <p className="muted small">
-        Галерея · {images.length} / 10 · изображения доступны без интернета
-      </p>
+      <h2>Скриншоты</h2>
       <div className="screenshot-grid">
         {images.length ? (
           images.map((src, i) => (
@@ -162,9 +64,7 @@ export function Gallery({
             </button>
           ))
         ) : (
-          <p className="gallery-empty">
-            Скриншоты ещё не добавлены или недоступны в кэше.
-          </p>
+          <p className="gallery-empty">Скриншоты недоступны.</p>
         )}
       </div>
       <Dialog.Root

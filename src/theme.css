@@ -89,6 +89,22 @@ h2 {
   border-color: var(--line);
   box-shadow: inset -1px 0 0 #ffffff03;
 }
+.sidebar > nav {
+  margin-top: 36px;
+}
+.search-box {
+  margin-left: 0;
+}
+.build-label {
+  margin-left: auto;
+}
+.settings-layout {
+  display: block;
+  max-width: 920px;
+}
+.hero-wordmark {
+  margin-top: 10px;
+}
 .brand {
   font-size: 30px;
   font-weight: 800;

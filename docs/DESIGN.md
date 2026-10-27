@@ -1,5 +1,11 @@
 # PORT visual design
 
+## Stage 04E continuation — concise, game-neutral shell
+
+PORT's shared interface describes the launcher/installer, not one game. Sidebar game promotion, repeated breadcrumbs/platform badges, marketing eyebrows, decorative carousel labels, footer slogans, home promotional panels and the Settings game-author panel are removed. Home uses its page name; Settings keeps only its functional groups. About describes PORT once, with font licenses retained in a disclosure. Game-specific attribution and compatibility remain on the relevant game page and operation/source details. The catalog still honestly identifies local test data and unavailable actions.
+
+Artwork is read-only in the user interface. The image editor, upload controls, frontend save handler and image-import helper are removed. Previously saved artwork is still read without migration/deletion; bundled private inputs and catalog images work as before. Gallery navigation, keyboard focus and offline viewing remain. The prior image-import test is replaced by a retained-media fixture test proving absence of edit controls, unchanged storage and working read-only gallery behavior. Existing Figma direction frames are historical composition guidance; current React is authoritative for this copy reduction.
+
 ## Stage 04E — Dark Violet Liquid Glass
 
 [Editable Figma direction](https://www.figma.com/design/UcQWJ0RjgsgaW9O5YgJjbC?node-id=4-2): a separate 04E page preserves the original foundation. It contains semantic color/spacing/radius variables with CSS syntax, five shared text styles, a glass effect style, seven reusable visual primitives and seven editable screen/state compositions. These are schematic direction frames with explicitly labelled art slots, not pixel-perfect application screenshots. No private game art was uploaded. Local concepts in ignored `.local/design_refs/PORT-Visual-References/` were inspected for material, depth and composition only; none became application assets.

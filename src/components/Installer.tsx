@@ -90,9 +90,7 @@ export function InstallerPanel({
       <div className="install-banner">
         <GameArt src={artwork} label="Bloodborne" />
         <div>
-          <span className="eyebrow">ВАША СЛЕДУЮЩАЯ ИСТОРИЯ</span>
           <h2>Bloodborne</h2>
-          <p>Свои файлы. Новая история.</p>
         </div>
       </div>
       <ol className="install-flow" aria-label="Порядок установки">
@@ -273,8 +271,7 @@ export function DownloadPanel() {
     >
       <h3>Компоненты для Bloodborne</h3>
       <p className="muted small">
-        SuperMedo · windows-v1.9.4 · 180.5 МБ. Игровые данные в загрузку не
-        входят.
+        windows-v1.9.4 · 180.5 МБ. Игровые данные в загрузку не входят.
       </p>
       {status && (
         <>

@@ -32,12 +32,14 @@ export function CatalogStatus({ state }: { state: CatalogState }) {
                 ? "Каталог сохранён на компьютере"
                 : "Каталог обновлён"}
         </strong>
-        <p className="muted small">
-          {s.syncedAt
-            ? `Синхронизация: ${new Date(s.syncedAt * 1000).toLocaleString("ru-RU")}`
-            : "Библиотека доступна и без сети."}
-          {!native && " · WEB PREVIEW: кэш в localStorage"}
-        </p>
+        {(s.syncedAt || !native) && (
+          <p className="muted small">
+            {s.syncedAt
+              ? `Синхронизация: ${new Date(s.syncedAt * 1000).toLocaleString("ru-RU")}`
+              : ""}
+            {!native && " · WEB PREVIEW: кэш в localStorage"}
+          </p>
+        )}
         {state.error && (
           <div role="alert" className="catalog-error">
             Не удалось обновить каталог. Последние данные сохранены.
@@ -122,7 +124,7 @@ export function PublishedAction({
         Установка недоступна:{" "}
         {game.windowsBuild === "unavailable"
           ? "нет Windows-сборки"
-          : "адаптер не поддерживается этим клиентом"}
+          : "поддержка этой игры ещё не добавлена"}
         .
       </p>
     );
@@ -327,9 +329,8 @@ export function DynamicHome({
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">ОПУБЛИКОВАННЫЕ ИГРЫ</p>
           <h1>
-            За пределами консоли<span className="accent">.</span>
+            Главная<span className="accent">.</span>
           </h1>
         </div>
       </div>

@@ -5,9 +5,7 @@ test("navigation, honest installer and all primary screen screenshots", async ({
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
-  await expect(
-    page.getByRole("heading", { name: "За пределами консоли." }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Главная." })).toBeVisible();
   await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
   await page.screenshot({ path: ".local/evidence/02-cont-home.png" });
   await page.getByRole("button", { name: "Установить", exact: true }).click();
@@ -54,11 +52,11 @@ test("search, filters, settings persistence and reset", async ({ page }) => {
     page.getByRole("heading", { name: "Ничего не найдено" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Сбросить фильтры" }).click();
-  await page.getByRole("button", { name: "Готовы к установке" }).click();
+  await page.getByRole("button", { name: "Доступны", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Подробнее: Bloodborne" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Без адаптера", exact: true }).click();
+  await page.getByRole("button", { name: "Недоступны", exact: true }).click();
   await expect(page.getByText("Ничего не найдено")).toBeVisible();
   await page.getByRole("button", { name: "Все", exact: true }).click();
   await expect(
@@ -97,15 +95,11 @@ test("offline, keyboard, light theme and responsive layouts", async ({
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
-  await expect(
-    page.getByRole("heading", { name: "За пределами консоли." }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Главная." })).toBeVisible();
   await page.keyboard.press("Control+k");
   await expect(page.getByRole("textbox", { name: "Поиск игр" })).toBeFocused();
   await context.setOffline(true);
-  await expect(
-    page.getByText("Нет сети. Каталог и локальные настройки доступны."),
-  ).toBeVisible();
+  await expect(page.getByText("Нет подключения к интернету.")).toBeVisible();
   await page.getByRole("button", { name: "Библиотека", exact: true }).click();
   await expect(page.getByText("Здесь начнётся ваша история")).toBeVisible();
   await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
@@ -118,9 +112,7 @@ test("offline, keyboard, light theme and responsive layouts", async ({
     [480, 850],
   ]) {
     await page.setViewportSize({ width, height });
-    await expect(
-      page.getByRole("heading", { name: "За пределами консоли." }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Главная." })).toBeVisible();
     expect(
       await page
         .locator("main")
@@ -146,17 +138,13 @@ test("offline, keyboard, light theme and responsive layouts", async ({
   expect(errors).toEqual([]);
 });
 
-test("local media import, persistence, gallery keyboard and offline lightbox", async ({
+test("catalog art is read-only; retained gallery still supports keyboard, restart and offline viewing", async ({
   page,
   context,
 }) => {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Подробнее: Bloodborne" }).click();
-  await expect(
-    page.getByRole("heading", { name: "Системные требования" }),
-  ).toBeVisible();
-  await page.getByText("Заменить оформление на своё", { exact: true }).click();
-  const png = await page.evaluate(() => {
+  // Seed existing media as a migration fixture; the app exposes no upload path.
+  await page.addInitScript(() => {
+    if (localStorage.getItem("port.media.v1")) return;
     const c = document.createElement("canvas");
     c.width = 640;
     c.height = 360;
@@ -165,62 +153,76 @@ test("local media import, persistence, gallery keyboard and offline lightbox", a
     x.fillRect(0, 0, 640, 360);
     x.fillStyle = "#c4b5fd";
     x.font = "24px sans-serif";
-    x.fillText("PORT QA FIXTURE - NOT GAME ART", 50, 180);
-    return c.toDataURL("image/png").split(",")[1];
+    x.fillText("PORT ORIGINAL QA FIXTURE", 50, 180);
+    const photo = c.toDataURL("image/webp");
+    localStorage.setItem(
+      "port.media.v1",
+      JSON.stringify({
+        hero: photo,
+        cover: photo,
+        banner: photo,
+        gallery: Array.from({ length: 6 }, () => photo),
+      }),
+    );
   });
-  const file = {
-    name: "qa-only.png",
-    mimeType: "image/png",
-    buffer: Buffer.from(png, "base64"),
-  };
-  for (const name of ["Главный hero", "Обложка 2:3", "Баннер страницы"]) {
-    const chooser = page.waitForEvent("filechooser");
-    await page.getByRole("button", { name, exact: true }).click();
-    await (await chooser).setFiles(file);
-    await expect(
-      page.getByRole("button", { name: `${name} ✓`, exact: true }),
-    ).toBeEnabled();
-  }
-  const chooser = page.waitForEvent("filechooser");
-  await page.getByRole("button", { name: "Скриншоты (0/10)" }).click();
-  await (
-    await chooser
-  ).setFiles(
-    Array.from({ length: 6 }, (_, i) => ({ ...file, name: `qa-${i}.png` })),
+  await page.goto("/");
+  const before = await page.evaluate(() =>
+    localStorage.getItem("port.media.v1"),
+  );
+  await page
+    .getByRole("button", { name: "Подробнее: Bloodborne", exact: true })
+    .click();
+  await expect(page.locator('input[type="file"], .media-editor')).toHaveCount(
+    0,
   );
   await expect(
-    page.getByRole("button", { name: "Скриншоты (6/10)" }),
-  ).toBeEnabled();
-  await page
-    .getByRole("button", { name: "Открыть скриншот 1", exact: true })
-    .click();
+    page.getByText("Заменить оформление на своё", { exact: true }),
+  ).toHaveCount(0);
+  const thumb = page.getByRole("button", {
+    name: "Открыть скриншот 1",
+    exact: true,
+  });
+  await thumb.click();
   await expect(page.getByRole("dialog")).toContainText("1 / 6");
   await page.keyboard.press("ArrowLeft");
   await expect(page.getByRole("dialog")).toContainText("6 / 6");
   await page.keyboard.press("ArrowRight");
   await expect(page.getByRole("dialog")).toContainText("1 / 6");
-  await page.screenshot({
-    path: ".local/evidence/02-cont-gallery-qa-fixture.png",
-  });
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog")).not.toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Открыть скриншот 1", exact: true }),
-  ).toBeFocused();
+  await expect(thumb).toBeFocused();
   await page.reload();
-  await page.getByRole("button", { name: "Подробнее: Bloodborne" }).click();
-  await page.getByText("Заменить оформление на своё", { exact: true }).click();
-  await expect(
-    page.getByRole("button", { name: "Скриншоты (6/10)" }),
-  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Подробнее: Bloodborne", exact: true })
+    .click();
+  await expect(page.locator(".screenshot-grid button")).toHaveCount(6);
   await context.setOffline(true);
   await page
     .getByRole("button", { name: "Открыть скриншот 3", exact: true })
     .click();
   await expect(page.getByRole("dialog")).toContainText("3 / 6");
   await page.keyboard.press("Escape");
-  await page.setViewportSize({ width: 800, height: 600 });
-  expect(
-    await page.locator("main").evaluate((e) => e.scrollWidth <= e.clientWidth),
-  ).toBeTruthy();
+  expect(await page.evaluate(() => localStorage.getItem("port.media.v1"))).toBe(
+    before,
+  );
+});
+
+test("launcher settings and About describe PORT without game-specific promotion", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator(".sidebar")).not.toContainText(
+    /Bloodborne|FromSoftware|SuperMedo/,
+  );
+  await page.getByRole("button", { name: "Настройки", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Настройки.", exact: true }),
+  ).toBeVisible();
+  await expect(page.locator("main")).not.toContainText(
+    /Bloodborne|SuperMedo|автора порта|Новый дом/,
+  );
+  await page.getByRole("button", { name: "О PORT", exact: true }).click();
+  await expect(page.getByRole("dialog")).not.toContainText(
+    /Bloodborne|SuperMedo|Sony|FromSoftware/,
+  );
+  await expect(page.getByRole("dialog")).toContainText("консольных игр");
 });
