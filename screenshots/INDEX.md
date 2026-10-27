@@ -17,4 +17,13 @@ Browser frontend screenshots produced by Playwright, Chromium, Windows, Russian 
 | 09-settings-system-light.png | System theme in light color scheme             |
 | 10-offline.png               | Offline library                                |
 
-Native evidence will be listed here only after the actual executable has run.
+Native evidence from the built release executable (real Tauri WebView, not Vite):
+
+| File                   | Contents                                                              |
+| ---------------------- | --------------------------------------------------------------------- |
+| 11-native-home.png     | Native home after real executable launch                              |
+| 12-native-settings.png | Native SQLite settings after save and WebView reload                  |
+| 13-native-resized.png  | Real native WebView resized to 1042×782; no horizontal overflow       |
+| 14-native-window.png   | Computer Use capture of the resized Windows frame including title bar |
+
+Computer Use additionally inspected the Windows title bar and native folder dialog. These WebView captures omit OS title bars. See PROGRESS.md for full-process restart validation and tool limitations.

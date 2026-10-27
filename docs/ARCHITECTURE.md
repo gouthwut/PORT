@@ -17,7 +17,7 @@ PORT is an offline-first Tauri 2 Windows application. Vite builds React/TypeScri
 
 ## Persistence and IPC
 
-`load_settings() -> Settings`, `save_settings({settings}) -> ()`, `reset_settings() -> Settings` are the only application IPC commands. JSON uses camelCase. SQLite lives at Tauri's app_data_dir()/port.db (Windows: %APPDATA%/app.port.launcher/port.db), schema user_version=1, one validated settings JSON record, serialized with a Mutex and atomic SQLite upsert. A failed save does not change visible settings; errors are shown, never silently replaced with a browser fallback. Native startup fails visibly if the database cannot open. Browser preview uses localStorage key port.settings.v1 and is labelled WEB PREVIEW.
+`load_settings() -> Settings`, `save_settings({settings}) -> ()`, `reset_settings() -> Settings` are the only application IPC commands. JSON uses camelCase. SQLite lives at Tauri's app_data_dir()/port.db (Windows: %APPDATA%/app.port.launcher/port.db), schema user_version=1, one validated settings JSON record, serialized with a Mutex and atomic SQLite upsert. A failed save does not change visible settings; errors are shown, never silently replaced with a browser fallback. Native startup returns an error if the database cannot open; it does not silently replace the database. Browser preview uses localStorage key port.settings.v1 and is labelled WEB PREVIEW.
 
 Settings include dark/system theme, future install directory, reduced motion and compact cards. Folder picker uses the native dialog plugin, then stores only an absolute path. No game files are read or moved. Reset only deletes PORT's settings record. There is no pretend installed-library database: installation records will arrive with Stage 02/03 migrations.
 

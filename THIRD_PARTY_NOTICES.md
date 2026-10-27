@@ -19,4 +19,4 @@ Key direct dependencies:
 | CVA, clsx, tailwind-merge      | Apache-2.0 / MIT              | See npm inventory                           |
 | Vite / TypeScript / Playwright | MIT / Apache-2.0 / Apache-2.0 | See npm inventory                           |
 
-Some transitive CSS tooling and Rust dependencies use MPL-2.0. No upstream source modifications are made. System Segoe UI/Georgia and WebView2 are used from Windows, not redistributed as PORT assets. Future downloading, bundling or modifying GPL ports requires a new analysis including corresponding source, notices and third-party SDK terms.
+Some transitive CSS tooling and Rust dependencies use MPL-2.0. No upstream source modifications are made. See [Mozilla's primary guidance on larger works and executable distribution](https://www.mozilla.org/en-US/MPL/2.0/FAQ/) and preserve source-location notices before distributing binaries. System Segoe UI/Georgia and WebView2 are used from Windows, not redistributed as PORT assets. Future downloading, bundling or modifying GPL ports requires a new analysis including corresponding source, notices and third-party SDK terms.
