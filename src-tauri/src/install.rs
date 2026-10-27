@@ -705,9 +705,11 @@ fn install_job(
         .map_err(err)?;
         Ok(())
     })?;
+    let mut stage_created = false;
     let result = (|| {
         safe(&stage)?;
         fs::create_dir(&stage).map_err(err)?;
+        stage_created = true;
         write_new(&stage.join("port-owner"), id.as_bytes())?;
         if let Ok(mut status) = s.lock() {
             status.total = bytes
@@ -876,7 +878,11 @@ fn install_job(
     })();
     if let Err(ref failure) = result {
         if !root.exists() {
-            match cleanup(&stage) {
+            match if stage_created {
+                cleanup(&stage)
+            } else {
+                Ok(())
+            } {
                 Ok(()) => {
                     with_db(app, |db| {
                         db.execute("DELETE FROM installation_jobs WHERE id=?1", [&id])

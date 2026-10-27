@@ -42,6 +42,11 @@ pub(super) fn destination(parent: &Path, id: &str, installed: &[Installation]) -
     }
     let root = parent.join(format!("PORT-Bloodborne-{id}"));
     for r in installed {
+        if r.id == id {
+            return Err(
+                "Этот ID уже зарегистрирован в библиотеке. Откройте установку заново".into(),
+            );
+        }
         let existing = Path::new(&r.root);
         let canonical_root = fs::canonicalize(parent)
             .map_err(err)?
@@ -223,6 +228,7 @@ mod tests {
             version: None,
             manifest_sha256: String::new(),
         };
+        assert!(destination(t.path(), id, std::slice::from_ref(&r)).is_err());
         assert!(destination(&root, "4-5", &[r]).is_err());
         assert_eq!(fs::read(root.join("foreign")).unwrap(), b"untouched");
         assert!(destination(&t.path().join("missing"), "4-5", &[]).is_err());

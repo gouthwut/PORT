@@ -33,6 +33,13 @@ try {
   const mode = process.argv[2] || "--check";
   if (mode === "--final") {
     expect(records).toEqual([original]);
+    await expect(
+      call("check_install_destination", {
+        parent: evidence,
+        bytes: 1,
+        id: original.id,
+      }),
+    ).rejects.toBeTruthy();
     expect(await call("running_installations")).toEqual([]);
     await page.getByRole("button", { name: "Библиотека", exact: true }).click();
     await page
