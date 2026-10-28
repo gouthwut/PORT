@@ -722,32 +722,28 @@
 }
 .port-shelf {
   min-width: 0;
-  padding: 24px;
+  padding: 22px;
   border: 1px solid #d4d0ff20;
   border-radius: 16px;
   background:
-    radial-gradient(ellipse at 0 0, #ab92e617, transparent 65%),
+    radial-gradient(ellipse at 0 0, #ab92e614, transparent 65%),
     linear-gradient(125deg, #ffffff08, #ffffff02), #0b111d;
   box-shadow:
     var(--port-reflection),
     0 12px 32px #0002;
 }
-.port-shelf:nth-child(2) {
-  background:
-    radial-gradient(ellipse at 100% 0, #d8945915, transparent 65%),
-    linear-gradient(125deg, #ffffff08, #ffffff02), #0b111d;
+.port-shelf:only-child {
+  grid-column: 1 / -1;
 }
 .port-shelf header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 .port-shelf-icon {
   color: #c9b7f9;
   display: flex;
-}
-.port-shelf:nth-child(2) .port-shelf-icon {
-  color: #edc19a;
+  flex-shrink: 0;
 }
 .port-shelf h2 {
   margin: 0;
@@ -755,65 +751,125 @@
     700 18px/1.4 "Manrope",
     sans-serif;
   letter-spacing: -0.025em;
+  text-wrap: balance;
 }
 .port-shelf > p {
   color: #aeb4c8;
   font-size: 12px;
   line-height: 1.7;
-  margin: 14px 0 20px;
+  margin: 8px 0 18px;
   text-wrap: pretty;
 }
 .port-shelf ul {
+  display: grid;
+  gap: 12px;
   list-style: none;
   padding: 0;
   margin: 0;
 }
-.port-shelf li + li {
-  border-top: 1px solid #ffffff0b;
+.port-shelf:only-child ul {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
 }
-.port-shelf button {
-  width: 100%;
-  min-height: 76px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 8px;
-  border-radius: 8px;
-  background: transparent;
-  text-align: left;
-  transition:
-    background-color 150ms,
-    color 150ms;
-}
-.port-shelf button:hover {
-  background: #ffffff08;
-  color: #dbcaff;
-}
-.port-shelf button > span {
+.port-shelf li {
   min-width: 0;
 }
-.port-shelf strong {
+.port-compact-project {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px;
+  border: 1px solid #ffffff0c;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #ffffff06, #ffffff02);
+  text-align: left;
+  transition:
+    background-color 180ms var(--port-ease),
+    border-color 180ms var(--port-ease);
+}
+.port-compact-project:hover,
+.port-compact-project:focus-visible {
+  border-color: #b8a6ff70;
+  background-color: #b8a6ff0d;
+}
+.port-compact-cover {
+  display: grid;
+  place-items: center;
+  flex: 0 0 72px;
+  width: 72px;
+  height: 96px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #1b2030;
+  color: #aeb4c8;
+  outline: 1px solid #ffffff1a;
+  outline-offset: -1px;
+}
+.port-compact-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.port-compact-copy {
+  flex: 1;
+  min-width: 0;
+}
+.port-compact-platform {
   display: block;
-  font-size: 14px;
-  font-weight: 600;
+  color: #b2b6c8;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.port-compact-copy strong {
+  display: block;
+  margin: 5px 0 9px;
+  font:
+    700 15px/1.4 "Manrope",
+    sans-serif;
   overflow-wrap: anywhere;
 }
-.port-shelf button span span {
-  display: block;
-  margin-top: 6px;
-  color: #aeb4c8;
-  font-size: 11px;
-  line-height: 1.6;
+.port-compact-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
 }
-.port-shelf button > svg {
+.port-compact-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 4px 6px;
+  border: 1px solid #aadfc524;
+  border-radius: 5px;
+  background: #aadfc50a;
+  color: #c1e8d7;
+  font-size: 10px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.port-compact-badge svg {
   flex-shrink: 0;
-  color: #beb0da;
 }
-.port-shelf .port-shelf-empty {
-  margin-bottom: 0;
-  border-top: 1px solid #ffffff12;
-  padding-top: 18px;
+.port-compact-badge.is-experimental {
+  color: #e0cdfb;
+  border-color: #c6a2ee30;
+  background: #c6a2ee0c;
+}
+.port-compact-badge.is-unavailable {
+  color: #c4c8d8;
+  border-color: #ffffff18;
+  background: #ffffff06;
+}
+.port-compact-arrow {
+  flex-shrink: 0;
+  color: #c5b4ec;
+}
+@media (max-width: 1100px) {
+  .port-discovery {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .port-catalog-door {
   display: flex;

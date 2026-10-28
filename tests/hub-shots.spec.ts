@@ -168,9 +168,7 @@ test("Home shelves use build and compatibility fields and follow platform select
   await page.getByRole("button", { name: "Xbox 360", exact: true }).click();
   await expect(page.locator(".port-project")).toHaveCount(1);
   await expect(builds.getByRole("button")).toHaveCount(0);
-  await expect(
-    builds.getByText("Для выбранной платформы сборки пока не указаны."),
-  ).toBeVisible();
+  await expect(builds).toHaveCount(0);
   await expect(page.locator(".port-image-missing")).toBeVisible();
   expect(
     await page.locator("main").evaluate((e) => e.scrollWidth === e.clientWidth),
@@ -184,4 +182,70 @@ test("Home shelves use build and compatibility fields and follow platform select
   );
   await page.keyboard.press("Enter");
   await expect(page.locator(".detail-banner h1")).toHaveText(games[1].title);
+});
+
+test("Home collections never repeat projects and hide redundant sections", async ({
+  page,
+}) => {
+  let games = [
+    {
+      ...fixture.games[0],
+      id: "available-experiment",
+      title: "Очень длинное название экспериментального проекта без сокращений",
+      windowsBuild: "available",
+      compatibility: { status: "experimental", notes: "Synthetic metadata" },
+      media: { gallery: [] },
+    },
+    {
+      ...fixture.games[0],
+      id: "unavailable-build",
+      title: "Проект без сборки",
+      windowsBuild: "unavailable",
+      compatibility: { status: "playable", notes: "Synthetic metadata" },
+    },
+  ];
+  await page.route(endpoint, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ...fixture, games }),
+    }),
+  );
+  await page.goto("http://127.0.0.1:1421");
+  const builds = page.getByRole("region", {
+    name: "Сборки для Windows",
+    exact: true,
+  });
+  const experimental = page.getByRole("region", {
+    name: "Экспериментальные проекты",
+    exact: true,
+  });
+  await expect(builds.getByRole("button")).toHaveCount(1);
+  await expect(experimental).toHaveCount(0);
+  await expect(builds.getByText("Windows", { exact: true })).toBeVisible();
+  await expect(
+    builds.getByText("Экспериментальный", { exact: true }),
+  ).toBeVisible();
+  await expect(page.locator(".port-compact-project")).toHaveCount(1);
+  for (const width of [1440, 1024, 800, 480]) {
+    await page.setViewportSize({ width, height: 850 });
+    await builds.scrollIntoViewIfNeeded();
+    expect(
+      await page
+        .locator("main")
+        .evaluate((e) => e.scrollWidth === e.clientWidth),
+    ).toBe(true);
+    expect(
+      await page
+        .locator(".port-compact-project")
+        .evaluate((e) => e.scrollWidth <= e.clientWidth),
+    ).toBe(true);
+    await expect(
+      builds.getByRole("img", { name: "Обложка недоступна" }),
+    ).toBeVisible();
+  }
+  games = [games[1]];
+  await page.reload();
+  await expect(page.locator(".port-project")).toHaveCount(1);
+  await expect(page.locator(".port-discovery")).toHaveCount(0);
 });

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { CatalogState, PublishedGame } from "../services/catalog";
 import type { MediaSet } from "../services/media";
+import { CompactProjectCard } from "./ProjectCard";
 const typeLabel = {
   "native-port": "Нативный порт",
   recompilation: "Рекомпиляция",
@@ -50,7 +51,11 @@ export function HubLanding({
     .filter((p) => p.windowsBuild === "available")
     .slice(0, 3);
   const experimental = filtered
-    .filter((p) => p.compatibility.status === "experimental")
+    .filter(
+      (p) =>
+        p.compatibility.status === "experimental" &&
+        p.windowsBuild !== "available",
+    )
     .slice(0, 3);
   return (
     <div className="port-home">
@@ -171,24 +176,26 @@ export function HubLanding({
         </section>
         {projects.length > 0 && (
           <>
-            <div className="port-discovery">
-              <ProjectShelf
-                title="Сборки для Windows"
-                icon={<MonitorDown size={20} />}
-                projects={builds}
-                onOpen={onOpen}
-                description="В каталоге указана доступная Windows-сборка. Требования и условия запуска смотри в проекте."
-                empty="Для выбранной платформы сборки пока не указаны."
-              />
-              <ProjectShelf
-                title="Экспериментальные проекты"
-                icon={<FlaskConical size={20} />}
-                projects={experimental}
-                onOpen={onOpen}
-                description="Совместимость пока экспериментальная. Перед запуском прочитай об известных ограничениях."
-                empty="В этой подборке нет проектов с экспериментальным статусом."
-              />
-            </div>
+            {(builds.length > 0 || experimental.length > 0) && (
+              <div className="port-discovery">
+                <ProjectShelf
+                  title="Сборки для Windows"
+                  icon={<MonitorDown size={20} />}
+                  projects={builds}
+                  media={media}
+                  onOpen={onOpen}
+                  description="Требования и условия запуска — в проекте."
+                />
+                <ProjectShelf
+                  title="Экспериментальные проекты"
+                  icon={<FlaskConical size={20} />}
+                  projects={experimental}
+                  media={media}
+                  onOpen={onOpen}
+                  description="Без доступной Windows-сборки. Ограничения — в проекте."
+                />
+              </div>
+            )}
             <button className="port-catalog-door" onClick={onCatalog}>
               <span className="port-door-icon">
                 <Layers3 size={24} />
@@ -278,15 +285,16 @@ function ProjectShelf({
   projects,
   onOpen,
   description,
-  empty,
+  media,
 }: {
   title: string;
   icon: ReactNode;
   projects: PublishedGame[];
   onOpen: (project: PublishedGame) => void;
   description: string;
-  empty: string;
+  media: (project: PublishedGame) => MediaSet;
 }) {
+  if (!projects.length) return null;
   return (
     <section className="port-shelf" aria-label={title}>
       <header>
@@ -296,28 +304,17 @@ function ProjectShelf({
         <h2>{title}</h2>
       </header>
       <p>{description}</p>
-      {projects.length ? (
-        <ul>
-          {projects.map((p) => (
-            <li key={p.id}>
-              <button
-                onClick={() => onOpen(p)}
-                aria-label={`${title}: ${p.title}`}
-              >
-                <span>
-                  <strong>{p.title}</strong>
-                  <span>
-                    {p.sourceConsole} · {typeLabel[p.implementation]}
-                  </span>
-                </span>
-                <ArrowUpRight size={18} aria-hidden="true" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="port-shelf-empty">{empty}</p>
-      )}
+      <ul>
+        {projects.map((p) => (
+          <li key={p.id}>
+            <CompactProjectCard
+              project={p}
+              media={media(p)}
+              onOpen={() => onOpen(p)}
+            />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
