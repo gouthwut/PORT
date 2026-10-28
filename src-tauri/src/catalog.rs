@@ -231,7 +231,7 @@ fn parse(raw: &[u8], endpoint: Option<&str>) -> Result<Value, String> {
     validate_catalog(&v, endpoint)?;
     Ok(v)
 }
-fn endpoint(c: &Connection) -> Result<String, String> {
+pub(crate) fn endpoint(c: &Connection) -> Result<String, String> {
     c.query_row("SELECT endpoint FROM catalog_config WHERE id=1", [], |r| {
         r.get(0)
     })
@@ -308,6 +308,27 @@ pub fn load_catalog(db: tauri::State<Database>) -> Result<Snapshot, String> {
     let c = db.0.lock().map_err(|e| e.to_string())?;
     load(&c)
 }
+// Read-only, offline source for OS icons. Reuses the complete catalog/cache validation;
+// callers never provide a URL, hash, data URL or filesystem image path.
+pub(crate) fn shortcut_image(c: &Connection, collection: &str) -> Result<Option<Vec<u8>>, String> {
+    let snap = load(c)?;
+    let games = snap.catalog["games"].as_array().ok_or("Missing games")?;
+    for g in games
+        .iter()
+        .chain(snap.known.iter())
+        .filter(|g| g["collectionId"] == collection)
+    {
+        for key in ["cover", "hero", "banner"] {
+            if let Some(data) = g["media"][key]["sha256"]
+                .as_str()
+                .and_then(|h| snap.images.get(h))
+            {
+                return decode_image(data).map(Some);
+            }
+        }
+    }
+    Ok(None)
+}
 #[tauri::command]
 pub fn configure_catalog(
     endpoint: String,
@@ -330,7 +351,12 @@ pub fn configure_catalog(
 }
 // Resolve and pin public addresses for EACH request. No redirects, proxy, credentials,
 // cookies or OS shell; catalog responses and images never reach runtime downloads.
-fn fetch(url: &str, limit: usize, deadline: Instant, mime: &str) -> Result<Vec<u8>, String> {
+pub(crate) fn fetch(
+    url: &str,
+    limit: usize,
+    deadline: Instant,
+    mime: &str,
+) -> Result<Vec<u8>, String> {
     let u = https(url)?;
     let host = u.host_str().ok_or("Missing host")?.to_string();
     let remaining = deadline
@@ -569,6 +595,57 @@ pub async fn sync_catalog(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn shortcut_uses_only_revalidated_offline_images_and_retained_metadata() {
+        use image::ImageEncoder;
+        let mut c = Connection::open_in_memory().unwrap();
+        crate::init(&c).unwrap();
+        init(&c).unwrap();
+        let mut webp = Vec::new();
+        image::codecs::webp::WebPEncoder::new_lossless(&mut webp)
+            .write_image(&[50, 100, 150, 255], 1, 1, image::ExtendedColorType::Rgba8)
+            .unwrap();
+        let hash = format!("{:x}", Sha256::digest(&webp));
+        let mut catalog: Value = serde_json::from_str(DEMO).unwrap();
+        let ep = default_endpoint();
+        catalog["games"][0]["media"]["cover"] = json!({"url":format!("{}/media/{hash}.webp",Url::parse(&ep).unwrap().origin().ascii_serialization()),"sha256":hash});
+        validate_catalog(&catalog, Some(&ep)).unwrap();
+        c.execute(
+            "INSERT INTO installations VALUES('1-2',?1)",
+            [json!({"collectionId":"bloodborne"}).to_string()],
+        )
+        .unwrap();
+        let mut snap = Snapshot {
+            endpoint: ep,
+            catalog,
+            images: HashMap::from([(
+                hash.clone(),
+                format!("data:image/webp;base64,{}", STANDARD.encode(&webp)),
+            )]),
+            known: vec![],
+            synced_at: None,
+            source: "cache".into(),
+            warning: String::new(),
+        };
+        commit(&mut c, &snap).unwrap();
+        assert_eq!(
+            shortcut_image(&c, "bloodborne").unwrap(),
+            Some(webp.clone())
+        );
+        assert_eq!(shortcut_image(&c, "skate3").unwrap(), None);
+        snap.catalog["games"] = json!([]);
+        commit(&mut c, &snap).unwrap();
+        // Unpublished installed title keeps its validated art without any HTTP request.
+        assert_eq!(shortcut_image(&c, "bloodborne").unwrap(), Some(webp));
+        snap.images
+            .insert(hash.clone(), "data:image/webp;base64,AAAA".into());
+        commit(&mut c, &snap).unwrap();
+        assert_eq!(shortcut_image(&c, "bloodborne").unwrap(), None);
+        snap.images
+            .insert(hash, "https://untrusted.example/image.webp".into());
+        commit(&mut c, &snap).unwrap();
+        assert_eq!(shortcut_image(&c, "bloodborne").unwrap(), None);
+    }
     #[test]
     fn production_default_preserves_configuration_and_installation_schema() {
         let c = Connection::open_in_memory().unwrap();

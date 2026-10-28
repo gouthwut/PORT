@@ -170,6 +170,7 @@ fn main() {
             let conn = open_database(&dir.join("port.db"))?;
             init(&conn)?;
             catalog::init(&conn)?;
+            install::recipe::init(&conn)?;
             if let Err(error) = install::recover(&conn) {
                 app.state::<install::Installer>().recovery_error(&error);
             }
@@ -192,6 +193,7 @@ fn main() {
             updater::cancel_app_update,
             updater::install_app_update,
             shortcuts::take_launch_request,
+            shortcuts::create_installation_shortcut,
             install::experience::default_install_parent,
             install::experience::check_install_destination,
             install::experience::open_installation_folder,
@@ -221,7 +223,10 @@ fn main() {
             install::verify_installation,
             install::launch_installation,
             install::launch_status,
-            install::remove_installation
+            install::remove_installation,
+            install::recipe::list_recipes,
+            install::recipe::sync_recipes,
+            install::recipe::install_recipe
         ])
         .run(context)
         .expect("PORT failed to start");

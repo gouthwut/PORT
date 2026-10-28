@@ -3,6 +3,8 @@
 pub mod experience;
 #[path = "library_management.rs"]
 pub mod management;
+#[path = "recipe.rs"]
+pub mod recipe;
 #[path = "skate3.rs"]
 pub mod skate3;
 #[cfg(test)]
@@ -190,7 +192,7 @@ pub struct Folder {
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct Entry {
+pub(crate) struct Entry {
     path: String,
     size: u64,
     sha256: String,
@@ -596,14 +598,54 @@ fn load_manifest(record: &Installation) -> Result<Manifest> {
     let bytes = read_small(&root.join("port-manifest.json"), 32 * 1024 * 1024)?;
     manifest_bytes(record, &bytes)
 }
+/// Owned directory layout of an installation: compiled adapters keep their historical paths;
+/// every other collection uses the universal recipe layout (game/, runtime/, user-data/).
+pub(crate) struct Layout {
+    pub data: String,
+    pub runtime: String,
+    pub universal: bool,
+}
+pub(crate) fn layout(collection_id: &str) -> Result<Layout> {
+    if let Ok(a) = crate::adapters::get(collection_id) {
+        return Ok(Layout {
+            data: a.data.into(),
+            runtime: a.runtime.into(),
+            universal: false,
+        });
+    }
+    if !recipe::id_like(collection_id) {
+        return Err("Некорректный идентификатор коллекции".into());
+    }
+    Ok(Layout {
+        data: recipe::GAME_DIR.into(),
+        runtime: recipe::RUNTIME_DIR.into(),
+        universal: true,
+    })
+}
+pub(crate) fn universal_folder(collection_id: &str, id: &str) -> String {
+    format!("PORT-{collection_id}-{id}")
+}
+fn universal_owned(root: &Path, collection_id: &str, id: &str) -> bool {
+    root.file_name().and_then(|n| n.to_str()) == Some(universal_folder(collection_id, id).as_str())
+        && read_small(&root.join("port-owner"), 256).is_ok_and(|v| v == id.as_bytes())
+}
 fn record_paths(record: &Installation) -> Result<()> {
     let root = Path::new(&record.root);
     safe(root)?;
-    let adapter = crate::adapters::get(&record.collection_id)?;
+    let l = layout(&record.collection_id)?;
+    let owned = if l.universal {
+        experience::valid_id(&record.id) && universal_owned(root, &record.collection_id, &record.id)
+    } else {
+        management::owned_root(
+            root,
+            crate::adapters::get(&record.collection_id)?,
+            &record.id,
+        )
+    };
     if (record.collection_id == "skate3" && !experience::valid_id(&record.id))
-        || record.data_path != root.join(adapter.data).display().to_string()
-        || record.runtime_path != root.join(adapter.runtime).display().to_string()
-        || !management::owned_root(root, adapter, &record.id)
+        || record.data_path != root.join(&l.data).display().to_string()
+        || record.runtime_path != root.join(&l.runtime).display().to_string()
+        || !owned
     {
         return Err("Некорректная запись установки".into());
     }
@@ -621,17 +663,13 @@ fn manifest_bytes(record: &Installation, bytes: &[u8]) -> Result<Manifest> {
     {
         return Err("Некорректный манифест".into());
     }
+    let l = layout(&record.collection_id)?;
     let mut names = HashSet::new();
     for e in &m.files {
         relative(&e.path)?;
         if !names.insert(e.path.to_lowercase())
-            || !(e.path.starts_with(&format!(
-                "{}/",
-                crate::adapters::get(&record.collection_id)?.data
-            )) || e.path.starts_with(&format!(
-                "{}/",
-                crate::adapters::get(&record.collection_id)?.runtime
-            )))
+            || !(e.path.starts_with(&format!("{}/", l.data))
+                || e.path.starts_with(&format!("{}/", l.runtime)))
             || e.sha256.len() != 64
         {
             return Err("Некорректная запись манифеста".into());
@@ -642,6 +680,9 @@ fn manifest_bytes(record: &Installation, bytes: &[u8]) -> Result<Manifest> {
 fn verify(record: &Installation, all: bool, s: &Arc<Mutex<Status>>) -> Result<()> {
     if record.collection_id == "skate3" {
         return skate3::verify(record, all, s);
+    }
+    if layout(&record.collection_id)?.universal {
+        return recipe::verify_installed(record, all, s);
     }
     let m = load_manifest(record)?;
     let root = Path::new(&record.root);
@@ -910,8 +951,8 @@ fn install_job(
             status = s.lock().map_err(err)?;
             status.phase = "ready".into();
             match shortcut_result {
-                Ok(()) => status.message.push_str(" Ярлык создан на рабочем столе."),
-                Err(_) => status.message.push_str(" Игра установлена, но ярлык создать не удалось. Запускайте её из библиотеки PORT."),
+                Ok(message) => status.message.push_str(&format!(" {message}")),
+                Err(e) => status.message.push_str(&format!(" Игра установлена, но ярлык создать не удалось: {e}. Повторите через меню игры в библиотеке.")),
             }
         }
         status.active = false;
@@ -961,6 +1002,10 @@ pub fn recover(db: &Connection) -> Result<()> {
         let root = Path::new(&root);
         safe(stage)?;
         safe(root)?;
+        if let Some(collection) = recipe::universal_collection(root, &id) {
+            recipe::recover_job(db, &id, &collection, stage, root)?;
+            continue;
+        }
         let adapter = if root
             .file_name()
             .and_then(|v| v.to_str())
@@ -1206,6 +1251,8 @@ pub fn list_installations(db: tauri::State<Database>) -> Result<Vec<serde_json::
                     || !Path::new(&r.data_path).is_dir()
                     || crate::adapters::get(&r.collection_id)
                         .is_ok_and(|a| !Path::new(&r.runtime_path).join(a.executable).is_file())
+                    || (layout(&r.collection_id).is_ok_and(|l| l.universal)
+                        && recipe::installed_recipe(&r).is_err())
                 {
                     "broken"
                 } else {
@@ -1291,6 +1338,16 @@ pub async fn launch_installation(
             if process.try_wait().map_err(err)?.is_none() { return Err("Окно runtime уже открыто".into()); }
         }
         verify(&record, false, &Arc::default())?;
+        if layout(&record.collection_id)?.universal {
+            let r = recipe::installed_recipe(&record)?;
+            let pinned = open_read(&Path::new(&record.runtime_path).join(&r.launch.executable))?;
+            let mut process = recipe::command(&r, Path::new(&record.root))?.spawn().map_err(|e| format!("Windows не смог запустить проверенный runtime: {e}"))?;
+            std::thread::sleep(std::time::Duration::from_millis(1200));
+            if let Some(code) = process.try_wait().map_err(err)? { return Err(format!("Runtime завершился сразу после старта ({code}).")); }
+            let pid = process.id(); *current = Some(process);
+            *runtime_lock.lock().map_err(err)? = Some(pinned);
+            return Ok(format!("Создан процесс {}, PID {pid}. Gameplay не подтверждён PORT.", r.title));
+        }
         if record.collection_id == "skate3" {
             // Prevent upstream's optional icon self-patch from changing the pinned image.
             let pinned = open_read(&Path::new(&record.runtime_path).join("skate3.exe"))?;
@@ -1338,9 +1395,9 @@ pub fn launch_status(state: tauri::State<Installer>) -> Result<String> {
 fn remove_payload(r: &Installation) -> Result<()> {
     let manifest = load_manifest(r)?;
     let root = Path::new(&r.root);
-    let data = crate::adapters::get(&r.collection_id)?.data;
-    if root.join(data).exists() {
-        scan(&root.join(data), &Arc::default())?;
+    let data = layout(&r.collection_id)?.data;
+    if root.join(&data).exists() {
+        scan(&root.join(&data), &Arc::default())?;
     }
     for e in manifest
         .files

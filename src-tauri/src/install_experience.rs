@@ -29,7 +29,23 @@ pub(super) fn destination_for(
     adapter_id: &str,
 ) -> Result<PathBuf> {
     let adapter = crate::adapters::get(adapter_id)?;
-    if installed.iter().any(|r| r.collection_id == adapter_id) {
+    let folder = if adapter.id == "skate3" {
+        "Skate 3".to_string()
+    } else {
+        adapter.name.to_string()
+    };
+    destination_folder(parent, id, installed, adapter_id, &folder)
+}
+/// Shared destination preflight for compiled adapters and universal recipes.
+pub(super) fn destination_folder(
+    parent: &Path,
+    id: &str,
+    installed: &[Installation],
+    collection_id: &str,
+    folder: &str,
+) -> Result<PathBuf> {
+    let folder = folder;
+    if installed.iter().any(|r| r.collection_id == collection_id) {
         return Err(
             "Игра уже зарегистрирована. Откройте её в библиотеке или восстановите связь с папкой"
                 .into(),
@@ -55,11 +71,6 @@ pub(super) fn destination_for(
             }
         }
     }
-    let folder = if adapter.id == "skate3" {
-        "Skate 3"
-    } else {
-        adapter.name
-    };
     let root = parent.join(folder);
     for r in installed {
         if r.id == id {

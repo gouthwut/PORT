@@ -18,10 +18,10 @@ const TITLE_UPDATE: [(&str, u64, &str); 2] = [
     ),
 ];
 #[derive(Debug)]
-struct IsoEntry {
-    path: String,
-    offset: u64,
-    size: u64,
+pub(crate) struct IsoEntry {
+    pub path: String,
+    pub offset: u64,
+    pub size: u64,
 }
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -52,7 +52,8 @@ fn le32(b: &[u8]) -> u32 {
 fn be32(b: &[u8]) -> u32 {
     u32::from_be_bytes(b[..4].try_into().unwrap())
 }
-fn inventory(file: &mut File, s: &Arc<Mutex<Status>>) -> Result<Vec<IsoEntry>> {
+/// Shared bounded XDVDFS tree reader (also used by the universal engine).
+pub(crate) fn xdvdfs(file: &mut File, s: &Arc<Mutex<Status>>) -> Result<Vec<IsoEntry>> {
     let size = file.metadata().map_err(err)?.len();
     if !(65536..=16 * 1024 * 1024 * 1024).contains(&size) {
         return Err("Неподдерживаемый размер Xbox 360 ISO".into());
@@ -143,16 +144,28 @@ fn inventory(file: &mut File, s: &Arc<Mutex<Status>>) -> Result<Vec<IsoEntry>> {
     if ranges.windows(2).any(|r| r[0].1 > r[1].0) {
         return Err("Пересекающиеся файлы ISO".into());
     }
-    let xex = entries
-        .iter()
-        .find(|e| e.path == "default.xex")
-        .ok_or("Нет default.xex")?;
-    let h = at(file, xex.offset, 24)?;
-    let count = be32(&h[20..]) as usize;
-    if &h[..4] != b"XEX2" || count > 256 || 24 + count as u64 * 8 > xex.size {
+    Ok(entries)
+}
+/// Xbox 360 XEX2 execution identity read from a bounded region of `file`.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct XexIdentity {
+    pub title_id: u32,
+    pub media_id: u32,
+    pub version: u32,
+    pub base_version: u32,
+    pub executable_type: u8,
+    pub disc: (u8, u8),
+}
+pub(crate) fn xex_identity(file: &mut File, start: u64, size: u64) -> Result<XexIdentity> {
+    if size < 24 {
         return Err("Неподдерживаемый XEX2".into());
     }
-    let opts = at(file, xex.offset + 24, count * 8)?;
+    let h = at(file, start, 24)?;
+    let count = be32(&h[20..]) as usize;
+    if &h[..4] != b"XEX2" || count > 256 || 24 + count as u64 * 8 > size {
+        return Err("Неподдерживаемый XEX2".into());
+    }
+    let opts = at(file, start + 24, count * 8)?;
     let execution = opts
         .as_chunks::<8>()
         .0
@@ -160,16 +173,31 @@ fn inventory(file: &mut File, s: &Arc<Mutex<Status>>) -> Result<Vec<IsoEntry>> {
         .find(|o| be32(*o) == 0x40006)
         .ok_or("Нет Xbox execution identity")?;
     let offset = be32(&execution[4..]) as u64;
-    if offset + 24 > xex.size {
+    if offset + 24 > size {
         return Err("Некорректный execution identity".into());
     }
-    let id = at(file, xex.offset + offset, 24)?;
-    if be32(&id[12..]) != 0x454108e6
-        || be32(&id[..4]) != 0x5c087c2c
-        || be32(&id[4..]) != 3
-        || id[17] != 0
-        || id[18] != 1
-        || id[19] != 1
+    let id = at(file, start + offset, 24)?;
+    Ok(XexIdentity {
+        media_id: be32(&id[..4]),
+        version: be32(&id[4..]),
+        base_version: be32(&id[8..]),
+        title_id: be32(&id[12..]),
+        executable_type: id[17],
+        disc: (id[18], id[19]),
+    })
+}
+fn inventory(file: &mut File, s: &Arc<Mutex<Status>>) -> Result<Vec<IsoEntry>> {
+    let entries = xdvdfs(file, s)?;
+    let xex = entries
+        .iter()
+        .find(|e| e.path == "default.xex")
+        .ok_or("Нет default.xex")?;
+    let id = xex_identity(file, xex.offset, xex.size)?;
+    if id.title_id != 0x454108e6
+        || id.media_id != 0x5c087c2c
+        || id.version != 3
+        || id.executable_type != 0
+        || id.disc != (1, 1)
     {
         return Err("Нужен Skate 3 454108E6, Media ID 5C087C2C, retail 3.0.0.0".into());
     }
@@ -632,10 +660,15 @@ fn job(
         })?;
         status.phase = "finishing".into();
         drop(status);
-        let warning = if shortcut && crate::shortcuts::create_named(app, id, "Skate 3").is_err() {
-            " Ярлык создать не удалось; запуск доступен из библиотеки."
+        let warning = if shortcut {
+            match crate::shortcuts::create_named(app, id, "Skate 3") {
+                Ok(message) => format!(" {message}"),
+                Err(e) => format!(
+                    " Ярлык создать не удалось: {e}. Повторите через меню игры в библиотеке."
+                ),
+            }
         } else {
-            ""
+            String::new()
         };
         let mut status = s.lock().map_err(err)?;
         status.phase = "ready".into();

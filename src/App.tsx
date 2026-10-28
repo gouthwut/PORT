@@ -35,6 +35,9 @@ import {
 import { Button, Modal, Switch, gameCount } from "./components/ui";
 import { GameArt, Gallery } from "./components/BloodborneMedia";
 import { FolderImport } from "./components/FolderImport";
+import { RecipeInstall, type RecipeSummary } from "./components/RecipeInstall";
+import { invoke } from "@tauri-apps/api/core";
+import { setRecipeCollections } from "./services/adapters";
 import { InstallerPanel, DownloadPanel } from "./components/Installer";
 import { emptyMedia, mediaService, type MediaSet } from "./services/media";
 import { resolveMedia } from "./services/bundled-media";
@@ -158,10 +161,28 @@ export default function App() {
   const folderDialogOpen = useRef(false);
   const [installer, setInstaller] = useState(false);
   const [installAdapter, setInstallAdapter] = useState("bloodborne");
+  const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
+  useEffect(() => {
+    if (!native) return;
+    // Cached recipes first (offline), then a refresh from the CMS endpoint.
+    const apply = (r: RecipeSummary[]) => {
+      setRecipeCollections(r.filter((x) => x.supported).map((x) => x.collectionId));
+      setRecipes(r);
+    };
+    void invoke<RecipeSummary[]>("list_recipes").then(apply).catch(() => {});
+    void invoke<RecipeSummary[]>("sync_recipes").then(apply).catch(() => {});
+  }, []);
+  const recipeFor = (collectionId?: string) =>
+    recipes.find((r) => r.collectionId === collectionId);
+  const installable = supportsInstall;
   const beginInstall = (id = "bloodborne") => {
     setInstallAdapter(id);
     setInstaller(true);
   };
+  const activeRecipe =
+    installAdapter === "bloodborne" || installAdapter === "skate3"
+      ? undefined
+      : recipeFor(installAdapter);
   const [about, setAbout] = useState(false);
   const [reset, setReset] = useState(false);
   const [toast, setToast] = useState("");
@@ -304,7 +325,7 @@ export default function App() {
           .toLowerCase()
           .includes(query.toLowerCase())) &&
       (filter === "all" ||
-        (filter === "available" ? supportsInstall(g) : !supportsInstall(g))),
+        (filter === "available" ? installable(g) : !installable(g))),
   );
   const selectedPublished =
     selectedGame &&
@@ -453,7 +474,9 @@ export default function App() {
                       state={games}
                       media={gameMedia}
                       onOpen={openGame}
-                      onInstall={(g) => beginInstall(g.adapterId)}
+                      onInstall={(g) =>
+                        beginInstall(recipeFor(g.collectionId) ? g.collectionId : g.adapterId)
+                      }
                     />
                   )}
                   {page === "home" && catalog.snapshot.source === "demo" && (
@@ -593,7 +616,13 @@ export default function App() {
                       state={games}
                       media={gameMedia(detailGame)}
                       onBack={() => navigate("catalog")}
-                      onInstall={() => beginInstall(detailGame.adapterId)}
+                      onInstall={() =>
+                        beginInstall(
+                          recipeFor(detailGame.collectionId)
+                            ? detailGame.collectionId
+                            : detailGame.adapterId,
+                        )
+                      }
                     />
                   )}
                   {page === "details" && !detailGame && (
@@ -953,13 +982,17 @@ export default function App() {
             if (!open) void games.refresh().catch(() => {});
           }}
           title={
-            installAdapter === "skate3"
-              ? "Установка Skate 3"
-              : "Установка Bloodborne"
+            activeRecipe
+              ? `Установка ${activeRecipe.title}`
+              : installAdapter === "skate3"
+                ? "Установка Skate 3"
+                : "Установка Bloodborne"
           }
           description="Выберите файлы игры и папку установки."
         >
-          {installAdapter === "skate3" ? (
+          {activeRecipe ? (
+            <RecipeInstall recipe={activeRecipe} defaultParent={settings.installDir} />
+          ) : installAdapter === "skate3" ? (
             <FolderImport
               sourceKind="xbox360-iso"
               defaultParent={settings.installDir}
