@@ -408,10 +408,7 @@ export default function App() {
                       onOpen={(p) => {
                         const g = p.legacy;
                         if (!g) return;
-                        catalog.snapshot.source === "demo" &&
-                        g.id === "bloodborne"
-                          ? (setSelectedGame(null), navigate("details"))
-                          : openGame(g);
+                        openGame(g);
                       }}
                     />
                   )}

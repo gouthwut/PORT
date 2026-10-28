@@ -1,5 +1,13 @@
 # PORT// progress
 
+## 2026-10-28 — Stage 11.1-C Lite: basic project page
+
+- Owner authorized only a local basic project page with minimal usage. Catalog clicks now consistently use the existing v1 detail/action path, including the development fixture. Added reusable `ProjectOverview` with existing GameArt, typography/surface tokens and detail styles: cover/fallback, original title, explicit missing independent project name, description, source platforms, technology, editorial Windows-build availability and the existing published GitHub link. No inferred project name, release, target platform or extra URL.
+- Extended `CatalogProject` with description and official links, populated only from validated v1 metadata. The component does not depend on a legacy installation identity; existing guarded install/launch/unpublished handling remains in `CatalogDetail`. Future validated public v2 detail data can supply the presentation fields; today's v2 summary leaves description/links absent and is not enabled as transport. No URL is inferred from research or repository names; existing validation/opener/media-cache boundaries remain.
+- Return uses the existing App state without persistence writes. Targeted browser test confirms keyboard entry, exact v1 facts/link, missing cover/name, escaped description, unavailable unsupported installation and return with search, platform, technology, lifecycle, Windows filter, sort and second page intact.
+- Checks PASS: **3 targeted Playwright tests**, **one `tsc --noEmit`**, changed-file Prettier and whitespace check. Browser test uses intercepted public-v1-shaped metadata and the current development frontend; it is not native evidence. No screenshots, visual iterations, Computer Use, Imagegen, subagents, new dependencies, full suite, Vite production build or Windows release build. Native opener and native rendering were not exercised.
+- CMS/content repositories, SQLite, installations and profiles were not opened/modified. Existing tracked Cargo/library/Stage04D changes and untracked experiments remain outside this task's single local commit. No push/deploy/publication or next-stage work. Filter state remains in-session only, as before.
+
 ## 2026-10-28 — Stage 11.1-B: Premium Catalog
 
 - Owner authorized the new local catalog from approved Home commit `e89af5a`. Read AGENTS/latest progress, blueprint/redesign/Home refinement and the read-only CMS architecture/model/API plus content README/index. Neighbors were not modified; no 15-project research import, local CMS fallback, push, deploy, publication or migration.

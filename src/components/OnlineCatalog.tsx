@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowUpRight, RefreshCw } from "lucide-react";
+import { ArrowUpRight, RefreshCw } from "lucide-react";
 import type { GameState } from "../services/game-state";
 import {
   supportsInstall,
@@ -12,6 +12,8 @@ import { GameArt, Gallery } from "./BloodborneMedia";
 import { GameAction } from "./GameAction";
 import { Button } from "./ui";
 import { native } from "../services/settings";
+import { fromV1 } from "../hub/catalog-model";
+import { ProjectOverview } from "../hub/ProjectOverview";
 
 export const compatibilityLabels = {
   experimental: "Экспериментальная",
@@ -211,25 +213,9 @@ export function CatalogDetail({
   onInstall: () => void;
   published?: boolean;
 }) {
-  const [linkError, setLinkError] = useState("");
   return (
     <>
-      <button className="back-link" onClick={onBack}>
-        <ArrowLeft size={16} />
-        Назад в каталог
-      </button>
-      <section className="detail-banner">
-        <GameArt
-          src={media.banner || media.hero}
-          label={`Баннер ${game.title}`}
-        />
-        <div className="hero-shade" />
-        <div>
-          <span className="badge">{game.sourceConsole} → Windows</span>
-          <h1>{game.title}</h1>
-          <p>{game.genres.join(" / ")}</p>
-        </div>
-      </section>
+      <ProjectOverview project={fromV1(game)} media={media} onBack={onBack} />
       {!published && (
         <p role="status" className="catalog-sync">
           Игра снята с публикации. Локальная библиотека сохранена.
@@ -237,15 +223,6 @@ export function CatalogDetail({
       )}
       <div className="detail-layout">
         <div>
-          <p className="eyebrow">
-            {game.implementation === "compatibility-runtime"
-              ? "КОНСОЛЬНЫЙ RUNTIME / WINDOWS"
-              : game.implementation === "recompilation"
-                ? "ПЕРЕКОМПИЛЯЦИЯ / WINDOWS"
-                : "НЕЗАВИСИМЫЙ ПОРТ / WINDOWS"}
-          </p>
-          <h2>Об игре</h2>
-          <p className="body-copy catalog-description">{game.description}</p>
           <div className="detail-tags">
             {game.tags.map((t) => (
               <span key={t} className="badge">
@@ -294,29 +271,6 @@ export function CatalogDetail({
           <h3>Авторы Windows-проекта</h3>
           <p>{game.project.authors.join(", ")}</p>
           <p className="muted">{game.project.license}</p>
-          <a
-            className="text-link"
-            href={game.project.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={
-              native
-                ? async (e) => {
-                    e.preventDefault();
-                    try {
-                      const { openUrl } =
-                        await import("@tauri-apps/plugin-opener");
-                      await openUrl(game.project.github);
-                    } catch {
-                      setLinkError("Не удалось открыть GitHub-проект");
-                    }
-                  }
-                : undefined
-            }
-          >
-            Проект на GitHub <ArrowUpRight size={15} />
-          </a>
-          {linkError && <p role="alert">{linkError}</p>}
         </aside>
       </div>
     </>

@@ -25,6 +25,8 @@ export interface CatalogProject {
   id: string;
   games: { id: string; title: string }[];
   name: string | null;
+  description: string | null;
+  officialLinks: { label: string; url: string }[];
   platforms: string[];
   kind: ProjectKind;
   lifecycle: Lifecycle;
@@ -39,6 +41,8 @@ export function fromV1(game: PublishedGame): CatalogProject {
     games: [{ id: game.id, title: game.title }],
     // V1 has no independent project name or development lifecycle.
     name: null,
+    description: game.description || null,
+    officialLinks: [{ label: "Проект на GitHub", url: game.project.github }],
     platforms: [game.sourceConsole],
     kind: game.implementation,
     lifecycle: "unknown",
@@ -66,6 +70,9 @@ export function fromV2(
     id: project.id,
     games: games.filter((game) => project.gameIds.includes(game.id)),
     name: project.name,
+    // Summary data does not establish detail content or official links.
+    description: null,
+    officialLinks: [],
     platforms: project.sourcePlatforms,
     kind: project.kind,
     lifecycle: project.lifecycle,

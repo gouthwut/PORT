@@ -1,5 +1,15 @@
 # PORT// — instructions for future sessions
 
+Stage 11.1-C Lite authorized 2026-10-28: local basic project page from catalog,
+using existing components and validated v1 presentation adapter. Cover, title,
+description, source platforms, port technology and existing official project
+link; return preserves in-app catalog query/filter/sort/page state. Missing
+fields remain explicit. Public v2 summary stays inactive and does not invent
+detail data. This supersedes the earlier project-page prohibition only for
+this basic scope. No CMS/SQLite/installations changes, push/deploy or subsequent
+stage. Owner requests targeted tests and one TypeScript check only; no native
+release build, screenshots, Computer Use, Imagegen or subagents for this task.
+
 Stage 11.1-B Premium Catalog authorized 2026-10-28: local catalog screen,
 reusable ProjectCard and typed public-data presentation layer in the approved
 Home visual system. This supersedes the Home-only restriction for this catalog
