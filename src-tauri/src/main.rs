@@ -9,6 +9,8 @@ mod package;
 mod pkg_worker;
 mod shortcuts;
 mod updater;
+#[cfg(windows)]
+mod windows_identity;
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
@@ -130,6 +132,9 @@ fn reset_settings(db: tauri::State<Database>) -> Result<Settings, String> {
     Ok(Settings::default())
 }
 fn main() {
+    let context = tauri::generate_context!();
+    #[cfg(windows)]
+    windows_identity::set(&context.config().identifier).expect("PORT taskbar identity");
     tauri::Builder::default()
         .manage(shortcuts::LaunchRequest::default())
         .plugin(tauri_plugin_single_instance::init(|app, args, _| {
@@ -218,7 +223,7 @@ fn main() {
             install::launch_status,
             install::remove_installation
         ])
-        .run(tauri::generate_context!())
+        .run(context)
         .expect("PORT failed to start");
 }
 #[cfg(test)]

@@ -104,6 +104,8 @@ fn open_read(path: &Path) -> Result<File> {
 #[serde(rename_all = "camelCase")]
 pub struct Status {
     #[serde(skip_serializing_if = "Option::is_none")]
+    recovery_error: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     collection_id: Option<String>,
     phase: String,
     completed: u64,
@@ -115,15 +117,15 @@ pub struct Status {
 }
 #[derive(Default)]
 pub struct Installer {
+    recovery_error: Mutex<Option<String>>,
     status: Arc<Mutex<Status>>,
     child: Arc<Mutex<Option<Child>>>,
     runtime_lock: Arc<Mutex<Option<File>>>,
 }
 impl Installer {
     pub fn recovery_error(&self, error: &str) {
-        if let Ok(mut s) = self.status.lock() {
-            s.phase = "error".into();
-            s.message=format!("Восстановление временной установки не завершено: {error}. Файлы сохранены; проверьте доступ к её диску и перезапустите PORT.");
+        if let Ok(mut warning) = self.recovery_error.lock() {
+            *warning = Some(format!("Восстановление предыдущей операции PORT не завершено: {error}. Файлы сохранены. Проверьте доступ к диску и перезапустите PORT."));
         }
     }
 }
@@ -570,6 +572,9 @@ fn records(db: &Connection) -> Result<Vec<Installation>> {
 }
 fn get(app: &tauri::AppHandle, id: &str) -> Result<Installation> {
     with_db(app, |db| {
+        if pending_installation(db, id)? {
+            return Err("Установка ожидает восстановления. Перезапустите PORT; запуск и удаление временно заблокированы.".into());
+        }
         if db
             .query_row("SELECT COUNT(*) FROM update_jobs", [], |r| {
                 r.get::<_, i64>(0)
@@ -976,7 +981,7 @@ pub fn recover(db: &Connection) -> Result<()> {
                         })))
             || stage.parent() != root.parent()
         {
-            return Err("Некорректный журнал восстановления".into());
+            return Err(format!("Некорректный журнал восстановления операции {id}"));
         }
         if root.exists() {
             if read_small(&root.join("port-owner"), 256)? != id.as_bytes() {
@@ -1037,8 +1042,32 @@ pub async fn inspect_game_folder(path: String) -> Result<Folder> {
     .map_err(err)?
 }
 #[tauri::command]
-pub fn install_status(state: tauri::State<Installer>) -> Result<Status> {
-    Ok(state.status.lock().map_err(err)?.clone())
+pub fn install_status(
+    state: tauri::State<Installer>,
+    db: tauri::State<Database>,
+) -> Result<Status> {
+    let mut status = state.status.lock().map_err(err)?.clone();
+    let conn = db.0.lock().map_err(err)?;
+    status.recovery_error = recovery_warning(&state, &conn)?;
+    Ok(status)
+}
+fn recovery_warning(state: &Installer, db: &Connection) -> Result<Option<String>> {
+    let mut warning = state.recovery_error.lock().map_err(err)?;
+    // Only retire a startup warning once all durable recovery intents are gone.
+    if warning.is_some()
+        && !db.query_row("SELECT EXISTS(SELECT 1 FROM installation_jobs) OR EXISTS(SELECT 1 FROM update_jobs)", [], |r| r.get::<_, bool>(0)).map_err(err)?
+    {
+        *warning = None;
+    }
+    Ok(warning.clone())
+}
+fn pending_installation(db: &Connection, id: &str) -> Result<bool> {
+    db.query_row(
+        "SELECT EXISTS(SELECT 1 FROM installation_jobs WHERE id=?1)",
+        [id],
+        |r| r.get(0),
+    )
+    .map_err(err)
 }
 #[tauri::command]
 pub fn cancel_install(state: tauri::State<Installer>) -> Result<()> {
@@ -1169,7 +1198,7 @@ pub fn list_installations(db: tauri::State<Database>) -> Result<Vec<serde_json::
                         |row| row.get::<_, bool>(0),
                     )
                     .unwrap_or(false);
-                let health = if removing {
+                let health = if removing || pending_installation(&conn, &r.id).unwrap_or(true) {
                     "broken"
                 } else if !Path::new(&r.root).exists() {
                     "missing"

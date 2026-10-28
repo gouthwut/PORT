@@ -1,5 +1,50 @@
 use super::*;
 use std::io::Cursor;
+#[test]
+fn recovery_warning_tracks_journals_independently_of_game_operations() {
+    let temp = tempfile::tempdir().unwrap();
+    let db = Connection::open_in_memory().unwrap();
+    crate::init(&db).unwrap();
+    let root = temp.path().join("Skate 3");
+    fs::create_dir(&root).unwrap();
+    fs::write(root.join("port-owner"), b"20-2").unwrap();
+    fs::write(root.join("save"), b"preserve").unwrap();
+    // An older intent must never take over a different, working installation.
+    db.execute(
+        "INSERT INTO installation_jobs VALUES('10-1',?1,?2)",
+        params![
+            temp.path().join(".port-stage-10-1").display().to_string(),
+            root.display().to_string()
+        ],
+    )
+    .unwrap();
+    let error = recover(&db).unwrap_err();
+    assert!(error.contains("10-1"));
+    let state = Installer::default();
+    state.recovery_error(&error);
+    assert!(pending_installation(&db, "10-1").unwrap());
+    assert!(!pending_installation(&db, "20-2").unwrap());
+    assert_eq!(state.status.lock().unwrap().phase, "");
+    {
+        let _operation = operation(&state, "launching").unwrap();
+        assert!(recovery_warning(&state, &db).unwrap().is_some());
+    }
+    assert_eq!(fs::read(root.join("save")).unwrap(), b"preserve");
+    assert_eq!(fs::read(root.join("port-owner")).unwrap(), b"20-2");
+    assert_eq!(
+        db.query_row("SELECT COUNT(*) FROM installation_jobs", [], |r| r
+            .get::<_, i64>(0))
+            .unwrap(),
+        1
+    );
+    // A completed operation may already have cleared its intent in this process.
+    db.execute("DELETE FROM installation_jobs", []).unwrap();
+    assert!(recovery_warning(&state, &db).unwrap().is_none());
+    db.execute("INSERT INTO update_jobs VALUES('u','{}')", [])
+        .unwrap();
+    state.recovery_error("update recovery failed");
+    assert!(recovery_warning(&state, &db).unwrap().is_some());
+}
 pub(super) fn status() -> Arc<Mutex<Status>> {
     Arc::default()
 }

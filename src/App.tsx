@@ -419,6 +419,11 @@ export default function App() {
               сбросьте настройки.
             </div>
           )}
+          {games.operation?.recoveryError && (
+            <div role="alert" className="offline-banner">
+              {games.operation.recoveryError}
+            </div>
+          )}
           <main id="main" tabIndex={-1} ref={mainRef} aria-busy={!ready}>
             {!ready ? (
               <div className="skeleton" aria-label="Загрузка интерфейса" />

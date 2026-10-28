@@ -4,6 +4,7 @@ import type { Installation } from "../domain";
 import { native } from "./settings";
 
 export interface OperationStatus {
+  recoveryError?: string;
   collectionId?: string;
   phase: string;
   active: boolean;
