@@ -1,5 +1,28 @@
 # Roadmap
 
+## Stage 11.0 — Hub architecture and product migration (planning only)
+
+Authorized 2026-10-28 for documentation/research only. PORT becomes a game/project/
+release catalog and community with shared web/Windows API and official project
+downloads. Existing installer/lifecycle/schema-4 data remain protected and become
+secondary only after future parity checks. Blueprint: [HUB_BLUEPRINT](docs/HUB_BLUEPRINT.md),
+[compatibility model](docs/HUB_COMPATIBILITY.md), [full redesign brief](docs/HUB_REDESIGN_BRIEF.md).
+
+Proposed stages, each requiring separate implementation authorization:
+
+| Stage | Deliverable | Dependency / gate |
+| --- | --- | --- |
+| 11.1 | Contracts, additive storage, shadow migration/restore rehearsal | Approved 11.0; zero destructive changes |
+| 11.2 | Catalog v2/read API, editorial CMS/guides/rights/search | 11.1; v1 compatibility and single-writer cutover |
+| 11.3 | Official source/release approval and verified download-only flow | 11.2; key custody plan; no autorun/installation claims |
+| 11.4 | Community identity/profiles/favorites and moderation skeleton | 11.3; owner auth isolation, privacy/operator decisions |
+| 11.5 | Reviews/reports, anti-abuse and scoped compatibility aggregates | 11.4; deterministic policy/S/N/interval/insufficient-data states |
+| 11.6 | Full web/Windows/CMS redesign implementation and parity | 11.2–11.5 + separately approved full design; native preservation/rollback |
+
+Detailed acceptance criteria are in the blueprint. Production deployment, public
+community activation, signing keys and binary release remain separate decisions.
+Historical Stage 11 prohibitions below are superseded only for 11.0 planning.
+
 ## Stage 09 — Smart Game Integration (CMS metadata only)
 
 Authorized 2026-10-28. Separate PRIVATE C:\PORT-CMS provides owner-protected public GitHub analysis, sourced report, inferred suggestions, explicit selective apply/overwrite confirmation and private draft save. Public schema v1, OAuth, publication and compiled client adapters remain unchanged. Analysis never establishes installation support, executes upstream commands, downloads binaries/images or publishes cards. PORT receives documentation only; no native game/data tests are needed. See both PROGRESS files and CMS README for verification and deployment status. Stage 10 adapters/importers and Stage 11 submissions/Community Hub remain unauthorized.

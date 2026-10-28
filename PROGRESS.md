@@ -1,5 +1,46 @@
 # PORT// progress
 
+## 2026-10-28 — Stage 11.0: Hub architecture / planning only
+
+- Owner explicitly requested migration from installer-first Windows launcher to
+  PORT// catalog/community for independently developed ports/recompilations, with
+  common web/Windows API. Authorization here is research/documentation only;
+  11.1–11.6 are planned, not implemented or approved for execution.
+- Reviewed both repositories' AGENTS/latest PROGRESS, architecture/roadmap/recipes/
+  updater and CMS README, source contracts/storage/auth/routing/native boundaries.
+  Baselines: PORT `9007a29` (pre-existing dirty Cargo.toml/lock, InstalledLibrary,
+  stage04d test and untracked shortcut/design work), CMS `d81b644` initially clean.
+  Existing dirty source work preserved; no dependency installation/native/database process run.
+- Added docs/HUB_BLUEPRINT.md: component reuse/legacy inventory; Game M:N Project
+  → Release/Build/Asset; additive HubStore/v2 API/shared web/native boundaries,
+  separate community identity, editorial/release/moderation workflows, official
+  download-only trust policy, rights/privacy and non-destructive staged migration.
+  Separate hub.db is proposed; port.db schema 4/registration/lifecycle remain intact.
+  V1 stays supported; cross-DO legacy delivery uses idempotent outbox/reconciliation,
+  not an assumed shared transaction. No old verified label becomes community data.
+- Added docs/HUB_COMPATIBILITY.md: exact-build/platform/source cohorts, dedup,
+  self-reported gameplay milestone, separate setup/session/review measures, minimum
+  sample, Wilson interval, window/freshness, abuse/moderation/rebuild and privacy.
+  Added docs/HUB_REDESIGN_BRIEF.md: full future IA/screens/journeys/states/quality
+  criteria for web/Windows/CMS. No visual direction/tokens/design system produced.
+- RecompLauncher reference read via HTTPS HTML and public JS after web-reader
+  failure; catalog/filter/project grouping/release/feedback/developer features
+  observed. No form submitted/account used/downloaded port executed; server
+  correctness/anti-abuse not verified. Reference files stay ignored in .local/.
+  Official Cloudflare/GitHub/IETF/OWASP/copyright sources are dated/cited in docs;
+  legal rules are a proposed policy with jurisdiction review still required.
+- Updated roadmap/architecture/AGENTS and companion CMS documentation to distinguish
+  new 11.0 authorization from older Stage 11 bans. Stage 11.1–11.6 dependencies and
+  acceptance cover migration restart/rollback, contracts, download integrity,
+  account isolation, abuse/statistics, full redesign and actual native parity.
+- Verification for this documentation-only task: source/status review and document
+  consistency/link/whitespace checks PASS; new spec files pass Prettier. The four
+  pre-existing tracked source diffs retain their original line counts. No npm install,
+  build/tests, executable restart, real SQLite query/backup/migration, game launch,
+  runtime download, CMS draft/card mutation, production probe/deploy/publication,
+  signing key, repository visibility change, push or functionality implementation.
+  Historical native/game/CI evidence remains historical, not newly reproduced.
+
 ## 2026-10-28 — Stage 10.4: One-Game Auto Setup (local, not deployed/published)
 
 - Extended Stage 10–10.3 rather than replacing it. Native implementation **9f523eb**, cancellation follow-up **1a2db0d**, adds an explicit local owner CLI before Tauri/single-instance/SQLite startup, reusing the shared GitHub downloader, bounded safe ZIP extraction, XDVDFS/XEX identity, supplemental inputs, dependency/destination preflight, immutable EXE handle, Windows Job Object, timeout/cancel and original-file/output scans. CMS implementation **a0c71fe**, flow-copy follow-up **a1b8d6b**, cancellation follow-up **4c68b15**, provide paired local operations over the existing Builder/private save. No new dependency, adapter, schema migration, subagent, production deployment/publication, push, secret/key, visibility change or Stage 11.

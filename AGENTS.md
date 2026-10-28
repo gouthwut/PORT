@@ -1,5 +1,15 @@
 # PORT// — instructions for future sessions
 
+Stage 11.0 authorized 2026-10-28: Hub product migration planning and architecture ONLY.
+Read docs/HUB_BLUEPRINT.md, docs/HUB_COMPATIBILITY.md and docs/HUB_REDESIGN_BRIEF.md
+plus latest PROGRESS. Target: games/projects/releases catalog + community, shared
+web/Windows API, official project downloads; legacy installer becomes secondary.
+This supersedes older Stage 11 prohibitions only for research/documentation.
+Stage 11.1–11.6 remain proposed, not authorized implementation. No new functionality,
+design system/UI implementation, production deploy/publication or data migration.
+Preserve dirty work, installations, schema-4 port.db, profiles, backups and all
+legacy engines. New Hub storage must not replace existing registration authority.
+
 Stage 10.4 authorized 2026-10-28: local one-game CMS auto setup, official runtime inspection with explicit consent, local ISO/TU metadata inspection and separately consented isolated upstream trial. Reuse recipe engine/schema 1/2; no game-specific conditions or production deployment/publication. `recipe_owner.rs` is an explicit local CLI before Tauri/SQLite startup, never an installation/compatibility certificate. Preserve all trial folders, profiles, dirty work and existing installations. Legacy STFS metadataVersion 0 is supported with descriptor/table bounds; header checks do not authenticate payloads. Read docs/RECIPES.md and latest PROGRESS. This supersedes older prohibitions on local source inspection/consented owner trials only within this scope.
 
 Stage 10.3 authorized 2026-10-28: local Smart Recipe Builder in PORT-CMS, keeping schema 1/2 and native Stage 10.2 safety contracts. Local ZIP/result inspection computes real hashes; owner trial evidence never certifies compatibility automatically. Native runtime/result verification is unchanged. Preserve existing drafts/dirty work/backups; no Sonic-specific adapter or draft mutation, player ISO/TU launch/upload, production deploy/publication, visibility change or Stage 11. Read docs/RECIPES.md and latest PROGRESS.

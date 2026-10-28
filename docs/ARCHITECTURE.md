@@ -1,5 +1,14 @@
 # Architecture
 
+## Stage 11.0 — target Hub architecture (proposal)
+
+The requested product migration is documented in [HUB_BLUEPRINT](HUB_BLUEPRINT.md),
+[HUB_COMPATIBILITY](HUB_COMPATIBILITY.md) and [HUB_REDESIGN_BRIEF](HUB_REDESIGN_BRIEF.md).
+These are planning artifacts, not implemented runtime behavior. They propose separate
+Game/Project/Release/Build identities, additive v2 API/Hub storage, shared public
+web/Windows components and a protected legacy local library. Current executable
+contracts below remain authoritative until separately authorized implementation.
+
 Launcher self-updates are separate from game/runtime downloads and catalog publication. `src-tauri/src/updater.rs` owns compiled channel policy, bounded HTTPS, official Tauri signature/platform/version checks and NSIS handoff. Only custom guarded commands are exposed; no updater plugin permissions are granted to the WebView. Installation uses the existing native operation mutex and preserves SQLite schema 4/AppData. The release version comes from package.json through tauri.conf.json. See [UPDATER.md](UPDATER.md) for production setup and verified limits.
 
 ## Stage 07 installation management
