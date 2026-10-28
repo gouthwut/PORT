@@ -5,6 +5,8 @@ use serde_json::json;
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct Request {
+    #[serde(skip)]
+    status: Arc<Mutex<Status>>,
     action: String,
     recipe: Value,
     workspace: PathBuf,
@@ -37,7 +39,26 @@ pub fn entry() -> bool {
         if raw.len() > 128 * 1024 {
             return Err("owner request: превышает 128 КиБ".into());
         }
-        perform(serde_json::from_str(&raw).map_err(err)?, &github_fetch)
+        let q: Request = serde_json::from_str(&raw).map_err(err)?;
+        let status = q.status.clone();
+        let finished = Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let done = finished.clone();
+        let cancel = request.with_extension("cancel");
+        let watcher = std::thread::spawn(move || {
+            while !done.load(std::sync::atomic::Ordering::Relaxed) {
+                if cancel.is_file() {
+                    if let Ok(mut s) = status.lock() {
+                        s.cancel = true;
+                    }
+                    break;
+                }
+                std::thread::sleep(std::time::Duration::from_millis(100));
+            }
+        });
+        let result = perform(q, &github_fetch);
+        finished.store(true, std::sync::atomic::Ordering::Relaxed);
+        let _ = watcher.join();
+        result
     })();
     let result = match result {
         Ok(value) => json!({"ok":true,"value":value}),
@@ -55,7 +76,7 @@ fn perform(q: Request, fetch: &dyn Fn(&str) -> Result<Box<dyn Read>>) -> Result<
     }
     fs::create_dir(&q.workspace).map_err(err)?;
     let stage = &q.workspace;
-    let s = Arc::default();
+    let s = q.status;
     let mut raw = q.recipe;
     match q.action.as_str() {
         "runtime" => {
@@ -524,6 +545,7 @@ mod tests {
     }
     fn request(action: &str, recipe: Value, workspace: PathBuf) -> Request {
         Request {
+            status: Arc::default(),
             action: action.into(),
             recipe,
             workspace,
