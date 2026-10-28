@@ -2,6 +2,9 @@
 
 Date: 2026-10-28. Local implementation authorized by the attached Visual Rebuild request. This is a Home/shell task; it does not implement the storage/API migration numbered 11.1 in the earlier blueprint.
 
+Follow-up: [Stage 11.1-A2 premium polish](HUB_HOME_POLISH.md) records the local
+Home/shell refinements, two visual iterations, real-data sections and final checks.
+
 ## Delivered scope
 
 - `src/hub/HubLanding.tsx`: illustrated hero, catalog CTA, platform selection over published records, editorial CMS order, project cards, missing-image/loading/empty/error/retry states and current legacy operation slot.
