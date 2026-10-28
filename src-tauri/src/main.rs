@@ -226,6 +226,7 @@ fn main() {
             install::remove_installation,
             install::recipe::list_recipes,
             install::recipe::sync_recipes,
+            install::recipe::sources::inspect_recipe_sources,
             install::recipe::install_recipe
         ])
         .run(context)

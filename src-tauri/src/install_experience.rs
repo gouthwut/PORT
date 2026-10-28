@@ -44,7 +44,6 @@ pub(super) fn destination_folder(
     collection_id: &str,
     folder: &str,
 ) -> Result<PathBuf> {
-    let folder = folder;
     if installed.iter().any(|r| r.collection_id == collection_id) {
         return Err(
             "Игра уже зарегистрирована. Откройте её в библиотеке или восстановите связь с папкой"

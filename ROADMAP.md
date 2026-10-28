@@ -62,3 +62,13 @@ Stages 03/04 outside the installation/library scope explicitly requested here re
 ## Stage 06 — Skate 3 adapter
 
 Authorized: compiled Skate 3 native-recompilation adapter, read-only owner ISO validation and real isolated/native installation/launch checks, shared lifecycle, exact future CMS identity. CMS publication/admin/Cloudflare changes are forbidden; owner alone publishes the card. See docs/SKATE3.md and PROGRESS.md for completion evidence and limits.
+
+## Stage 10.2 — universal multi-source recipes (local implementation)
+
+Schema 2 supports supplemental prepared folders and header-checked Xbox STFS inputs
+through an explicitly consented, pinned upstream wizard, with hash-verified new output
+contracts and preserved failed staging. Schema 1 and installations schema 4 remain.
+See docs/RECIPES.md. Generic synthetic Windows tests are not a real-game acceptance gate.
+CMS deployment and owner-reviewed schema-2 recipe publication remain separate; Sonic's
+existing draft/card is unchanged and real manual compatibility has not been established.
+Stage 11 remains unauthorized.

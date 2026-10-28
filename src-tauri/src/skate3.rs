@@ -483,10 +483,10 @@ fn update_entries(root: &Path, s: &Arc<Mutex<Status>>) -> Result<Vec<Entry>> {
     Ok(out)
 }
 #[cfg(windows)]
-struct SetupJob(windows_sys::Win32::Foundation::HANDLE);
+pub(crate) struct SetupJob(windows_sys::Win32::Foundation::HANDLE);
 #[cfg(windows)]
 impl SetupJob {
-    fn attach(child: &Child) -> Result<Self> {
+    pub(crate) fn attach(child: &Child) -> Result<Self> {
         use std::os::windows::io::AsRawHandle;
         use windows_sys::Win32::System::JobObjects::*;
         unsafe {
@@ -520,10 +520,10 @@ impl Drop for SetupJob {
     }
 }
 #[cfg(not(windows))]
-struct SetupJob;
+pub(crate) struct SetupJob;
 #[cfg(not(windows))]
 impl SetupJob {
-    fn attach(_: &Child) -> Result<Self> {
+    pub(crate) fn attach(_: &Child) -> Result<Self> {
         Err("Официальный мастер поддерживается только в Windows".into())
     }
 }

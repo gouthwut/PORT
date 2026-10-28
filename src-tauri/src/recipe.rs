@@ -4,6 +4,9 @@
 use super::*;
 use serde::Deserialize;
 use serde_json::Value;
+#[path = "recipe_sources.rs"]
+pub mod sources;
+use sources::*;
 
 pub const RECIPE_SCHEMA: u32 = 1;
 const MAX_RUNTIME_ZIP: u64 = 2 * 1024 * 1024 * 1024;
@@ -18,24 +21,30 @@ pub struct Recipe {
     pub collection_id: String,
     pub title: String,
     pub source: Source,
+    #[serde(default)]
+    pub sources: Vec<SourceSlot>,
+    pub setup: Option<Setup>,
     pub runtime: Runtime,
     #[serde(default)]
     pub dependencies: Vec<Dependency>,
     pub launch: Launch,
 }
-#[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum SourceKind {
     Xbox360Iso,
     Folder,
+    Xbox360Content,
 }
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Source {
     pub kind: SourceKind,
     /// XEX execution title ID (8 hex digits); ISO only.
     pub title_id: Option<String>,
     pub media_id: Option<String>,
+    pub version: Option<String>,
+    pub sha256: Option<String>,
     /// Paths relative to the source root that must exist and be non-empty.
     pub required_files: Vec<String>,
     /// Paths that must NOT be present (e.g. pre-patched dumps).
@@ -62,6 +71,7 @@ pub enum Dependency {
 }
 #[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(clippy::enum_variant_names)] // Serialized schema-1 names remain stable.
 pub enum Placeholder {
     GameDir,
     UserDir,
@@ -135,7 +145,7 @@ pub fn parse(raw: &str) -> Result<Recipe> {
     Ok(r)
 }
 pub fn validate(r: &Recipe) -> Result<()> {
-    if r.schema_version != RECIPE_SCHEMA {
+    if r.schema_version != RECIPE_SCHEMA && r.schema_version != 2 {
         return Err("Неподдерживаемая версия схемы рецепта".into());
     }
     if !id_like(&r.id) || !id_like(&r.collection_id) {
@@ -171,7 +181,14 @@ pub fn validate(r: &Recipe) -> Result<()> {
                 return Err("Title/Media ID проверяются только для ISO".into());
             }
         }
+        SourceKind::Xbox360Content => {
+            return Err("Контейнер разрешён только для дополнительного источника schema 2".into())
+        }
     }
+    if s.version.is_some() || s.sha256.is_some() {
+        return Err("Для baseGame ограничения версии задаются проверенными файлами; version/sha256 предназначены для дополнительных контейнеров".into());
+    }
+    validate_sources(r)?;
     release_url(&r.runtime.url)?;
     if r.runtime.size == 0 || r.runtime.size > MAX_RUNTIME_ZIP || !hex(&r.runtime.sha256, 64) {
         return Err("Нужны размер (≤2 ГиБ) и SHA-256 runtime".into());
@@ -263,6 +280,9 @@ impl Inventory {
 pub fn inspect_source(r: &Recipe, source: &Path, s: &Arc<Mutex<Status>>) -> Result<Inventory> {
     safe(source)?;
     let inv = match r.source.kind {
+        SourceKind::Xbox360Content => {
+            return Err("Контейнер обрабатывается только штатным мастером".into())
+        }
         SourceKind::Xbox360Iso => {
             let mut f = open_read(source)?;
             let entries = crate::install::skate3::xdvdfs(&mut f, s)?;
@@ -311,6 +331,14 @@ pub fn inspect_source(r: &Recipe, source: &Path, s: &Arc<Mutex<Status>>) -> Resu
 
 /// Copies the verified source into `stage/game`, hashing every byte.
 fn import_source(inv: &mut Inventory, stage: &Path, s: &Arc<Mutex<Status>>) -> Result<Vec<Entry>> {
+    import_into(inv, stage, GAME_DIR, s)
+}
+fn import_into(
+    inv: &mut Inventory,
+    stage: &Path,
+    target: &str,
+    s: &Arc<Mutex<Status>>,
+) -> Result<Vec<Entry>> {
     phase(s, "extracting", "Подготовка игровых файлов");
     if let Ok(mut st) = s.lock() {
         st.completed = 0;
@@ -322,7 +350,7 @@ fn import_source(inv: &mut Inventory, stage: &Path, s: &Arc<Mutex<Status>>) -> R
             for e in entries.iter() {
                 relative(&e.path)?;
                 f.seek(SeekFrom::Start(e.offset)).map_err(err)?;
-                let path = format!("{GAME_DIR}/{}", e.path);
+                let path = format!("{target}/{}", e.path);
                 let sha256 = stream((&mut *f).take(e.size), Some(&stage.join(&path)), e.size, s)?;
                 out.push(Entry {
                     path,
@@ -336,7 +364,7 @@ fn import_source(inv: &mut Inventory, stage: &Path, s: &Arc<Mutex<Status>>) -> R
                 let file = root.join(&e.path);
                 safe(&file)?;
                 package::regular_file(&file)?;
-                let path = format!("{GAME_DIR}/{}", e.path);
+                let path = format!("{target}/{}", e.path);
                 let sha256 = stream(open_read(&file)?, Some(&stage.join(&path)), e.size, s)?;
                 if sha256 != e.sha256 && !e.sha256.is_empty() {
                     return Err(format!("Файл изменился во время копирования: {}", e.path));
@@ -445,9 +473,22 @@ fn install_runtime(
 }
 
 /// Runs every operation into an owned staging folder. Commit/registration is the caller's job.
+#[cfg(test)]
 pub fn execute(
     r: &Recipe,
     source: &Path,
+    stage: &Path,
+    s: &Arc<Mutex<Status>>,
+    fetch: &dyn Fn(&str) -> Result<Box<dyn Read>>,
+) -> Result<Vec<Entry>> {
+    execute_sources(r, source, &Selections::new(), false, stage, s, fetch)
+}
+#[allow(clippy::too_many_arguments)]
+fn execute_sources(
+    r: &Recipe,
+    source: &Path,
+    selections: &Selections,
+    consent: bool,
     stage: &Path,
     s: &Arc<Mutex<Status>>,
     fetch: &dyn Fn(&str) -> Result<Box<dyn Read>>,
@@ -456,12 +497,30 @@ pub fn execute(
     phase(s, "validating", "Проверка совместимости источника");
     check_dependencies(r)?;
     let mut inv = inspect_source(r, source, s)?;
+    let mut extra = inspect_sources(r, selections, s)?;
+    if r.setup.is_some() && !consent {
+        return Err("Требуется согласие на запуск проверенного штатного мастера".into());
+    }
     if stage.starts_with(source) {
         return Err("Папка установки не может находиться внутри источника".into());
     }
     let mut files = install_runtime(r, stage, s, fetch)?;
     files.extend(import_source(&mut inv, stage, s)?);
+    for (target, inventory) in &mut extra {
+        files.extend(import_extra(inventory, stage, target, s)?);
+    }
     fs::create_dir_all(stage.join(USER_DIR)).map_err(err)?;
+    if let Some(setup) = &r.setup {
+        files = run_setup(r, setup, stage, files, selections, s)?;
+    }
+    if files.len() >= MAX_FILES
+        || files
+            .iter()
+            .try_fold(0u64, |n, e| n.checked_add(e.size))
+            .is_none_or(|n| n > MAX_BYTES)
+    {
+        return Err("Результат установки превышает лимит файлов / размера".into());
+    }
     phase(s, "verifying", "Проверка результата SHA-256");
     for e in &files {
         if stream(open_read(&stage.join(&e.path))?, None, e.size, s)? != e.sha256 {
@@ -627,6 +686,10 @@ pub(crate) fn recover_job(
         if !owner.exists() && fs::read_dir(stage).map_err(err)?.next().is_some() {
             return Err("Нельзя очистить неизвестную временную папку".into());
         }
+        if in_use(stage)? {
+            return Err("Штатный мастер ещё работает; восстановление отложено".into());
+        }
+        preserve_setup(stage, id)?;
         cleanup(stage)?;
     }
     db.execute("DELETE FROM installation_jobs WHERE id=?1", [id])
@@ -648,6 +711,8 @@ pub struct RecipeSummary {
     required_files: Vec<String>,
     dependencies: Vec<String>,
     runtime_size: u64,
+    sources: Vec<SourceSlot>,
+    setup: bool,
 }
 fn summary(raw: &str) -> RecipeSummary {
     let v: Value = serde_json::from_str(raw).unwrap_or(Value::Null);
@@ -669,6 +734,7 @@ fn summary(raw: &str) -> RecipeSummary {
                 match r.source.kind {
                     SourceKind::Xbox360Iso => "xbox360-iso",
                     SourceKind::Folder => "folder",
+                    SourceKind::Xbox360Content => "xbox360-content",
                 }
                 .into(),
             ),
@@ -686,6 +752,8 @@ fn summary(raw: &str) -> RecipeSummary {
                 })
                 .collect(),
             runtime_size: r.runtime.size,
+            sources: r.sources,
+            setup: r.setup.is_some(),
         },
         Err(e) => RecipeSummary {
             id: text("id"),
@@ -698,6 +766,8 @@ fn summary(raw: &str) -> RecipeSummary {
             required_files: Vec::new(),
             dependencies: Vec::new(),
             runtime_size: 0,
+            sources: Vec::new(),
+            setup: false,
         },
     }
 }
@@ -751,7 +821,7 @@ pub fn list_recipes(db: tauri::State<crate::Database>) -> Result<Vec<RecipeSumma
 #[tauri::command]
 pub async fn sync_recipes(app: tauri::AppHandle) -> Result<Vec<RecipeSummary>> {
     tauri::async_runtime::spawn_blocking(move || {
-        let url = recipes_url(&with_db(&app, |c| crate::catalog::endpoint(c))?)?;
+        let url = recipes_url(&with_db(&app, crate::catalog::endpoint)?)?;
         let deadline = std::time::Instant::now() + std::time::Duration::from_secs(12);
         // Offline or 404 keeps the previous cache; never fabricates recipes.
         let body = crate::catalog::fetch(&url, RECIPES_LIMIT, deadline, "application/json")?;
@@ -770,6 +840,8 @@ pub fn install_recipe(
     recipe_id: String,
     source: String,
     parent: String,
+    sources: Option<Selections>,
+    setup_consent: Option<bool>,
 ) -> Result<()> {
     let raw = with_db(&app, |c| {
         c.query_row(
@@ -796,7 +868,7 @@ pub fn install_recipe(
     tauri::async_runtime::spawn_blocking(move || {
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             let db = app.state::<crate::Database>();
-            job(
+            job_sources(
                 &db.0,
                 &recipe,
                 &raw,
@@ -804,6 +876,8 @@ pub fn install_recipe(
                 PathBuf::from(parent),
                 &status,
                 &github_fetch,
+                &sources.unwrap_or_default(),
+                setup_consent.unwrap_or(false),
             )
         }))
         .unwrap_or_else(|_| Err("Внутренняя ошибка установщика".into()));
@@ -829,6 +903,7 @@ fn dbx<T>(db: &Mutex<Connection>, f: impl FnOnce(&Connection) -> Result<T>) -> R
 }
 
 /// Staged install → atomic rename → SQLite registration, journalled in installation_jobs.
+#[cfg(test)]
 pub(crate) fn job(
     db: &Mutex<Connection>,
     r: &Recipe,
@@ -838,6 +913,31 @@ pub(crate) fn job(
     s: &Arc<Mutex<Status>>,
     fetch: &dyn Fn(&str) -> Result<Box<dyn Read>>,
 ) -> Result<String> {
+    job_sources(
+        db,
+        r,
+        raw,
+        source,
+        parent,
+        s,
+        fetch,
+        &Selections::new(),
+        false,
+    )
+}
+#[allow(clippy::too_many_arguments)]
+fn job_sources(
+    db: &Mutex<Connection>,
+    r: &Recipe,
+    raw: &str,
+    source: PathBuf,
+    parent: PathBuf,
+    s: &Arc<Mutex<Status>>,
+    fetch: &dyn Fn(&str) -> Result<Box<dyn Read>>,
+    selections: &Selections,
+    consent: bool,
+) -> Result<String> {
+    preflight(r, &source, selections, &parent, consent, s)?;
     let id = experience::new_id()?;
     let folder = universal_folder(&r.collection_id, &id);
     let root = dbx(db, |c| {
@@ -869,9 +969,12 @@ pub(crate) fn job(
         .map_err(err)?;
         Ok(())
     })?;
-    let result = stage_and_commit(db, r, raw, &source, &stage, &root, &id, s, fetch);
+    let result = stage_and_commit(
+        db, r, raw, &source, &stage, &root, &id, s, fetch, selections, consent,
+    );
     if let Err(failure) = &result {
         if !root.exists() {
+            preserve_setup(&stage, &id)?;
             if let Err(e) = cleanup(&stage) {
                 return Err(format!("{failure}; очистка не завершена: {e}. Восстановление при следующем запуске PORT."));
             }
@@ -880,6 +983,12 @@ pub(crate) fn job(
                     .map_err(err)?;
                 Ok(())
             })?;
+            if parent.join(format!(".port-preserved-{id}")).exists() {
+                return Err(format!(
+                    "{failure}. Файлы мастера сохранены: {}",
+                    parent.join(format!(".port-preserved-{id}")).display()
+                ));
+            }
         }
     }
     result
@@ -895,11 +1004,13 @@ fn stage_and_commit(
     id: &str,
     s: &Arc<Mutex<Status>>,
     fetch: &dyn Fn(&str) -> Result<Box<dyn Read>>,
+    selections: &Selections,
+    consent: bool,
 ) -> Result<String> {
     safe(stage)?;
     fs::create_dir(stage).map_err(err)?;
     write_new(&stage.join("port-owner"), id.as_bytes())?;
-    let mut files = execute(r, source, stage, s, fetch)?;
+    let mut files = execute_sources(r, source, selections, consent, stage, s, fetch)?;
     // Pin the exact recipe bytes inside the SQLite-hashed manifest: an edited recipe blocks launch.
     fs::create_dir_all(stage.join(RUNTIME_DIR)).map_err(err)?;
     write_new(&stage.join(RUNTIME_DIR).join(RECIPE_FILE), raw.as_bytes())?;
@@ -1016,7 +1127,7 @@ mod tests {
         .is_err());
         assert!(mutate(&|v| v["runtime"]["sha256"] = json!("00")).is_err());
         assert!(mutate(&|v| v["collectionId"] = json!("skate3")).is_err());
-        assert!(mutate(&|v| v["schemaVersion"] = json!(2)).is_err());
+        assert!(mutate(&|v| v["schemaVersion"] = json!(3)).is_err());
         assert!(mutate(&|v| v["source"]["kind"] = json!("ps4-encrypted-pkg")).is_err());
         assert!(mutate(&|v| v["source"]["kind"] = json!("xbox360-iso")).is_err());
         assert!(mutate(&|v| v["dependencies"] = json!(["node"])).is_err());
@@ -1195,6 +1306,311 @@ mod tests {
             recipes_url("https://x.example/v1/catalog.json").unwrap(),
             "https://x.example/v1/recipes.json"
         );
+    }
+    fn multi_recipe(zip: &[u8], wizard: bool) -> Value {
+        let mut v: Value = serde_json::from_str(&recipe(zip)).unwrap();
+        v["schemaVersion"] = json!(2);
+        v["sources"] = json!([
+            {"role":"titleUpdate","required":true,"repeatable":false,"target":"tu","operation":"copy-tree","source":{"kind":"folder","requiredFiles":["patch.bin"]}},
+            {"role":"dlc","required":false,"repeatable":true,"target":"dlc","operation":"copy-tree","source":{"kind":"folder","requiredFiles":["dlc.bin"]}}
+        ]);
+        if wizard {
+            v["setup"] = json!({"executable":"demo.exe","workingDir":"runtimeDir","arguments":[{"flag":"--install"}],"results":[{"path":"runtime/output.bin","size":6,"sha256":format!("{:x}",Sha256::digest(b"output"))}]});
+        }
+        v
+    }
+    #[test]
+    fn multi_source_import_preflight_and_transaction() {
+        let t = tempfile::tempdir().unwrap();
+        let base = t.path().join("base");
+        let tu = t.path().join("tu");
+        let dlc = t.path().join("dlc");
+        let parent = t.path().join("Games");
+        fs::create_dir_all(base.join("data")).unwrap();
+        for p in [&tu, &dlc, &parent] {
+            fs::create_dir(p).unwrap();
+        }
+        fs::write(base.join("data/main.bin"), b"base").unwrap();
+        fs::write(tu.join("patch.bin"), b"prepared update").unwrap();
+        fs::write(dlc.join("dlc.bin"), b"optional").unwrap();
+        let z = zip_bytes(&[("demo/demo.exe", b"MZ-fixture")]);
+        let raw = multi_recipe(&z, false).to_string();
+        let r = parse(&raw).unwrap();
+        let mut choices = Selections::new();
+        assert!(preflight(&r, &base, &choices, &parent, false, &Arc::default()).is_err());
+        choices.insert("titleUpdate".into(), vec![tu.display().to_string()]);
+        choices.insert(
+            "dlc".into(),
+            vec![dlc.display().to_string(), dlc.display().to_string()],
+        );
+        preflight(&r, &base, &choices, &parent, false, &Arc::default()).unwrap();
+        let db = test_db();
+        job_sources(
+            &db,
+            &r,
+            &raw,
+            base.clone(),
+            parent.clone(),
+            &Arc::default(),
+            &|_| Ok(Box::new(Cursor::new(z.clone()))),
+            &choices,
+            false,
+        )
+        .unwrap();
+        let rec = records(&db.lock().unwrap()).unwrap().remove(0);
+        let root = Path::new(&rec.root);
+        assert_eq!(
+            fs::read(root.join("game/tu/patch.bin")).unwrap(),
+            b"prepared update"
+        );
+        for i in 0..2 {
+            assert_eq!(
+                fs::read(root.join(format!("game/dlc/{i}/dlc.bin"))).unwrap(),
+                b"optional"
+            );
+        }
+        verify_installed(&rec, true, &Arc::default()).unwrap();
+        assert_eq!(fs::read(tu.join("patch.bin")).unwrap(), b"prepared update");
+        choices.insert("unknown".into(), vec![]);
+        assert!(inspect_sources(&r, &choices, &Arc::default()).is_err());
+    }
+    #[cfg(windows)]
+    #[test]
+    fn recipe_rejects_junction_source_and_destination() {
+        let t = tempfile::tempdir().unwrap();
+        let target = t.path().join("target");
+        let link = t.path().join("junction");
+        fs::create_dir_all(target.join("data")).unwrap();
+        fs::write(target.join("data/main.bin"), b"fixture").unwrap();
+        let output = Command::new("cmd.exe")
+            .args(["/c", "mklink", "/J"])
+            .arg(&link)
+            .arg(&target)
+            .output()
+            .unwrap();
+        assert!(output.status.success());
+        let z = zip_bytes(&[("demo/demo.exe", b"MZ")]);
+        let r = parse(&recipe(&z)).unwrap();
+        assert!(inspect_source(&r, &link, &Arc::default()).is_err());
+        assert!(preflight(
+            &r,
+            &target,
+            &Selections::new(),
+            &link,
+            false,
+            &Arc::default()
+        )
+        .is_err());
+        fs::remove_dir(&link).unwrap();
+        assert!(target.join("data/main.bin").exists());
+    }
+    #[test]
+    fn multi_source_validation_fails_closed() {
+        let z = zip_bytes(&[("demo/demo.exe", b"MZ")]);
+        let good = multi_recipe(&z, true);
+        assert!(parse(&good.to_string()).is_ok());
+        for (pointer, value) in [
+            ("/schemaVersion", json!(1)),
+            ("/sources/0/target", json!("../escape")),
+            ("/sources/0/target", json!("dlc/nested")),
+            ("/sources/0/repeatable", json!(true)),
+            ("/sources/0/operation", json!("shell")),
+            ("/setup/executable", json!("other.exe")),
+            ("/setup/results", json!([])),
+            ("/setup/results/0/path", json!("user-data/save")),
+            ("/setup/results/0/sha256", json!("0")),
+            ("/setup/arguments/0/flag", json!("/c calc")),
+        ] {
+            let mut v = good.clone();
+            *v.pointer_mut(pointer).unwrap() = value;
+            assert!(parse(&v.to_string()).is_err(), "{pointer}");
+        }
+    }
+    #[test]
+    fn extensionless_content_is_header_checked_and_delegated_not_extracted() {
+        let t = tempfile::tempdir().unwrap();
+        let path = t.path().join("tu00000000_00000000");
+        let mut bytes = vec![0u8; 0x2000];
+        bytes[..4].copy_from_slice(b"LIVE");
+        for (off, n) in [
+            (0x340, 0x1000u32),
+            (0x344, 0xb0000),
+            (0x348, 2),
+            (0x360, 0x1234abcd),
+            (0x358, 3),
+        ] {
+            bytes[off..off + 4].copy_from_slice(&n.to_be_bytes());
+        }
+        fs::write(&path, &bytes).unwrap();
+        let z = zip_bytes(&[("demo/demo.exe", b"MZ")]);
+        let mut v = multi_recipe(&z, true);
+        v["sources"][0]["operation"] = json!("upstream-setup");
+        v["sources"][0]["source"] = json!({"kind":"xbox360-content","titleId":"1234ABCD","version":"00000003","requiredFiles":[],"sha256":format!("{:x}",Sha256::digest(&bytes))});
+        let r = parse(&v.to_string()).unwrap();
+        let mut choices = Selections::new();
+        choices.insert("titleUpdate".into(), vec![path.display().to_string()]);
+        let mut inventories = inspect_sources(&r, &choices, &Arc::default()).unwrap();
+        let stage = t.path().join("stage");
+        fs::create_dir(&stage).unwrap();
+        let (target, inv) = &mut inventories[0];
+        import_extra(inv, &stage, target, &Arc::default()).unwrap();
+        assert_eq!(
+            fs::read(stage.join("game/tu/source.container")).unwrap(),
+            bytes
+        );
+        drop(inventories);
+        bytes[0x360] = 0;
+        fs::write(&path, &bytes).unwrap();
+        assert!(inspect_sources(&r, &choices, &Arc::default()).is_err());
+        fs::write(&path, b"LIVE").unwrap();
+        assert!(inspect_sources(&r, &choices, &Arc::default()).is_err());
+    }
+    #[test]
+    fn setup_output_gate_and_crash_preserve_user_files() {
+        let t = tempfile::tempdir().unwrap();
+        let stage = t.path().join(".port-stage-100-200");
+        let root = t.path().join("PORT-demo-port-100-200");
+        fs::create_dir_all(stage.join("runtime")).unwrap();
+        fs::create_dir(stage.join("user-data")).unwrap();
+        fs::write(stage.join("port-owner"), b"100-200").unwrap();
+        fs::write(
+            stage.join("user-data/.port-setup-started"),
+            b"preserve entire staging on failure",
+        )
+        .unwrap();
+        fs::write(stage.join("user-data/save"), b"do not lose").unwrap();
+        let z = zip_bytes(&[("demo/demo.exe", b"MZ")]);
+        let r = parse(&multi_recipe(&z, true).to_string()).unwrap();
+        let setup = r.setup.as_ref().unwrap();
+        assert!(verify_setup(setup, &stage, vec![], &Arc::default()).is_err());
+        fs::write(stage.join("runtime/output.bin"), b"output").unwrap();
+        assert!(verify_setup(setup, &stage, vec![], &Arc::default()).is_ok());
+        fs::write(stage.join("runtime/output.bin"), b"wrong!").unwrap();
+        assert!(verify_setup(setup, &stage, vec![], &Arc::default()).is_err());
+        let db = test_db();
+        let c = db.lock().unwrap();
+        c.execute(
+            "INSERT INTO installation_jobs VALUES(?1,?2,?3)",
+            params![
+                "100-200",
+                stage.display().to_string(),
+                root.display().to_string()
+            ],
+        )
+        .unwrap();
+        recover_job(&c, "100-200", "demo-port", &stage, &root).unwrap();
+        assert!(!stage.exists());
+        assert!(!root.exists());
+        assert!(records(&c).unwrap().is_empty());
+        assert_eq!(
+            fs::read(t.path().join(".port-preserved-100-200/user-data/save")).unwrap(),
+            b"do not lose"
+        );
+        recover_job(&c, "100-200", "demo-port", &stage, &root).unwrap();
+    }
+    #[test]
+    #[ignore = "original synthetic Windows PE; compile tests/fixtures/recipe-setup.cs and set PORT_RECIPE_SETUP_FIXTURE"]
+    fn windows_multi_source_setup_real_process() {
+        let exe =
+            fs::read(std::env::var_os("PORT_RECIPE_SETUP_FIXTURE").expect("fixture path")).unwrap();
+        let z = zip_bytes(&[("demo/demo.exe", &exe)]);
+        for mode in ["success", "no-consent", "--fail", "--no-output", "--wait"] {
+            let t = tempfile::tempdir().unwrap();
+            let base = t.path().join("base");
+            let tu = t.path().join("tu");
+            let parent = t.path().join("Games");
+            fs::create_dir_all(base.join("data")).unwrap();
+            fs::create_dir(&tu).unwrap();
+            fs::create_dir(&parent).unwrap();
+            fs::write(base.join("data/main.bin"), b"base").unwrap();
+            fs::write(tu.join("patch.bin"), b"prepared").unwrap();
+            let mut v = multi_recipe(&z, true);
+            v["setup"]["arguments"] = if mode.starts_with("--") {
+                json!([{"flag":mode}])
+            } else {
+                json!([])
+            };
+            let raw = v.to_string();
+            let r = parse(&raw).unwrap();
+            let db = test_db();
+            let status = Arc::new(Mutex::new(Status::default()));
+            let mut choices = Selections::new();
+            choices.insert("titleUpdate".into(), vec![tu.display().to_string()]);
+            let watcher = if mode == "--wait" {
+                let p = parent.clone();
+                let s = status.clone();
+                Some(std::thread::spawn(move || {
+                    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(15);
+                    loop {
+                        let started = fs::read_dir(&p)
+                            .unwrap()
+                            .flatten()
+                            .any(|d| d.path().join("runtime/fixture-started").exists());
+                        if started || std::time::Instant::now() > deadline {
+                            s.lock().unwrap().cancel = true;
+                            break;
+                        }
+                        std::thread::sleep(std::time::Duration::from_millis(50));
+                    }
+                }))
+            } else {
+                None
+            };
+            let result = job_sources(
+                &db,
+                &r,
+                &raw,
+                base.clone(),
+                parent.clone(),
+                &status,
+                &|_| Ok(Box::new(Cursor::new(z.clone()))),
+                &choices,
+                mode != "no-consent",
+            );
+            if let Some(w) = watcher {
+                w.join().unwrap();
+            }
+            let recs = records(&db.lock().unwrap()).unwrap();
+            if mode == "success" {
+                result.unwrap();
+                assert_eq!(recs.len(), 1);
+                verify_installed(&recs[0], true, &Arc::default()).unwrap();
+                assert_eq!(
+                    fs::read(Path::new(&recs[0].root).join("user-data/save")).unwrap(),
+                    b"synthetic progress"
+                );
+            } else {
+                assert!(result.is_err(), "{mode}");
+                assert!(recs.is_empty());
+                if mode == "no-consent" {
+                    assert_eq!(fs::read_dir(&parent).unwrap().count(), 0);
+                } else {
+                    let preserved = fs::read_dir(&parent)
+                        .unwrap()
+                        .flatten()
+                        .find(|p| {
+                            p.file_name()
+                                .to_string_lossy()
+                                .starts_with(".port-preserved-")
+                        })
+                        .unwrap();
+                    assert_eq!(
+                        fs::read(preserved.path().join("user-data/save")).unwrap(),
+                        b"synthetic progress"
+                    );
+                    assert!(!in_use(&preserved.path()).unwrap());
+                }
+            }
+            assert_eq!(fs::read(base.join("data/main.bin")).unwrap(), b"base");
+            assert_eq!(
+                db.lock()
+                    .unwrap()
+                    .query_row("SELECT COUNT(*) FROM installation_jobs", [], |row| row
+                        .get::<_, u32>(0))
+                    .unwrap(),
+                0
+            );
+        }
     }
     /// Minimal synthetic XDVDFS image: root dir with default.xex + data.bin.
     fn synthetic_iso(title: u32) -> Vec<u8> {
