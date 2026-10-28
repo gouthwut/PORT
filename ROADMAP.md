@@ -84,3 +84,17 @@ Structure/exit code alone cannot certify applied updates. Sonic is a read-only u
 metadata/runtime-ZIP example; its draft and real inputs are untouched. Deployment,
 publication and independent real-data acceptance remain separate gates. See RECIPES
 and PROGRESS for evidence, interaction count and limits. Stage 11 remains unauthorized.
+
+## Stage 10.4 — One-Game Auto Setup (local implementation)
+
+Authorized 2026-10-28. Extend the existing CMS Builder with a paired local helper:
+consented official-runtime download/hash/ZIP/x64 PE/static-import inspection, local
+ISO/TU metadata and separately consented isolated upstream trials using the existing
+native operations and process guards. Discover/hash new outputs automatically and
+propose references conservatively; explicit owner upstream/patch review remains.
+Legacy STFS metadata 0 is supported with strengthened descriptor/table bounds.
+Schemas 1/2, SQLite 4 and native hashed installation-result gates remain intact.
+Real source inspection is not real installation/patch/gameplay evidence. Production
+CMS deployment/publication and a real supported-game acceptance test remain separate;
+no Sonic-specific code/card mutation, GUI automation or Stage 11. See latest PROGRESS
+and docs/RECIPES.md for the 11 / 15+official-wizard interaction budgets and limitations.

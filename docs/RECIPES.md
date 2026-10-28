@@ -1,4 +1,103 @@
-# Install recipes (Stage 10.3 Builder, schemas 1 and 2)
+# Install recipes (Stage 10.4 One-Game Auto Setup, schemas 1 and 2)
+
+## Stage 10.4 — current owner workflow
+
+This extends Stage 10–10.3; it does not replace installation, recipe schemas 1/2,
+SQLite schema 4, private saves or publication. It handles **one selected project**.
+
+1. In PORT-CMS open `Start Owner Setup.cmd` once and pair its random code in Builder.
+   The companion uses Node and the current local Windows release
+   `C:\PORT\src-tauri\target\release\port-launcher.exe`. No terminal commands are
+   required when adding a game. The default allowed CMS origin is the production CMS;
+   local development can set `PORT_CMS_ORIGIN` to its exact origin before starting.
+   CMS must run the Stage 10.4 code locally; nothing was deployed by this change.
+2. Enter the GitHub URL and analyze. An entirely blank new recipe receives a proposal:
+   a unique Windows ZIP/size/API digest, a source/setup template inferred from the
+   sourced README excerpts, and flags only from an explicit documented EXE command.
+   Missing/ambiguous fields stay unresolved. Configured or saved recipes are never
+   replaced by analysis. A filename/README proposal does not certify support.
+3. Explicitly approve official runtime download. Native PORT computes the actual full
+   SHA-256, compares an existing pin, checks safe ZIP names/links/collisions/expansion,
+   extracts locally, identifies x64 PE candidates, inventories shipped DLLs and reads
+   bounded PE static imports. A single x64 EXE is selected automatically. Multiple EXEs
+   require a choice. Dynamic DLL loading, driver/VC++ availability and hardware needs
+   cannot be established from static imports; upstream requirements remain visible.
+4. Select the base folder/ISO and each TU/DLC using ordinary Windows dialogs. Native
+   PORT reuses XDVDFS/XEX and STFS checks; no game bytes are uploaded. Required Title ID
+   and supplemental execution metadata are filled from real contents. Measured base
+   Media ID is reported separately and is **not** invented as a TU compatibility rule.
+   Existing explicit constraints are never cleared. A small prepared folder can fill
+   the full observed nonempty required-file list (1–64); larger/unknown structures need
+   reviewed requirements rather than an arbitrary selected marker.
+5. For setup, review requirements and separately authorize execution. The exact pinned
+   archive is reused; native preflight/copy/extraction prepares a fresh isolated folder.
+   The verified x64 EXE runs with the existing immutable handle, Windows Job Object,
+   timeout/cancel and typed-argument contracts. The owner uses the official wizard;
+   no undocumented path protocol or GUI clicks are added. CMS displays staged paths.
+6. After exit, original runtime/input hashes and allowed write locations are checked,
+   and **all** new runtime outputs are found/sized/hashed automatically, including files
+   above the old browser 512 MiB limit. Nothing is registered as installed. Full trial
+   folders survive success, error, cancellation and helper shutdown; external AppData
+   belongs to upstream and is not cleared or relocated. No automatic resume/reuse.
+7. Reference proposals use a byte-identical copied base file and, where unique, a new
+   changed XEX with TU Title/Media/Version. These are **candidates**, not proof of correct
+   patching. Opaque TU copies, arbitrary markers, exit code zero and matching identity
+   alone do not certify a patch. Confirm successful upstream validation/patching before
+   accepting references. Ambiguous/no stable results require reviewed selection from
+   the already measured list or an unsupported-scenario decision. DLC attribution is
+   not guessed. Unstable caches/settings must be excluded. Validate and save privately;
+   native player installation still requires the exact schema-2 hashed-result gates.
+
+The companion listens only on `127.0.0.1:47834`, requires the exact Host, configured
+CMS Origin, JSON and a 192-bit session pairing code. Its local file selectors and native
+CLI are not Worker endpoints. Only recipe fields/pins reach the existing CMS save API;
+paths, file bytes, pairing codes and trial reports are not persisted there. The Worker
+CSP permits this one loopback address; authentication/CSRF/publication guards remain.
+Cancellation is available while the normal editor is busy and signals the shared
+native cancellation checkpoints; the native process terminates the upstream Job Object
+and returns its preserved-folder error. It is not forcibly killed during process attachment. Keep the helper
+window open until completion. Existing installations and SQLite are not opened by the
+owner CLI, which runs before normal Tauri/single-instance startup.
+
+### LIVE regression — observed, not guessed
+
+Read-only inspection of the owner-supplied local TU established LIVE `4C495645`,
+`contentType=000B0000`, `metadataVersion=0`, `volumeType=0`, descriptor length `24`,
+header size `AD0E`. The old shared validator required metadata version 1 or 2 and rejected
+the valid legacy layout before upstream could run. The shared fix admits 0/1/2 while
+checking descriptor version/length, nonempty file table, allocated/free block counts,
+rounded header/table offsets and physical bounds. Malformed/unknown/SVOD/wrong-type
+inputs remain rejected with field/offset/value/remedy diagnostics. It remains bounded
+header inspection; it does not authenticate STFS signatures or internal content hashes.
+Reference structure: [upstream XContent reader](https://github.com/hedge-dev/UnleashedRecomp/blob/v1.0.3/UnleashedRecomp/install/xcontent_file_system.cpp).
+
+### Interaction accounting
+
+Counting one field entry, button/confirmation or OS picker as one action, starting
+**inside an open Builder with a paired helper**, with an unambiguous documented project:
+
+| Action group | Simple prepared-folder game | ISO + TU + upstream setup |
+| --- | ---: | ---: |
+| URL + analyze | 2 | 2 |
+| Download/check runtime + consent | 2 | 2 |
+| Next + base picker + optional TU picker + inspect | 3 | 4 |
+| Next + review requirements | 2 | 2 |
+| Trial + separate execution consent | 0 | 2 |
+| Confirm upstream trial/patch evidence | 0 | 1 |
+| Validate (accept proposed measurements) + private save | 2 | 2 |
+| **CMS total** | **11** | **15 + official wizard actions** |
+
+Opening Builder adds 1; starting/pairing the helper once per session adds 4 (open CMD,
+open connection panel, enter code, connect). An existing URL removes 1. These budgets
+exclude card identity/artwork, keystrokes/dialog internals, elapsed transfer/hash time
+and variable official-wizard steps. Ambiguous EXEs, unsupported README commands,
+overwrite confirmations, DLC and nonautomatic reference review add actions. In
+particular **15 is not a measured Sonic completion claim**: its local ISO/TU metadata
+was inspected, but no real trial, output-reference sufficiency or gameplay was proved.
+Reliable automation cannot infer missing CLI semantics, authorize upstream downloads,
+drive an undocumented GUI, establish region/patch correctness from a header, invent
+stable references or prove compatibility/gameplay. The earlier Stage 10.3 21-action
+budget below is historical and excluded its external trial entirely.
 
 A recipe **configures operations compiled into PORT**; it is not a program. CMS publishes
 recipes at `/v1/recipes.json` (same origin as `catalog.json`); the client re-validates every
