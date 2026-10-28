@@ -4,6 +4,8 @@
 use super::*;
 use serde::Deserialize;
 use serde_json::Value;
+#[path = "recipe_owner.rs"]
+pub mod owner;
 #[path = "recipe_sources.rs"]
 pub mod sources;
 use sources::*;
@@ -190,8 +192,11 @@ pub fn validate(r: &Recipe) -> Result<()> {
     }
     validate_sources(r)?;
     release_url(&r.runtime.url)?;
-    if r.runtime.size == 0 || r.runtime.size > MAX_RUNTIME_ZIP || !hex(&r.runtime.sha256, 64) {
-        return Err("Нужны размер (≤2 ГиБ) и SHA-256 runtime".into());
+    if r.runtime.size == 0 || r.runtime.size > MAX_RUNTIME_ZIP {
+        return Err(format!("runtime.size: {} байт; нужно от 1 байта до 2 ГиБ. Повторите анализ GitHub asset или проверьте официальный ZIP.",r.runtime.size));
+    }
+    if !hex(&r.runtime.sha256, 64) {
+        return Err("runtime.sha256: нужны 64 hex-символа. Используйте автоматическую проверку официального runtime ZIP в CMS.".into());
     }
     if r.runtime.sha256.bytes().any(|b| b.is_ascii_uppercase()) {
         return Err("SHA-256 должен быть в нижнем регистре".into());
@@ -1430,8 +1435,12 @@ mod tests {
     fn extensionless_content_is_header_checked_and_delegated_not_extracted() {
         let t = tempfile::tempdir().unwrap();
         let path = t.path().join("tu00000000_00000000");
-        let mut bytes = vec![0u8; 0x2000];
+        let mut bytes = vec![0u8; 0x3000];
         bytes[..4].copy_from_slice(b"LIVE");
+        bytes[0x379] = 0x24;
+        bytes[0x37b] = 1;
+        bytes[0x37c] = 1;
+        bytes[0x398] = 1;
         for (off, n) in [
             (0x340, 0x1000u32),
             (0x344, 0xb0000),

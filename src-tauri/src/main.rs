@@ -132,6 +132,9 @@ fn reset_settings(db: tauri::State<Database>) -> Result<Settings, String> {
     Ok(Settings::default())
 }
 fn main() {
+    if install::recipe::owner::entry() {
+        return;
+    }
     let context = tauri::generate_context!();
     #[cfg(windows)]
     windows_identity::set(&context.config().identifier).expect("PORT taskbar identity");
