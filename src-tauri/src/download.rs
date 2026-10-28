@@ -55,6 +55,15 @@ impl Default for Status {
 }
 #[derive(Default)]
 pub struct Download(Arc<Mutex<Status>>);
+impl Download {
+    pub(crate) fn reserve_for_update(&self) -> Result<std::sync::MutexGuard<'_, Status>, String> {
+        let status = self.0.lock().map_err(|e| e.to_string())?;
+        if status.active {
+            return Err("Завершите загрузку компонентов перед обновлением PORT".into());
+        }
+        Ok(status)
+    }
+}
 fn update(s: &Arc<Mutex<Status>>, f: impl FnOnce(&mut Status)) {
     if let Ok(mut s) = s.lock() {
         f(&mut s);

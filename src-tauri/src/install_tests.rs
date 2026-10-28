@@ -133,6 +133,25 @@ fn paths_space_and_exclusive_operation() {
     assert!(operation(&state, "launching").is_ok());
 }
 #[test]
+fn launcher_update_excludes_game_operations_and_releases_on_error() {
+    let state = Installer::default();
+    let install = operation(&state, "installing").unwrap();
+    assert!(updater_operation(&state).is_err());
+    drop(install);
+    let updater = updater_operation(&state).unwrap();
+    for operation_name in [
+        "launching",
+        "removing",
+        "updating",
+        "recovering",
+        "verifying",
+    ] {
+        assert!(operation(&state, operation_name).is_err());
+    }
+    drop(updater);
+    assert!(operation(&state, "launching").is_ok());
+}
+#[test]
 #[cfg(windows)]
 fn running_process_is_detected_without_a_saved_child_handle() {
     let exe = std::env::current_exe().unwrap();

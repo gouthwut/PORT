@@ -1,5 +1,7 @@
 # Architecture
 
+Launcher self-updates are separate from game/runtime downloads and catalog publication. `src-tauri/src/updater.rs` owns compiled channel policy, bounded HTTPS, official Tauri signature/platform/version checks and NSIS handoff. Only custom guarded commands are exposed; no updater plugin permissions are granted to the WebView. Installation uses the existing native operation mutex and preserves SQLite schema 4/AppData. The release version comes from package.json through tauri.conf.json. See [UPDATER.md](UPDATER.md) for production setup and verified limits.
+
 ## Stage 07 installation management
 
 New installs use readable compiled adapter folder names; legacy numbered paths stay valid. Schema 4 remains stable, with transactional initialization, a future-version guard and separate removal intent table. Corrupt SQLite is retained with timestamped sidecars; explicit folder recovery validates ownership, bounded manifest and all immutable bytes before registration. Library health is a lightweight availability check; verification remains explicit. Removal uses owned manifests and matching hashes for game/runtime files, retains modified or unknown files and profiles, and removes only empty inventoried parent directories. A partial failure retains the row/manifest and blocks launch until deletion is retried. See the Stage 07 progress entry for test boundaries and the missing Skate registration discovered before work.

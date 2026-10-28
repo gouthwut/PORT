@@ -127,7 +127,7 @@ impl Installer {
         }
     }
 }
-struct Operation(Arc<Mutex<Status>>);
+pub(crate) struct Operation(Arc<Mutex<Status>>);
 impl Drop for Operation {
     fn drop(&mut self) {
         if let Ok(mut s) = self.0.lock() {
@@ -146,6 +146,24 @@ fn operation(state: &Installer, name: &str) -> Result<Operation> {
         ..Status::default()
     };
     Ok(Operation(state.status.clone()))
+}
+pub(crate) fn updater_operation(state: &Installer) -> Result<Operation> {
+    operation(state, "launcher-update")
+}
+pub(crate) fn updater_safe(app: &tauri::AppHandle, state: &Installer) -> Result<()> {
+    let mut child = state.child.lock().map_err(err)?;
+    if let Some(child) = child.as_mut() {
+        if child.try_wait().map_err(err)?.is_none() {
+            return Err("Закройте запущенную игру перед обновлением PORT".into());
+        }
+    }
+    let items = with_db(app, records)?;
+    for item in items {
+        if in_use(Path::new(&item.root))? {
+            return Err("Закройте запущенную игру перед обновлением PORT".into());
+        }
+    }
+    Ok(())
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]

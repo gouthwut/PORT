@@ -1,4 +1,13 @@
 fn main() {
+    println!("cargo:rerun-if-env-changed=PORT_UPDATER_CHANNEL_FILE");
+    let channel = std::env::var("PORT_UPDATER_CHANNEL_FILE")
+        .unwrap_or_else(|_| "updater-channel.json".into());
+    println!("cargo:rerun-if-changed={channel}");
+    std::fs::copy(
+        &channel,
+        std::path::Path::new(&std::env::var("OUT_DIR").unwrap()).join("updater-channel.json"),
+    )
+    .expect("copy compiled public updater channel");
     use sha2::{Digest, Sha256};
     println!("cargo:rustc-check-cfg=cfg(port_pkg_worker)");
     let worker = std::path::Path::new("../.local/pkg-worker/port-pkg-worker.exe");

@@ -1,5 +1,9 @@
 # Roadmap
 
+## Stage 08 — secure launcher updater
+
+Authorized 2026-10-28. Official Tauri updater + signed NSIS, background/manual checks, bounded HTTPS delivery, version-bound signatures, explicit install/restart consent and native game-operation guards. Production channel remains unconfigured until the owner approves public binary hosting and signing-key custody. Isolated Windows 0.8.0 → 0.8.1 update/restart verified; see PROGRESS.md and docs/UPDATER.md for exact checks and limits. No source publication, CMS changes or Stage 09 authorization.
+
 ## Stage 05C — production catalog integration
 
 Authorized 2026-10-27. Verified real anonymous HTTPS API and six immutable WebP assets, embedded stable default endpoint, developer-only override/diagnostics, production interface without fixtures, automatic refresh and durable offline cache. Actual native release receives Bloodborne with the existing one-record 01.09 library/Play preserved. Publication changes/unpublication/network failures use isolated tests; no owner publication was changed. See current PROGRESS for final verification, commits and CI. Metadata publication needs no client rebuild; new installation methods still need reviewed compiled adapters. Earlier deployment-pending entries below are historical.

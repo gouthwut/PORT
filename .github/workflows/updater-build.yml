@@ -1,0 +1,39 @@
+name: Prepare signed Windows updater (no publication)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    environment: updater-signing
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - name: Require a configured public production channel
+        shell: pwsh
+        run: |
+          $channel = Get-Content src-tauri/updater-channel.json -Raw | ConvertFrom-Json
+          if ($channel.channel -ne 'production' -or -not $channel.publicKey -or -not $channel.endpoint.StartsWith('https://')) { throw 'Production updater channel is not configured' }
+      - run: npm ci
+      - run: npm run build
+      - run: cargo test --locked --manifest-path src-tauri/Cargo.toml
+      - name: Build signed NSIS updater
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: ./scripts/build-updater.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signed-windows-updater-private
+          retention-days: 7
+          path: |
+            src-tauri/target/release/bundle/nsis/*-setup.exe
+            src-tauri/target/release/bundle/nsis/*-setup.exe.sig

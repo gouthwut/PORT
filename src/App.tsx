@@ -39,6 +39,8 @@ import { InstallerPanel, DownloadPanel } from "./components/Installer";
 import { emptyMedia, mediaService, type MediaSet } from "./services/media";
 import { resolveMedia } from "./services/bundled-media";
 import { InstalledLibrary } from "./components/InstalledLibrary";
+import { LauncherUpdates } from "./components/LauncherUpdates";
+import { appVersion, useUpdater } from "./services/updater";
 
 import { useGameState } from "./services/game-state";
 import { GameAction } from "./components/GameAction";
@@ -139,6 +141,7 @@ function GameCard({
 }
 
 export default function App() {
+  const updater = useUpdater();
   const games = useGameState();
   const catalog = useCatalog();
   const [selectedGame, setSelectedGame] = useState<PublishedGame | null>(null);
@@ -347,6 +350,14 @@ export default function App() {
             >
               <SettingsIcon size={19} strokeWidth={1.7} />
               <span>Настройки</span>
+              {updater.status.version && (
+                <small
+                  className="update-indicator"
+                  aria-label="Доступно обновление PORT"
+                >
+                  ●
+                </small>
+              )}
             </button>
             <button
               className="profile"
@@ -355,7 +366,7 @@ export default function App() {
             >
               <span className="profile-icon">P</span>
               <span>
-                О PORT<small>0.1.0</small>
+                О PORT<small>{appVersion}</small>
               </span>
               <CircleHelp size={17} />
             </button>
@@ -920,6 +931,7 @@ export default function App() {
                             </div>
                           </SettingsSection>
                           <CatalogSettings state={catalog} />
+                          <LauncherUpdates state={updater} />
                         </div>
                       </div>
                     </>
@@ -958,7 +970,7 @@ export default function App() {
           open={about}
           onOpenChange={setAbout}
           title="О PORT"
-          description="Лаунчер и установщик независимых Windows-проектов для консольных игр. Версия 0.1.0."
+          description={`Лаунчер и установщик независимых Windows-проектов для консольных игр. Версия ${appVersion}.`}
         >
           <div className="about-dialog-content">
             <p>

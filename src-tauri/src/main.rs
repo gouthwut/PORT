@@ -8,6 +8,7 @@ mod media;
 mod package;
 mod pkg_worker;
 mod shortcuts;
+mod updater;
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
@@ -142,6 +143,8 @@ fn main() {
         .manage(download::Download::default())
         .manage(install::Installer::default())
         .manage(catalog::SyncLock::default())
+        .manage(updater::State::default())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
@@ -167,12 +170,22 @@ fn main() {
             }
             app.manage(Database(Mutex::new(conn)));
             shortcuts::queue(app.handle(), &std::env::args().collect::<Vec<_>>());
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                let _ = updater::check(&handle).await;
+                let _ = updater::previous_attempt(&handle);
+            });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             load_settings,
             save_settings,
             reset_settings,
+            updater::updater_status,
+            updater::check_app_update,
+            updater::download_app_update,
+            updater::cancel_app_update,
+            updater::install_app_update,
             shortcuts::take_launch_request,
             install::experience::default_install_parent,
             install::experience::check_install_destination,

@@ -40,7 +40,7 @@ npm run tauri build -- --no-bundle
 .\src-tauri\target\release\port-launcher.exe
 ```
 
-`npm run tauri build` дополнительно собирает NSIS-установщик. Локальные сборки пока не подписаны. `npm run dev` — только браузерный frontend-preview, помеченный WEB PREVIEW; он использует localStorage и не заменяет Tauri.
+`npm run tauri build` дополнительно собирает NSIS-установщик. Обычные локальные сборки не имеют Windows Authenticode-подписи. Основа безопасного обновления лаунчера через подписанные Tauri-пакеты реализована; официальный публичный канал пока не подключён. Схема выпуска, ключей и изолированных испытаний — в [docs/UPDATER.md](docs/UPDATER.md). `npm run dev` — только браузерный frontend-preview, помеченный WEB PREVIEW; он использует localStorage и не заменяет Tauri.
 
 ## Проверки
 

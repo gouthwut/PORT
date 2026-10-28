@@ -3129,3 +3129,16 @@ footer small {
     width: 100%;
   }
 }
+/* Launcher updates reuse the settings surface and plain text release notes. */
+.launcher-updates progress {
+  width: 100%;
+  accent-color: var(--accent, #a78bfa);
+}
+.update-notes p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.launcher-updates > p,
+.launcher-updates .update-notes {
+  margin-block: 14px;
+}
