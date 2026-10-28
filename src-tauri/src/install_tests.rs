@@ -68,6 +68,42 @@ fn folder_metadata_never_invents_version_and_rejects_update_only() {
         .contains("eboot.bin"));
 }
 #[test]
+fn stream_fits_small_windows_worker_stack() {
+    const CHILD: &str = "PORT_STREAM_STACK_CHILD";
+    if std::env::var_os(CHILD).is_none() {
+        let result = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "install::tests::stream_fits_small_windows_worker_stack",
+                "--nocapture",
+            ])
+            .env(CHILD, "1")
+            .output()
+            .unwrap();
+        assert!(
+            result.status.success(),
+            "small-stack child failed: {:?} {}",
+            result.status,
+            String::from_utf8_lossy(&result.stderr)
+        );
+        return;
+    }
+    std::thread::Builder::new()
+        .stack_size(512 * 1024)
+        .spawn(|| {
+            let mut file = tempfile::tempfile().unwrap();
+            file.write_all(b"abc").unwrap();
+            file.seek(std::io::SeekFrom::Start(0)).unwrap();
+            assert_eq!(
+                stream(file, None, 3, &status()).unwrap(),
+                format!("{:x}", Sha256::digest(b"abc"))
+            );
+        })
+        .unwrap()
+        .join()
+        .unwrap();
+}
+#[test]
 fn stream_exact_length_hash_and_cancellation() {
     let temp = tempfile::tempdir().unwrap();
     let p = temp.path().join("copy");

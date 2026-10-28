@@ -134,6 +134,41 @@ test("local publication activates ISO form and shared destination/shortcut flow"
       ["install_packages", "import_game_folder"].includes(c.command),
     ),
   ).toBe(false);
+  await page.evaluate(() => {
+    (window as any).qaStatus = {
+      phase: "error",
+      active: false,
+      completed: 0,
+      total: 30292532,
+      message:
+        "Не удалось загрузить Windows-релиз. Проверьте подключение и повторите установку.",
+      collectionId: "skate3",
+    };
+  });
+  await expect(dialog.getByRole("alert")).toContainText("повторите установку");
+  const retry = dialog.getByRole("button", {
+    name: "Установить из ISO",
+    exact: true,
+  });
+  await expect(retry).toBeEnabled();
+  await retry.click();
+  await expect(dialog.getByRole("status")).toContainText(
+    "Завершите официальный мастер",
+  );
+  await page.evaluate(() => {
+    (window as any).qaStatus = {
+      phase: "cancelled",
+      active: false,
+      completed: 0,
+      total: 30292532,
+      message: "Отменено пользователем",
+      collectionId: "skate3",
+    };
+  });
+  await expect(dialog.getByRole("status")).toContainText(
+    "Отменено пользователем",
+  );
+  await expect(retry).toBeEnabled();
 });
 
 test("release has no Skate card until an owner publication arrives", async ({

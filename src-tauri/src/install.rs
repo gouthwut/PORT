@@ -372,7 +372,8 @@ fn stream<R: Read>(
     };
     let mut hash = Sha256::new();
     let mut count = 0u64;
-    let mut buf = [0; 1024 * 1024];
+    // Nested installer/HTTP reads must not reserve megabyte frames on Windows workers.
+    let mut buf = vec![0; 1024 * 1024];
     loop {
         checkpoint(s)?;
         let n = input.read(&mut buf).map_err(err)?;

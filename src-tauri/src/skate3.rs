@@ -200,7 +200,51 @@ pub async fn inspect_skate3_iso(path: String) -> Result<IsoInfo> {
         Ok(IsoInfo { bytes: entries.iter().map(|e| e.size).sum(), files: entries.len(), title_id: "454108E6".into(), version: "retail".into(), warning: "Title ID/Media ID/base version проверены. Официальный мастер запросит Title Update 3. Затем закройте игру для финальной проверки PORT. Регион/gameplay не подтверждены.".into() })
     }).await.map_err(err)?
 }
-fn runtime(stage: &Path, s: &Arc<Mutex<Status>>) -> Result<Vec<Entry>> {
+fn download_event(log: &mut dyn Write, event: &str) {
+    let time = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs();
+    // Only fixed stage names are logged: no paths, URLs, headers or error payloads.
+    let _ = writeln!(log, "{time} skate3-v2.0.2 {event}");
+    let _ = log.flush();
+}
+fn runtime(stage: &Path, s: &Arc<Mutex<Status>>, log: &mut dyn Write) -> Result<Vec<Entry>> {
+    download_event(log, "start");
+    let result = runtime_inner(stage, s, log);
+    download_event(
+        log,
+        if result.is_ok() {
+            "complete"
+        } else if s.lock().is_ok_and(|s| s.cancel) {
+            "cancelled"
+        } else {
+            "failed"
+        },
+    );
+    result
+}
+fn receive_runtime(
+    mut response: reqwest::blocking::Response,
+    path: &Path,
+    s: &Arc<Mutex<Status>>,
+) -> Result<()> {
+    checkpoint(s)?;
+    if response.status() != reqwest::StatusCode::OK || response.content_length() != Some(ZIP_SIZE) {
+        return Err("Размер или статус HTTP Windows-релиза не совпал. Повторите установку.".into());
+    }
+    let hash = stream((&mut response).take(ZIP_SIZE + 1), Some(path), ZIP_SIZE, s)
+        .map_err(|_| if s.lock().is_ok_and(|s| s.cancel) {
+            "Отменено пользователем".to_string()
+        } else {
+            "Не удалось прочитать или записать Windows-релиз. Проверьте сеть и доступ к диску; повторите установку.".to_string()
+        })?;
+    if hash != ZIP_HASH {
+        return Err("SHA-256 Windows-релиза не совпал. Повторите установку.".into());
+    }
+    Ok(())
+}
+fn runtime_inner(stage: &Path, s: &Arc<Mutex<Status>>, log: &mut dyn Write) -> Result<Vec<Entry>> {
     phase(
         s,
         "downloading",
@@ -212,20 +256,31 @@ fn runtime(stage: &Path, s: &Arc<Mutex<Status>>) -> Result<Vec<Entry>> {
         status.total = ZIP_SIZE;
     }
     let zip_path = stage.join("runtime.zip");
+    checkpoint(s)?;
+    download_event(log, "client");
     let client = download::client()?;
-    let mut response = client.get(ZIP_URL).send()
-        .or_else(|_| client.get("https://api.github.com/repos/mchughalex/skate3recomp/releases/assets/488835902").header("Accept", "application/octet-stream").send())
-        .map_err(|e| format!("Не удалось загрузить Skate 3 Recomp: {e:#}. Повторите установку."))?
-        .error_for_status().map_err(err)?;
-    let hash = stream(
-        (&mut response).take(ZIP_SIZE + 1),
-        Some(&zip_path),
-        ZIP_SIZE,
-        s,
-    )?;
-    if hash != ZIP_HASH {
-        return Err("SHA-256 Windows-релиза не совпал".into());
-    }
+    download_event(log, "release-request");
+    let response = client.get(ZIP_URL).header("Accept-Encoding", "identity").send()
+        .and_then(reqwest::blocking::Response::error_for_status)
+        .or_else(|e| {
+            if s.lock().is_ok_and(|s| s.cancel) { return Err(e); }
+            download_event(log, "api-fallback");
+            client.get("https://api.github.com/repos/mchughalex/skate3recomp/releases/assets/488835902")
+                .header("Accept", "application/octet-stream").header("Accept-Encoding", "identity").send()
+                .and_then(reqwest::blocking::Response::error_for_status)
+        });
+    checkpoint(s)?;
+    let response = response.map_err(|e| {
+        if e.is_timeout() {
+            "Истекло время ожидания Windows-релиза. Повторите установку.".to_string()
+        } else {
+            "Не удалось загрузить Windows-релиз. Проверьте подключение и повторите установку."
+                .to_string()
+        }
+    })?;
+    download_event(log, "headers-received");
+    receive_runtime(response, &zip_path, s)?;
+    download_event(log, "size-sha256-verified");
     phase(s, "extracting", "Подготовка проверенной Windows-сборки");
     let mut archive = zip::ZipArchive::new(open_read(&zip_path)?).map_err(err)?;
     if archive.len() != 3 {
@@ -481,7 +536,20 @@ fn job(
         fs::create_dir(&stage).map_err(err)?;
         stage_created = true;
         write_new(&stage.join("port-owner"), id.as_bytes())?;
-        let mut files = runtime(&stage, s)?;
+        let logs = app.path().app_log_dir().map_err(err)?;
+        safe(&logs)?;
+        fs::create_dir_all(&logs).map_err(err)?;
+        let log_path = logs.join("skate3-download.log");
+        safe(&log_path)?;
+        let truncate = log_path.metadata().is_ok_and(|m| m.len() > 64 * 1024);
+        let mut log = OpenOptions::new()
+            .create(true)
+            .write(true)
+            .truncate(truncate)
+            .append(!truncate)
+            .open(log_path)
+            .map_err(err)?;
+        let mut files = runtime(&stage, s, &mut log)?;
         phase(s, "extracting", "Копирование данных из Xbox 360 ISO");
         {
             let mut status = s.lock().map_err(err)?;
@@ -603,14 +671,15 @@ pub fn install_skate3(
     let status = state.status.clone();
     tauri::async_runtime::spawn_blocking(move || {
         let _guard = guard;
-        if let Err(e) = job(
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| job(
             &app,
             &source,
             &parent,
             &destination_id,
             desktop_shortcut.unwrap_or(false),
             &status,
-        ) {
+        ))).unwrap_or_else(|_| Err("Внутренняя ошибка установки. Перезапустите PORT для восстановления временных данных.".into()));
+        if let Err(e) = result {
             if let Ok(mut s) = status.lock() {
                 s.phase = if s.cancel { "cancelled" } else { "error" }.into();
                 s.message = e;
@@ -623,6 +692,84 @@ pub fn install_skate3(
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn response(headers: &str, body: Vec<u8>) -> reqwest::blocking::Response {
+        let server = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = server.local_addr().unwrap();
+        let headers = headers.to_string();
+        std::thread::spawn(move || {
+            let (mut socket, _) = server.accept().unwrap();
+            socket
+                .set_read_timeout(Some(std::time::Duration::from_secs(5)))
+                .unwrap();
+            let mut request = [0; 4096];
+            let _ = socket.read(&mut request);
+            let _ = write!(socket, "HTTP/1.1 {headers}\r\nConnection: close\r\n\r\n");
+            let _ = socket.write_all(&body);
+        });
+        reqwest::blocking::Client::builder()
+            .no_proxy()
+            .timeout(std::time::Duration::from_secs(5))
+            .build()
+            .unwrap()
+            .get(format!("http://{address}"))
+            .send()
+            .unwrap()
+    }
+    #[test]
+    fn runtime_http_rejects_status_length_truncation_hash_and_cancel() {
+        let stage = tempfile::tempdir().unwrap();
+        let path = stage.path().join("runtime.zip");
+        let s = Arc::default();
+        for headers in [
+            "503 Unavailable\r\nContent-Length: 0",
+            "200 OK\r\nContent-Length: 3",
+            "200 OK",
+        ] {
+            assert!(receive_runtime(response(headers, vec![]), &path, &s).is_err());
+            assert!(!path.exists());
+        }
+        let headers = format!("200 OK\r\nContent-Length: {ZIP_SIZE}");
+        assert!(receive_runtime(response(&headers, b"abc".to_vec()), &path, &s).is_err());
+        fs::remove_file(&path).unwrap();
+        assert!(
+            receive_runtime(response(&headers, vec![0; ZIP_SIZE as usize]), &path, &s)
+                .unwrap_err()
+                .contains("SHA-256")
+        );
+        // A retry never overwrites an existing output, even after a failed attempt.
+        assert!(receive_runtime(response(&headers, vec![]), &path, &s).is_err());
+        fs::remove_file(&path).unwrap();
+        s.lock().unwrap().cancel = true;
+        assert!(receive_runtime(response(&headers, vec![]), &path, &s)
+            .unwrap_err()
+            .contains("Отменено"));
+        assert!(!path.exists());
+        let mut log = Vec::new();
+        assert!(runtime(stage.path(), &s, &mut log).is_err());
+        let log = String::from_utf8(log).unwrap();
+        assert!(log.contains("start") && log.contains("cancelled"));
+        assert!(!log.contains("http") && !log.contains(stage.path().to_str().unwrap()));
+        // Cancellation before the request can be retried with a fresh status.
+        s.lock().unwrap().cancel = false;
+        assert!(
+            receive_runtime(response("200 OK\r\nContent-Length: 0", vec![]), &path, &s)
+                .unwrap_err()
+                .contains("HTTP")
+        );
+    }
+    #[test]
+    #[ignore = "official 30 MB runtime only, temporary directory; no ISO/setup/registration"]
+    fn runtime_download_on_native_worker() {
+        tauri::async_runtime::block_on(async {
+            tauri::async_runtime::spawn_blocking(|| {
+                let stage = tempfile::tempdir().unwrap();
+                let entries = runtime(stage.path(), &Arc::default(), &mut std::io::sink()).unwrap();
+                assert_eq!(entries.len(), 2);
+            })
+            .await
+            .unwrap();
+        });
+    }
     fn fixture() -> Vec<u8> {
         use std::collections::BTreeMap;
         fn directory(
@@ -883,7 +1030,7 @@ mod tests {
         let status = Arc::default();
         let mut iso = open_read(Path::new(&source)).unwrap();
         let entries = inventory(&mut iso, &status).unwrap();
-        let mut files = runtime(&root, &status).unwrap();
+        let mut files = runtime(&root, &status, &mut std::io::sink()).unwrap();
         for e in entries {
             iso.seek(SeekFrom::Start(e.offset)).unwrap();
             let path = format!("game/{}", e.path);
