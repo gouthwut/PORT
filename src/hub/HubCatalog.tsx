@@ -248,6 +248,11 @@ export function HubCatalog({
             : "Некоторые изображения недоступны. Сведения о проектах сохранены."}
         </p>
       )}
+      {catalog.notice && (
+        <p className="hub-catalog-note" role="status">
+          {catalog.notice}
+        </p>
+      )}
       <section
         aria-label="Проекты каталога"
         aria-busy={catalog.busy || deferredSearch !== query.search}

@@ -54,9 +54,14 @@ import {
 } from "./services/catalog";
 import { CatalogDetail, CatalogSettings } from "./components/OnlineCatalog";
 
-import { useV1Projects } from "./hub/catalog-source";
+import { useProjectCatalog } from "./hub/catalog-source";
+import { V2Project } from "./hub/V2Project";
 import { HubCatalog } from "./hub/HubCatalog";
-import { defaultCatalogQuery, type CatalogQuery } from "./hub/catalog-model";
+import {
+  defaultCatalogQuery,
+  type CatalogQuery,
+  type CatalogProject,
+} from "./hub/catalog-model";
 import { HubLanding } from "./hub/HubLanding";
 import { HubSidebar } from "./hub/HubSidebar";
 import "./hub/home.css";
@@ -103,7 +108,8 @@ export default function App() {
   const updater = useUpdater();
   const games = useGameState();
   const catalog = useCatalog();
-  const projectCatalog = useV1Projects(catalog);
+  const projectCatalog = useProjectCatalog(catalog);
+  const [selectedV2, setSelectedV2] = useState<CatalogProject | null>(null);
   const [selectedGame, setSelectedGame] = useState<PublishedGame | null>(null);
   const [mediaOverrides, setMedia] = useState<MediaSet>(emptyMedia);
   const media = resolveMedia(mediaOverrides);
@@ -259,6 +265,7 @@ export default function App() {
     setPage(next);
   }
   function openGame(game: PublishedGame) {
+    setSelectedV2(null);
     setSelectedGame(game);
     navigate("details");
   }
@@ -407,12 +414,23 @@ export default function App() {
                       }
                       onOpen={(p) => {
                         const g = p.legacy;
-                        if (!g) return;
+                        if (!g) {
+                          setSelectedV2(p);
+                          navigate("details");
+                          return;
+                        }
                         openGame(g);
                       }}
                     />
                   )}
-                  {page === "details" && detailGame && (
+                  {page === "details" && selectedV2 && (
+                    <V2Project
+                      key={selectedV2.id}
+                      project={selectedV2}
+                      onBack={() => navigate("catalog")}
+                    />
+                  )}
+                  {page === "details" && !selectedV2 && detailGame && (
                     <CatalogDetail
                       published={!!selectedPublished}
                       game={detailGame}
@@ -428,7 +446,7 @@ export default function App() {
                       }
                     />
                   )}
-                  {page === "details" && !detailGame && (
+                  {page === "details" && !selectedV2 && !detailGame && (
                     <>
                       <button
                         className="back-link"

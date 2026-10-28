@@ -1,6 +1,13 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CatalogState } from "../services/catalog";
 import { fromV1, type CatalogProject } from "./catalog-model";
+import sourceConfig from "./source-config.json";
+import {
+  createV2Client,
+  loadV2Catalog,
+  parseSourceConfig,
+  type SourceConfig,
+} from "./api-v2";
 
 /** Transport-independent input to the catalog view. Only public records belong here. */
 export interface ProjectCatalogState {
@@ -9,7 +16,123 @@ export interface ProjectCatalogState {
   error: string;
   warning: string;
   source: "demo" | "empty" | "cache" | "online";
+  notice?: string;
   refresh: () => Promise<void>;
+}
+
+export async function selectSource(
+  config: SourceConfig,
+  v2: () => Promise<CatalogProject[]>,
+): Promise<{
+  version: "v1" | "v2";
+  projects: CatalogProject[];
+  notice: string;
+}> {
+  if (config.version === "v1")
+    return { version: "v1", projects: [], notice: "" };
+  try {
+    return {
+      version: "v2",
+      projects: await v2(),
+      notice: "Источник каталога: API v2",
+    };
+  } catch (e) {
+    if (config.fallback !== "v1") throw e;
+    return {
+      version: "v1",
+      projects: [],
+      notice:
+        "API v2 недоступен или ответ некорректен. Показан только каталог v1 согласно конфигурации.",
+    };
+  }
+}
+
+export function useProjectCatalog(catalog: CatalogState): ProjectCatalogState {
+  const legacy = useV1Projects(catalog);
+  const config = useMemo(() => {
+    try {
+      return {
+        value: parseSourceConfig(
+          import.meta.env.VITE_HUB_SOURCE_JSON
+            ? JSON.parse(import.meta.env.VITE_HUB_SOURCE_JSON)
+            : sourceConfig,
+        ),
+        error: "",
+      };
+    } catch {
+      return {
+        value: null,
+        error:
+          "Неверная конфигурация источника каталога. Проверьте source-config.json / VITE_HUB_SOURCE_JSON.",
+      };
+    }
+  }, []);
+  const [result, setResult] = useState<{
+    version: "v1" | "v2";
+    projects: CatalogProject[];
+    notice: string;
+  } | null>(null);
+  const [busy, setBusy] = useState(config.value?.version === "v2");
+  const [error, setError] = useState("");
+  const generation = useRef(0);
+  const lock = useRef(false);
+  const refreshV2 = useCallback(async () => {
+    if (config.value?.version !== "v2" || lock.current) return;
+    lock.current = true;
+    const current = generation.current;
+    setBusy(true);
+    setError("");
+    try {
+      const c = config.value;
+      const next = await selectSource(c, () =>
+        loadV2Catalog(createV2Client(c.baseUrl)),
+      );
+      if (current === generation.current) setResult(next);
+    } catch (e) {
+      if (current === generation.current) setError(String(e));
+    } finally {
+      if (current === generation.current) {
+        lock.current = false;
+        setBusy(false);
+      }
+    }
+  }, [config]);
+  useEffect(() => {
+    void refreshV2();
+    return () => {
+      generation.current++;
+      lock.current = false;
+    };
+  }, [refreshV2]);
+  if (config.error)
+    return {
+      projects: [],
+      busy: false,
+      error: config.error,
+      warning: "",
+      notice: config.error,
+      source: "empty",
+      refresh: async () => {},
+    };
+  if (config.value?.version === "v1") return legacy;
+  if (result?.version === "v1")
+    return {
+      ...legacy,
+      notice: result.notice,
+      busy: busy || legacy.busy,
+      refresh: async () => {
+        await Promise.all([catalog.refresh(), refreshV2()]);
+      },
+    };
+  return {
+    projects: result?.projects ?? [],
+    busy,
+    error,
+    warning: "",
+    notice: result?.notice ?? "Источник каталога: API v2",
+    source: result ? "online" : "empty",
+    refresh: refreshV2,
+  };
 }
 
 export function useV1Projects(catalog: CatalogState): ProjectCatalogState {
