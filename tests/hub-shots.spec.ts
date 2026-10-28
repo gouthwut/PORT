@@ -113,3 +113,75 @@ test("Home keeps hero and retry through empty catalog and network failure", asyn
     page.getByText("Опубликованные проекты появятся здесь."),
   ).toBeVisible();
 });
+
+test("Home shelves use build and compatibility fields and follow platform selection", async ({
+  page,
+}) => {
+  const games = [
+    {
+      ...fixture.games[0],
+      id: "available-project",
+      title: "Доступный проект",
+      sourceConsole: "PlayStation 4",
+      windowsBuild: "available",
+      compatibility: {
+        status: "playable",
+        notes: "Synthetic compatibility metadata",
+      },
+    },
+    {
+      ...fixture.games[0],
+      id: "experimental-project",
+      title: "Экспериментальный проект с длинным названием",
+      sourceConsole: "Xbox 360",
+      windowsBuild: "unavailable",
+      compatibility: {
+        status: "experimental",
+        notes: "Synthetic compatibility metadata",
+      },
+      media: { gallery: [] },
+    },
+  ];
+  await page.route(endpoint, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ...fixture, games }),
+    }),
+  );
+  await page.setViewportSize({ width: 480, height: 850 });
+  await page.goto("http://127.0.0.1:1421");
+  const builds = page.getByRole("region", {
+    name: "Сборки для Windows",
+    exact: true,
+  });
+  const experimental = page.getByRole("region", {
+    name: "Экспериментальные проекты",
+    exact: true,
+  });
+  await expect(builds.getByRole("button")).toHaveCount(1);
+  await expect(
+    builds.getByText("Доступный проект", { exact: true }),
+  ).toBeVisible();
+  await expect(experimental.getByRole("button")).toHaveCount(1);
+  await expect(page.locator(".port-project")).toHaveCount(2);
+  await page.getByRole("button", { name: "Xbox 360", exact: true }).click();
+  await expect(page.locator(".port-project")).toHaveCount(1);
+  await expect(builds.getByRole("button")).toHaveCount(0);
+  await expect(
+    builds.getByText("Для выбранной платформы сборки пока не указаны."),
+  ).toBeVisible();
+  await expect(page.locator(".port-image-missing")).toBeVisible();
+  expect(
+    await page.locator("main").evaluate((e) => e.scrollWidth === e.clientWidth),
+  ).toBe(true);
+  const project = experimental.getByRole("button");
+  await page.keyboard.press("Tab");
+  await project.focus();
+  await expect(project).toBeFocused();
+  expect(await project.evaluate((e) => getComputedStyle(e).outlineStyle)).toBe(
+    "solid",
+  );
+  await page.keyboard.press("Enter");
+  await expect(page.locator(".detail-banner h1")).toHaveText(games[1].title);
+});

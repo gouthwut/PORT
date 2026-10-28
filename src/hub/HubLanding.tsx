@@ -2,7 +2,9 @@ import { useState, type ReactNode } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
-  Gamepad2,
+  FlaskConical,
+  Layers3,
+  MonitorDown,
   Grid2X2,
   ImageOff,
   RotateCw,
@@ -15,7 +17,7 @@ const typeLabel = {
   "compatibility-runtime": "Среда совместимости",
 };
 const platformShort = (platform: string) =>
-  platform.replace("PlayStation ", "PS").replace("Xbox 360", "X360");
+  platform.replace("PlayStation ", "PS");
 import hero from "./assets/hub-hero.webp";
 
 export function HubLanding({
@@ -40,9 +42,16 @@ export function HubLanding({
     ).entries(),
   ];
   const selected = platforms.some(([key]) => key === platform) ? platform : "";
-  const visible = projects
-    .filter((p) => !selected || p.sourceConsole === selected)
-    .slice(0, 6);
+  const filtered = projects.filter(
+    (p) => !selected || p.sourceConsole === selected,
+  );
+  const visible = filtered.slice(0, 6);
+  const builds = filtered
+    .filter((p) => p.windowsBuild === "available")
+    .slice(0, 3);
+  const experimental = filtered
+    .filter((p) => p.compatibility.status === "experimental")
+    .slice(0, 3);
   return (
     <div className="port-home">
       <section className="port-hero" aria-labelledby="hub-title">
@@ -69,11 +78,6 @@ export function HubLanding({
             Исследовать каталог <ArrowRight size={18} />
           </button>
         </div>
-        <div className="port-hero-note" aria-hidden="true">
-          <span>SAME GAMES.</span>
-          <span>NEW POSSIBILITIES.</span>
-          <i />
-        </div>
         <div className="port-art-credit">Оригинальная иллюстрация PORT//</div>
       </section>
 
@@ -94,6 +98,9 @@ export function HubLanding({
                 {platformShort(key)}
               </span>
               {name}
+              <span className="port-platform-count" aria-hidden="true">
+                {projects.filter((p) => p.sourceConsole === key).length}
+              </span>
             </button>
           ))}
         </nav>
@@ -162,8 +169,42 @@ export function HubLanding({
             )
           )}
         </section>
+        {projects.length > 0 && (
+          <>
+            <div className="port-discovery">
+              <ProjectShelf
+                title="Сборки для Windows"
+                icon={<MonitorDown size={20} />}
+                projects={builds}
+                onOpen={onOpen}
+                description="В каталоге указана доступная Windows-сборка. Требования и условия запуска смотри в проекте."
+                empty="Для выбранной платформы сборки пока не указаны."
+              />
+              <ProjectShelf
+                title="Экспериментальные проекты"
+                icon={<FlaskConical size={20} />}
+                projects={experimental}
+                onOpen={onOpen}
+                description="Совместимость пока экспериментальная. Перед запуском прочитай об известных ограничениях."
+                empty="В этой подборке нет проектов с экспериментальным статусом."
+              />
+            </div>
+            <button className="port-catalog-door" onClick={onCatalog}>
+              <span className="port-door-icon">
+                <Layers3 size={24} />
+              </span>
+              <span>
+                <strong>Найди следующий проект</strong>
+                <span>Открой полный каталог и сравни требования.</span>
+              </span>
+              <ArrowRight size={22} />
+            </button>
+          </>
+        )}
         <footer className="port-home-footer">
-          <span>Сделано сообществом. Открыто для исследования.</span>
+          <span>
+            Независимые проекты · собственная копия игры может потребоваться
+          </span>
           <span>
             PORT<span className="port-footer-slash">//</span> <i /> CONSOLE → PC
           </span>
@@ -211,16 +252,72 @@ function HomeProject({
           <ArrowUpRight size={18} />
         </span>
         <div className="port-project-caption">
-          <span>{typeLabel[p.implementation]}</span>
+          <span
+            className={`port-project-status ${p.windowsBuild === "available" ? "has-build" : ""}`}
+          >
+            {p.windowsBuild === "available"
+              ? "Windows-сборка"
+              : "Без Windows-сборки"}
+          </span>
           <h3>{p.title}</h3>
         </div>
       </div>
       <div className="port-project-meta">
-        <span>{p.requirements.os || "ОС не указана"}</span>
+        <span>{typeLabel[p.implementation]}</span>
         <span>
           О проекте <ArrowRight size={13} />
         </span>
       </div>
     </button>
+  );
+}
+
+function ProjectShelf({
+  title,
+  icon,
+  projects,
+  onOpen,
+  description,
+  empty,
+}: {
+  title: string;
+  icon: ReactNode;
+  projects: PublishedGame[];
+  onOpen: (project: PublishedGame) => void;
+  description: string;
+  empty: string;
+}) {
+  return (
+    <section className="port-shelf" aria-label={title}>
+      <header>
+        <span className="port-shelf-icon" aria-hidden="true">
+          {icon}
+        </span>
+        <h2>{title}</h2>
+      </header>
+      <p>{description}</p>
+      {projects.length ? (
+        <ul>
+          {projects.map((p) => (
+            <li key={p.id}>
+              <button
+                onClick={() => onOpen(p)}
+                aria-label={`${title}: ${p.title}`}
+              >
+                <span>
+                  <strong>{p.title}</strong>
+                  <span>
+                    {p.sourceConsole} · {typeLabel[p.implementation]}
+                  </span>
+                </span>
+                <ArrowUpRight size={18} aria-hidden="true" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="port-shelf-empty">{empty}</p>
+      )}
+    </section>
   );
 }

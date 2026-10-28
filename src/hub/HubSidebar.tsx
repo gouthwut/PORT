@@ -47,6 +47,7 @@ export function HubSidebar({
             key={id}
             className="port-nav-link"
             aria-label={label}
+            title={label}
             aria-current={
               page === id || (id === "catalog" && page === "details")
                 ? "page"
@@ -73,6 +74,7 @@ export function HubSidebar({
         <button
           className="port-nav-link"
           aria-label="Настройки"
+          title="Настройки"
           aria-current={page === "settings" ? "page" : undefined}
           onClick={() => navigate("settings")}
         >
@@ -80,7 +82,12 @@ export function HubSidebar({
           <span>Настройки</span>
           {update && <small aria-label="Доступно обновление PORT">●</small>}
         </button>
-        <button className="port-nav-link" aria-label="О PORT" onClick={onAbout}>
+        <button
+          className="port-nav-link"
+          aria-label="О PORT"
+          title="О PORT"
+          onClick={onAbout}
+        >
           <CircleHelp size={18} />
           <span>О PORT</span>
           <small>HUB</small>
