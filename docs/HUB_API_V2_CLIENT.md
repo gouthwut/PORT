@@ -75,9 +75,12 @@ Links require public HTTPS. No download, execution or installation path is added
 - Public builds omit `review`; the server query selects `review='approved'`.
   The client relies on this public endpoint contract and drops any explicit
   proposed/revoked/unrecognized review values. It does not certify compatibility.
-- V2 has URL-only media instead of the v1 asset descriptor contract. This stage
-  keeps image placeholders and does not bypass the existing verified media cache.
-  Adding v2 image fetching/verification is separate work.
+- V2 URL-only media uses only the configured production CMS immutable
+  `/media/<sha256>.webp` paths. Summary covers and detail media feed existing cards,
+  GameArt and Gallery. The shared bounded WebP loader verifies the URL hash and
+  returns data URLs under the unchanged CSP. A separate 24-entry memory cache
+  deduplicates requests; v1 persistent cache and SQLite remain untouched. Missing,
+  rejected, HTTP/hash/decode failures receive existing placeholders.
 - No native runtime/build or live production v2 availability is claimed. The CSP
   origin addition is configuration preparation, not native execution evidence.
 

@@ -1,5 +1,14 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 11.3-C Lite: v2 media
+
+- Connected validated v2 summary covers and detail cover/screenshots to the existing ProjectCard, ProjectOverview, GameArt and Gallery. V1 data/cache, catalog query/filter/sort/page state and navigation remain intact. Default source is still v1; no transport auto-selection.
+- Only production CMS HTTPS immutable `/media/<sha256>.webp` URLs are accepted; credentials, other hosts/protocols/paths, queries and fragments become missing media without image requests. Reused existing bounded fetch/WebP/digest checks (1 MiB, 8-second timeout, no redirects/credentials, dimensions and SHA-256), returning data URLs under unchanged production CSP/Origin Guard. Separate memory-only cache retains at most 24 entries and deduplicates requests; no SQLite or persistent v1-cache writes.
+- Missing, HTTP/hash/header/decode failures have explicit placeholders. Gallery thumbnails and lightbox reuse GameArt; its failed-source state now avoids the effect-reset race found by the decode regression. Gallery retains lazy thumbnails and existing sizing rather than cover positioning.
+- Added targeted tests for real browser-decoded synthetic WebP cover/gallery/lightbox, one-fetch cache reuse across navigation, absent media, HTTP failure, hash mismatch, malformed WebP decode and rejected URL forms. Existing v1 project facts/filter/navigation and v2 source/fallback assertions are retained. Initial runs exposed the failed-source race and gallery positioning inheritance; corrected without removing assertions.
+- Verification: final targeted Playwright **14/14 PASS** (`hub-api-v2.spec.ts` and `hub-project.spec.ts`). Exactly one `tsc --noEmit` invocation found a possibly undefined loaded-state dereference; replaced optional equality with an explicit loaded-state guard. No second compiler run under the one-check limit, so no final passing TypeScript result is claimed. Changed-file formatting and whitespace checks only; no full suite, production/native build, live CMS/native evidence, screenshots, Computer Use, Imagegen, visual iteration or subagents.
+- No CMS/content changes, SQLite access, installation/profile operations, push/deploy or subsequent work. Initial unrelated Cargo/library/Stage04D diffs and untracked experiments are preserved outside the single local commit.
+
 ## 2026-10-28 — Stage 11.3-A: explicit API v2 client integration
 
 - Owner authorized only local client integration, economical targeted verification and one local commit. Read AGENTS/latest progress and only the necessary catalog/project sources plus read-only CMS `src/hub-api.ts` / `hub-model.ts`. No new skills, delegation, browser research, Computer Use, Imagegen, screenshots or visual iteration.

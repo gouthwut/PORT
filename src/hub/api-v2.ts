@@ -1,4 +1,5 @@
 import { publicHttps } from "../services/catalog";
+import { parseV2Media } from "./v2-media";
 import { native } from "../services/settings";
 import {
   fromV2,
@@ -122,6 +123,7 @@ export function parseSummary(v: unknown): V2Summary {
     id: id(o.id),
     name: str(o.name, 120),
     summary: opt(o.summary),
+    media: parseV2Media({ cover: o.cover }),
     gameIds: list(o.gameIds, id, 20),
     sourcePlatforms: optionalList(o.sourcePlatforms, (x) => str(x, 60), 12),
     targetPlatforms: optionalList(
@@ -384,6 +386,7 @@ export function createV2Client(baseUrl: string, fetcher: typeof fetch = fetch) {
         (b) => b.os === "windows" && b.channel === "stable",
       );
       const project = fromV2(summary, games);
+      project.media = parseV2Media(p.media);
       project.description = opt(p.description) ?? summary.summary;
       project.officialLinks = [
         ["Проект на GitHub", links.github],

@@ -1,3 +1,4 @@
+import type { MediaSet } from "../services/media";
 import type { PublishedGame } from "../services/catalog";
 
 export const technologyLabels = {
@@ -33,6 +34,7 @@ export interface CatalogProject {
   windows: BuildAvailability;
   buildEvidence: "editorial-v1" | "approved-v2" | "unknown";
   legacy: PublishedGame | null;
+  media?: MediaSet;
 }
 
 export function fromV1(game: PublishedGame): CatalogProject {
@@ -61,6 +63,7 @@ export interface PublicV2Summary {
   sourcePlatforms: string[];
   kind: ProjectKind;
   lifecycle: Lifecycle;
+  media?: MediaSet;
 }
 export function fromV2(
   project: PublicV2Summary,
@@ -70,6 +73,7 @@ export function fromV2(
     id: project.id,
     games: games.filter((game) => project.gameIds.includes(game.id)),
     name: project.name,
+    media: project.media,
     // Summary data does not establish detail content or official links.
     description: null,
     officialLinks: [],

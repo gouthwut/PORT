@@ -377,6 +377,16 @@ async function digest(b: Uint8Array) {
     (b) => b.toString(16).padStart(2, "0"),
   ).join("");
 }
+/** Shared bounded, hash-verified WebP loader; callers validate asset origins. */
+export async function loadCatalogImage(asset: CatalogAsset): Promise<string> {
+  const b = await bytes(asset.url, MAX_IMAGE, "image/webp", Date.now() + 8000);
+  await webp(b);
+  if ((await digest(b)) !== asset.sha256) throw Error("Image hash");
+  let binary = "";
+  for (const byte of b) binary += String.fromCharCode(byte);
+  return `data:image/webp;base64,${btoa(binary)}`;
+}
+
 async function syncPreview(): Promise<CatalogSnapshot> {
   const old = await loadPreview();
   if (!old.endpoint) return old;

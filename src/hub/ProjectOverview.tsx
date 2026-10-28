@@ -30,6 +30,7 @@ export function ProjectOverview({
       <header className="detail-banner">
         <GameArt
           src={media.cover || media.banner || media.hero}
+          fallbackLabel="Обложка недоступна"
           label={
             media.cover || media.banner || media.hero
               ? `Обложка ${title}`

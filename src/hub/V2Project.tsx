@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { emptyMedia } from "../services/media";
+import { Gallery } from "../components/BloodborneMedia";
+import { useV2Media } from "./v2-media";
+import { projectTitle } from "./catalog-model";
 import type { CatalogProject } from "./catalog-model";
 import { createV2Client, parseSourceConfig, type V2Detail } from "./api-v2";
 import sourceConfig from "./source-config.json";
@@ -49,15 +51,14 @@ export function V2Project({
       active = false;
     };
   }, [project.id, attempt]);
+  const currentProject = data?.project ?? project;
+  const media = useV2Media(currentProject.media);
   const req = data?.requirements;
   const install = data?.instructions;
   return (
     <>
-      <ProjectOverview
-        project={data?.project ?? project}
-        media={emptyMedia}
-        onBack={onBack}
-      />
+      <ProjectOverview project={currentProject} media={media} onBack={onBack} />
+      <Gallery images={media.gallery} title={projectTitle(currentProject)} />
       {busy && <p role="status">Загрузка проекта…</p>}
       {error && (
         <p role="alert">

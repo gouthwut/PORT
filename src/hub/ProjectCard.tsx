@@ -1,3 +1,4 @@
+import { useV2Media } from "./v2-media";
 import { useState } from "react";
 import {
   ArrowUpRight,
@@ -15,13 +16,15 @@ import {
 
 export function ProjectCard({
   project,
-  media,
+  media: suppliedMedia,
   onOpen,
 }: {
   project: CatalogProject;
   media: MediaSet;
   onOpen: () => void;
 }) {
+  const v2Media = useV2Media(project.legacy ? undefined : suppliedMedia);
+  const media = project.legacy ? suppliedMedia : v2Media;
   const [failed, setFailed] = useState("");
   const title = projectTitle(project);
   const build = {

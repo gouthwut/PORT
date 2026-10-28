@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowLeft, ArrowRight, ImageOff, X } from "lucide-react";
 import { Button } from "./ui";
@@ -6,23 +6,36 @@ import { Button } from "./ui";
 export function GameArt({
   src,
   label = "Обложка",
+  fallbackLabel = "Изображение недоступно",
+  className = "game-art",
+  loading,
 }: {
   src?: string;
   label?: string;
+  fallbackLabel?: string;
+  className?: string;
+  loading?: "lazy";
 }) {
-  const [failed, setFailed] = useState(false);
-  useEffect(() => setFailed(false), [src]);
-  return src && !failed ? (
+  const [failed, setFailed] = useState<string>();
+  return src && failed !== src ? (
     <img
-      className="game-art"
+      className={className}
+      loading={loading}
       src={src}
       alt={label}
-      onError={() => setFailed(true)}
+      onError={() => setFailed(src)}
     />
   ) : (
-    <div className="art-empty">
+    <div
+      className="art-empty"
+      style={
+        className === "game-art"
+          ? undefined
+          : { position: "relative", height: "100%", minHeight: 160 }
+      }
+    >
       <ImageOff size={28} strokeWidth={1} />
-      <span>{label}</span>
+      <span>{src ? fallbackLabel : label}</span>
     </div>
   );
 }
@@ -53,13 +66,11 @@ export function Gallery({
               }}
               aria-label={`Открыть скриншот ${i + 1}`}
             >
-              <img
-                src={src}
-                alt={`${title} — скриншот ${i + 1}`}
+              <GameArt
+                className=""
                 loading="lazy"
-                onError={(e) => {
-                  e.currentTarget.alt = "Не удалось загрузить изображение";
-                }}
+                src={src}
+                label={`${title} — скриншот ${i + 1}`}
               />
             </button>
           ))
@@ -109,9 +120,10 @@ export function Gallery({
               <ArrowLeft />
             </Button>
             {index !== null && (
-              <img
+              <GameArt
+                className=""
                 src={images[index]}
-                alt={`${title} — скриншот ${index + 1}`}
+                label={`${title} — скриншот ${index + 1}`}
               />
             )}
             <Button

@@ -410,7 +410,7 @@ export default function App() {
                       query={catalogQuery}
                       onQuery={setCatalogQuery}
                       media={(p) =>
-                        p.legacy ? gameMedia(p.legacy) : emptyMedia
+                        p.legacy ? gameMedia(p.legacy) : (p.media ?? emptyMedia)
                       }
                       onOpen={(p) => {
                         const g = p.legacy;

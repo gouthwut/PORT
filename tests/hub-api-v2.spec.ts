@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import fixture from "../fixtures/catalog/published-v1.json" with { type: "json" };
 import endpoint from "../src/catalog-endpoint.json" with { type: "json" };
@@ -407,4 +408,201 @@ test("invalid schemas, unsafe links, foreign identities and cursor loops fail cl
   expect(results.v1.version).toBe("v1");
   expect(results.fallback.version).toBe("v1");
   expect(results.fallback.projects).toEqual([]);
+});
+
+test("v2 media loads verified CMS covers/screenshots and reuses the memory cache", async ({
+  page,
+}) => {
+  await setup(page);
+  await page.goto("/");
+  const encoded = await page.evaluate(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 16;
+    canvas.height = 16;
+    canvas.getContext("2d")!.fillRect(0, 0, 16, 16);
+    return canvas.toDataURL("image/webp").split(",")[1];
+  });
+  const bytes = Buffer.from(encoded, "base64");
+  const url = `${origin}/media/${createHash("sha256").update(bytes).digest("hex")}.webp`;
+  let downloads = 0;
+  await page.route(`${origin}/media/**`, (r) => {
+    downloads++;
+    return r.fulfill({ contentType: "image/webp", body: bytes });
+  });
+  await page.route(`${origin}/v2/projects?*`, (r) =>
+    r.fulfill({
+      json: {
+        schemaVersion: 2,
+        items: [{ ...summary(), cover: url }],
+        total: 1,
+        nextCursor: null,
+      },
+    }),
+  );
+  await page.route(`${origin}/v2/projects/port-a`, (r) =>
+    r.fulfill({
+      json: {
+        ...detail(),
+        project: {
+          ...detail().project,
+          media: { cover: url, screenshots: [url] },
+        },
+      },
+    }),
+  );
+  await page.reload();
+  await page.getByRole("button", { name: "Каталог", exact: true }).click();
+  const card = page.locator(".hub-project-card");
+  await expect(card.locator("img")).toHaveAttribute(
+    "src",
+    /^data:image\/webp;base64,/,
+  );
+  await expect
+    .poll(() =>
+      card.locator("img").evaluate((img: HTMLImageElement) => img.naturalWidth),
+    )
+    .toBe(16);
+  await card.click();
+  await expect(page.locator(".hub-project-overview img")).toHaveAttribute(
+    "src",
+    /^data:image\/webp;base64,/,
+  );
+  await page
+    .getByRole("button", { name: "Открыть скриншот 1", exact: true })
+    .click();
+  await expect(page.getByRole("dialog").locator("img")).toHaveAttribute(
+    "src",
+    /^data:image\/webp;base64,/,
+  );
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Назад в каталог" }).click();
+  await expect(card.locator("img")).toBeVisible();
+  expect(downloads).toBe(1);
+});
+
+for (const failure of [
+  "missing",
+  "http",
+  "hash",
+  "decode",
+  "unsafe",
+] as const) {
+  test(`v2 media ${failure} uses placeholders without foreign requests`, async ({
+    page,
+  }) => {
+    await setup(page);
+    await page.goto("/");
+    const body =
+      failure === "decode"
+        ? Buffer.alloc(30)
+        : Buffer.from(
+            await page.evaluate(() => {
+              const c = document.createElement("canvas");
+              c.width = 16;
+              c.height = 16;
+              return c.toDataURL("image/webp").split(",")[1];
+            }),
+            "base64",
+          );
+    if (failure === "decode") {
+      body.write("RIFF");
+      body.writeUInt32LE(22, 4);
+      body.write("WEBPVP8X", 8);
+    }
+    const hash =
+      failure === "decode"
+        ? createHash("sha256").update(body).digest("hex")
+        : "a".repeat(64);
+    const url =
+      failure === "unsafe"
+        ? "https://example.org/media/" + "a".repeat(64) + ".webp"
+        : failure === "missing"
+          ? null
+          : `${origin}/media/${hash}.webp`;
+    const requests: string[] = [];
+    page.on("request", (r) => {
+      if (r.url().includes("/media/")) requests.push(r.url());
+    });
+    await page.route("**/media/**", (r) =>
+      failure === "http"
+        ? r.fulfill({ status: 404 })
+        : r.fulfill({ contentType: "image/webp", body }),
+    );
+    await page.route(`${origin}/v2/projects?*`, (r) =>
+      r.fulfill({
+        json: {
+          schemaVersion: 2,
+          items: [{ ...summary(), cover: url }],
+          total: 1,
+          nextCursor: null,
+        },
+      }),
+    );
+    await page.route(`${origin}/v2/projects/port-a`, (r) =>
+      r.fulfill({
+        json: {
+          ...detail(),
+          project: {
+            ...detail().project,
+            media: { cover: url, screenshots: url ? [url] : [] },
+          },
+        },
+      }),
+    );
+    await page.reload();
+    await page.getByRole("button", { name: "Каталог", exact: true }).click();
+    await expect(page.locator(".hub-project-card")).toContainText(
+      "Обложка недоступна",
+    );
+    await page.locator(".hub-project-card").click();
+    await expect(
+      page.getByRole("region", { name: "Данные проекта v2" }),
+    ).toBeVisible();
+    await expect(
+      page.locator(".hub-project-overview .art-empty"),
+    ).toContainText("Обложка недоступна");
+    if (failure === "decode") {
+      await expect(page.locator(".screenshot-grid .art-empty")).toContainText(
+        "Изображение недоступно",
+      );
+      await page
+        .getByRole("button", { name: "Открыть скриншот 1", exact: true })
+        .click();
+      await expect(
+        page.getByRole("dialog").locator(".art-empty"),
+      ).toBeVisible();
+    } else {
+      await expect(page.getByText("Скриншоты недоступны.")).toBeVisible();
+    }
+    if (failure === "unsafe" || failure === "missing")
+      expect(requests).toEqual([]);
+  });
+}
+
+test("v2 media accepts only the trusted immutable HTTPS path", async ({
+  page,
+}) => {
+  await setup(page, { version: "v1" });
+  await page.goto("/");
+  const result = await page.evaluate(async (origin) => {
+    const path = "/src/hub/v2-media.ts";
+    const { parseV2Media } = await import(path);
+    const url = `${origin}/media/${"a".repeat(64)}.webp`;
+    return [
+      url,
+      url.replace("https:", "http:"),
+      url + "?x=1",
+      url + "#x",
+      url.replace("/media/", "/other/"),
+      url.replace("https://", "https://user@"),
+      url.replace(".workers.dev", ".workers.dev.evil.com"),
+      "http://localhost:8787/a.webp",
+      "data:image/webp;base64,AAAA",
+      "javascript:alert(1)",
+    ].map((cover) => parseV2Media({ cover }));
+  }, origin);
+  expect(result[0].cover).toContain(origin + "/media/");
+  expect(result.slice(1).every((m) => !m.cover && !m.gallery.length)).toBe(
+    true,
+  );
 });
