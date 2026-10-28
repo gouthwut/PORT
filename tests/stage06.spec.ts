@@ -185,7 +185,7 @@ test("release has no Skate card until an owner publication arrives", async ({
   await page.goto("http://127.0.0.1:1421");
   await page.getByRole("button", { name: "Каталог", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Ничего не найдено", exact: true }),
+    page.getByRole("heading", { name: "Каталог пока пуст", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Подробнее: Skate 3" }),

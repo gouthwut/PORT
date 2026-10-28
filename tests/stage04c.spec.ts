@@ -120,7 +120,7 @@ test("published cards sync, image cache survives offline restart, refresh and in
   await expect(
     page.getByRole("button", { name: "Подробнее: Coast · QA fixture" }),
   ).toBeVisible();
-  await expect(page.locator(".game-cover img")).toHaveAttribute(
+  await expect(page.locator(".hub-project-card img")).toHaveAttribute(
     "src",
     /^data:image\/webp;base64,/,
   );
@@ -232,7 +232,7 @@ test("invalid image hash/type stays a placeholder and corrupt cache cannot suppl
   await page.goto("/");
   await page.getByRole("button", { name: "Каталог", exact: true }).click();
   await expect(page.getByText(/Недоступно изображений: 1/)).toBeVisible();
-  await expect(page.locator(".game-cover img")).toHaveCount(0);
+  await expect(page.locator(".hub-project-card img")).toHaveCount(0);
   const snap = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("port.catalog.cache.v1")!),
   );

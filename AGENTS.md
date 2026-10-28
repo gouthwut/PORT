@@ -1,5 +1,15 @@
 # PORT// — instructions for future sessions
 
+Stage 11.1-B Premium Catalog authorized 2026-10-28: local catalog screen,
+reusable ProjectCard and typed public-data presentation layer in the approved
+Home visual system. This supersedes the Home-only restriction for this catalog
+scope. Keep v1 validation/cache/installer contracts; v2 is not deployed or
+auto-selected. Neighbor C:\PORT-CMS and C:\PORT-HUB-CONTENT are read-only;
+research content is not a production catalog. No project-page redesign, deploy,
+push, publication, migration or writes to existing installations/SQLite.
+Native QA uses an isolated app.port.catalog-qa identity. See
+docs/HUB_CATALOG_REVIEW.md and latest PROGRESS.
+
 Stage 11.1 Visual Rebuild authorized by the attached 2026-10-28 request: local
 React/Tauri Home and shared shell/sidebar only, using the supplied design pack
 and original generated hero art. This supersedes the 11.0 implementation ban

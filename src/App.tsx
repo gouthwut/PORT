@@ -21,7 +21,6 @@ import {
   Library,
   Search,
   ShieldCheck,
-  SlidersHorizontal,
   WifiOff,
   X,
 } from "lucide-react";
@@ -53,13 +52,11 @@ import {
   supportsInstall,
   type PublishedGame,
 } from "./services/catalog";
-import {
-  CatalogDetail,
-  CatalogSettings,
-  CatalogStatus,
-  PublishedCards,
-} from "./components/OnlineCatalog";
+import { CatalogDetail, CatalogSettings } from "./components/OnlineCatalog";
 
+import { useV1Projects } from "./hub/catalog-source";
+import { HubCatalog } from "./hub/HubCatalog";
+import { defaultCatalogQuery, type CatalogQuery } from "./hub/catalog-model";
 import { HubLanding } from "./hub/HubLanding";
 import { HubSidebar } from "./hub/HubSidebar";
 import "./hub/home.css";
@@ -106,12 +103,17 @@ export default function App() {
   const updater = useUpdater();
   const games = useGameState();
   const catalog = useCatalog();
+  const projectCatalog = useV1Projects(catalog);
   const [selectedGame, setSelectedGame] = useState<PublishedGame | null>(null);
   const [mediaOverrides, setMedia] = useState<MediaSet>(emptyMedia);
   const media = resolveMedia(mediaOverrides);
   const [page, setPage] = useState<Page>("home");
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [catalogQuery, setCatalogQuery] = useState<CatalogQuery>({
+    ...defaultCatalogQuery,
+  });
+  const query = catalogQuery.search;
+  const setQuery = (search: string) =>
+    setCatalogQuery((q) => ({ ...q, search, page: 1 }));
   const [settings, setSettings] = useState<Settings>(defaults);
   const [ready, setReady] = useState(false);
   const [storageError, setStorageError] = useState(false);
@@ -255,7 +257,6 @@ export default function App() {
   }
   function navigate(next: Page) {
     setPage(next);
-    if (next !== "catalog") setQuery("");
   }
   function openGame(game: PublishedGame) {
     setSelectedGame(game);
@@ -275,23 +276,6 @@ export default function App() {
           : media.gallery,
     };
   };
-  const catalogGames = catalog.snapshot.catalog.games.filter(
-    (g) =>
-      (!query ||
-        [
-          g.title,
-          g.description,
-          ...g.genres,
-          ...g.tags,
-          g.sourceConsole,
-          ...g.project.authors,
-        ]
-          .join(" ")
-          .toLowerCase()
-          .includes(query.toLowerCase())) &&
-      (filter === "all" ||
-        (filter === "available" ? installable(g) : !installable(g))),
-  );
   const selectedPublished =
     selectedGame &&
     catalog.snapshot.catalog.games.find((g) => g.id === selectedGame.id);
@@ -409,75 +393,27 @@ export default function App() {
                         )
                       }
                       onCatalog={() => {
-                        setFilter("all");
                         setPage("catalog");
                       }}
                     />
                   )}
                   {page === "catalog" && (
-                    <>
-                      <div className="page-heading">
-                        <div>
-                          <h1>
-                            Каталог<span className="accent">.</span>
-                          </h1>
-                        </div>
-                        <span className="quiet-label">
-                          {gameCount(catalog.snapshot.catalog.games.length)}
-                        </span>
-                      </div>
-                      <div className="filter-bar">
-                        <div>
-                          <SlidersHorizontal size={16} />
-                          <span>Доступность</span>
-                          {[
-                            { id: "all", label: "Все" },
-                            { id: "planned", label: "Недоступны" },
-                            { id: "available", label: "Доступны" },
-                          ].map((f) => (
-                            <button
-                              key={f.id}
-                              className={`filter-chip ${filter === f.id ? "selected" : ""}`}
-                              aria-pressed={filter === f.id}
-                              onClick={() => setFilter(f.id)}
-                            >
-                              {f.label}
-                            </button>
-                          ))}
-                        </div>
-                        <Grid2X2 size={17} />
-                      </div>
-                      <CatalogStatus state={catalog} />
-                      {catalogGames.length ? (
-                        <PublishedCards
-                          games={catalogGames}
-                          state={games}
-                          media={gameMedia}
-                          onOpen={(g) =>
-                            catalog.snapshot.source === "demo" &&
-                            g.id === "bloodborne"
-                              ? (setSelectedGame(null), navigate("details"))
-                              : openGame(g)
-                          }
-                        />
-                      ) : (
-                        <Empty
-                          icon={Search}
-                          title="Ничего не найдено"
-                          description="Измените запрос или фильтр. Установленные игры доступны в библиотеке."
-                        >
-                          <Button
-                            variant="secondary"
-                            onClick={() => {
-                              setQuery("");
-                              setFilter("all");
-                            }}
-                          >
-                            Сбросить фильтры
-                          </Button>
-                        </Empty>
-                      )}
-                    </>
+                    <HubCatalog
+                      catalog={projectCatalog}
+                      query={catalogQuery}
+                      onQuery={setCatalogQuery}
+                      media={(p) =>
+                        p.legacy ? gameMedia(p.legacy) : emptyMedia
+                      }
+                      onOpen={(p) => {
+                        const g = p.legacy;
+                        if (!g) return;
+                        catalog.snapshot.source === "demo" &&
+                        g.id === "bloodborne"
+                          ? (setSelectedGame(null), navigate("details"))
+                          : openGame(g);
+                      }}
+                    />
                   )}
                   {page === "details" && detailGame && (
                     <CatalogDetail
