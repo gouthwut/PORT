@@ -1,5 +1,15 @@
 # PORT// progress
 
+
+## 2026-10-28 — Stage 10 (part 1): universal recipe engine — NOT a completed stage
+
+- Added `src-tauri/src/recipe.rs`: schema-1 declarative recipes (see docs/RECIPES.md), fail-closed client validation, fixed operation pipeline (source check → game files → GitHub-release runtime ZIP with size+SHA-256 → dependency check → PE launch target → user-data → pinned recipe hashed in manifest → atomic rename → schema-4 registration). No shell/scripts/arbitrary args. Recipes cannot shadow compiled `bloodborne`/`skate3`.
+- Skate 3 XDVDFS/XEX2 reader extracted into shared `xdvdfs`/`xex_identity` (Skate checks unchanged). Universal layout `PORT-{collection}-{id}/{game,runtime,user-data}`; record/manifest validation, launch, recovery (`installation_jobs`) and removal (manifest pruning, user-data preserved) go through existing Stage 07 paths. Launch re-verifies the pinned recipe hash: silent edits block launch.
+- Recipes sync from `<catalog endpoint>/recipes.json` into separate `recipe_cache` table (offline-capable; unsupported recipes kept with honest reason). New UI `RecipeInstall.tsx` (source/destination pickers, progress, cancel, unsupported state); catalog `supportsInstall` includes validated recipes.
+- Checks: cargo fmt; **62 Rust tests pass** (incl. synthetic XDVDFS ISO, folder install, hash/traversal/non-PE rejection, end-to-end job+recovery, tampered pinned recipe); `npm run build` (tsc+vite); one `tauri build --no-bundle` release succeeded. Native exe NOT launched; no real ISO/runtime/game used; Bloodborne/Skate installations untouched.
+- Remaining before Stage 10 can be declared done: CMS production deploy (owner), native end-to-end test with a real published recipe (owner, e.g. Sonic personal test), ZIP/archive sources, PS4 PKG via recipes (not supported), Playwright coverage of RecipeInstall, redistributable dependency installers (not supported — explained error only).
+- Pre-existing uncommitted edits (Cargo, catalog/install/main/shortcuts/skate3, InstalledLibrary, tests) were preserved; original diff saved in ignored `.sharrowkin/pre-stage10-uncommitted.patch`. Because some were in the same files, they are included in the Stage 10 commit.
+
 ## 2026-10-28 — Stage 09: CMS GitHub analysis, client documentation only
 
 - The owner's attached Stage 09 request supersedes the prior AGENTS next-stage prohibition and authorizes metadata analysis in separate PRIVATE `C:\PORT-CMS`. Read both projects' instructions/progress, CMS README/editor/API/public v1 schema and compiled PORT adapter contracts. Updated this repository's AGENTS/ROADMAP to record that limited authorization; Stage 10 adapters/importers and Stage 11 user submissions remain unauthorized.
