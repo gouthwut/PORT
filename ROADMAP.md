@@ -1,5 +1,9 @@
 # Roadmap
 
+## Stage 09 — Smart Game Integration (CMS metadata only)
+
+Authorized 2026-10-28. Separate PRIVATE C:\PORT-CMS provides owner-protected public GitHub analysis, sourced report, inferred suggestions, explicit selective apply/overwrite confirmation and private draft save. Public schema v1, OAuth, publication and compiled client adapters remain unchanged. Analysis never establishes installation support, executes upstream commands, downloads binaries/images or publishes cards. PORT receives documentation only; no native game/data tests are needed. See both PROGRESS files and CMS README for verification and deployment status. Stage 10 adapters/importers and Stage 11 submissions/Community Hub remain unauthorized.
+
 ## Stage 08 — secure launcher updater
 
 Authorized 2026-10-28. Official Tauri updater + signed NSIS, background/manual checks, bounded HTTPS delivery, version-bound signatures, explicit install/restart consent and native game-operation guards. Production channel remains unconfigured until the owner approves public binary hosting and signing-key custody. Isolated Windows 0.8.0 → 0.8.1 update/restart verified; see PROGRESS.md and docs/UPDATER.md for exact checks and limits. No source publication, CMS changes or Stage 09 authorization.
