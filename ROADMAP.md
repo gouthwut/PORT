@@ -72,3 +72,15 @@ See docs/RECIPES.md. Generic synthetic Windows tests are not a real-game accepta
 CMS deployment and owner-reviewed schema-2 recipe publication remain separate; Sonic's
 existing draft/card is unchanged and real manual compatibility has not been established.
 Stage 11 remains unauthorized.
+
+## Stage 10.3 — Smart Recipe Builder (local implementation)
+
+CMS defaults to four guided steps with an advanced editor over the same recipe object.
+GitHub supplies reviewed asset URL/size and an optional typed digest; local ZIP inspection
+supplies actual SHA-256 and candidate EXE paths. Templates supply supported operations,
+not compatibility claims. Local trial result selection computes exact pins without
+uploading game files. Schema 1/2, native hash gates and installation schema 4 stay intact.
+Structure/exit code alone cannot certify applied updates. Sonic is a read-only upstream
+metadata/runtime-ZIP example; its draft and real inputs are untouched. Deployment,
+publication and independent real-data acceptance remain separate gates. See RECIPES
+and PROGRESS for evidence, interaction count and limits. Stage 11 remains unauthorized.

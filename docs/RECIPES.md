@@ -1,4 +1,4 @@
-# Install recipes (Stage 10.2, schemas 1 and 2)
+# Install recipes (Stage 10.3 Builder, schemas 1 and 2)
 
 A recipe **configures operations compiled into PORT**; it is not a program. CMS publishes
 recipes at `/v1/recipes.json` (same origin as `catalog.json`); the client re-validates every
@@ -167,3 +167,114 @@ For a correctly reviewed recipe and compatible inputs, a player needs the offici
 not an external extractor/patch tool. This does **not** prove Sonic readiness: its existing
 schema-1 draft is unchanged; a reviewed schema-2 recipe with actual runtime/output hashes,
 owner CMS deployment/publication and an independent real-data manual test are still needed.
+
+## Stage 10.3: Smart Recipe Builder
+
+The CMS opens in **simple mode**: Project GitHub → Game sources → Recipe verification →
+Preview/save. Advanced mode exposes every Stage 10.2 field over the same in-memory
+recipe. Switching modes does not normalize, migrate, save or publish it. Existing drafts
+remain schemas 1/2; the native client and SQLite schema 4 are unchanged. Templates replace
+only source/dependency/setup settings after confirmation if already configured, and never
+infer CLI arguments or output hashes. Options: ISO + wizard; ISO + TU + wizard; prepared
+folder; direct ISO import; prepared folder + Vulkan. DLC and all optional constraints
+remain available in advanced mode. Changing a runtime clears its previous hash/prefix.
+
+GitHub analysis reads the latest stable release with existing owner/CSRF/network limits.
+It lists candidate Windows ZIP assets and their API sizes. Only a typed lowercase
+`digest: sha256:<64 hex>` from the GitHub HTTPS API supplies a metadata hash; release prose,
+filenames and inferred claims cannot. The administrator explicitly chooses the asset.
+Missing/ambiguous assets or digests remain unknown; a different release can be reviewed
+in advanced mode. GitHub digest reference:
+[release assets API](https://docs.github.com/en/rest/releases/assets).
+
+Choose the downloaded runtime ZIP **locally** to compute its full SHA-256, compare any
+existing pin, inspect a bounded ZIP central directory and choose a candidate EXE. Size
+must equal the selected asset. Safe names, collisions, symlinks, entry counts, expansion
+limits and single-disk/non-ZIP64 boundaries are checked. This is a filename inspection,
+not PE/authenticity certification or a replacement for native ZIP/PE/download checks.
+No bytes are extracted or executed. The browser accepts local hashing up to 512 MiB per
+file; native recipe limits are unchanged. ZIP64/nonstandard archives need advanced review.
+
+### Result evidence: structure versus hashes
+
+Direct import continues to use source structure, required/forbidden files, optional ISO
+identity and the exact runtime hash; no per-game output hashes are necessary. An upstream
+wizard applying an update is different: a directory, a marker, an opaque copied container
+or exit code zero cannot establish that the correct patch was applied. Accordingly,
+**there is no structural-only setup success mode** and no new unverified result schema.
+All original Stage 10.2 immutable input/runtime checks and hashed output gates remain.
+
+For setup, obtain the reference pins through a controlled **owner-run** trial:
+
+1. Review the pinned upstream version, legal source requirements, region/Title/Media IDs,
+   documented flags, output layout and behavior. Use a new isolated folder and the exact
+   verified runtime ZIP; retain existing profiles/backups. A trial may write upstream
+   AppData and may start the game: the owner controls that operation separately.
+2. Complete and independently check the trial according to upstream instructions, then
+   close its processes. PORT/CMS do not run a trial or access ISO/TU/DLC automatically.
+3. Confirm that evidence in Builder; choose the trial's **runtime folder** locally.
+   Candidate results exclude files already present in the verified original ZIP.
+   Select a genuinely new deterministic result and its meaning (base, TU or DLC index).
+   Builder computes size/SHA-256 from its actual bytes. Add an unconditional result and
+   the necessary per-selected-upstream-source results. Saves/settings are not evidence.
+4. Review requirements and validate. Preview/save uses the existing optimistic private
+   draft API; publication is still a separate explicit owner action. Changes invalidate
+   the reviewed contract. Native installation repeats all authoritative checks.
+
+This workflow automates **measurement**, not the owner's judgment that a reference file
+proves compatibility. It does not verify a whole trial tree, run an upstream integrity
+checker, authenticate STFS signatures or prove gameplay. Non-deterministic outputs need
+a different stable reference or an unsupported-scenario decision; never invent a hash.
+For an individual result larger than 512 MiB the read-only streaming helper prints a
+Stage 10.2 output line for advanced mode (no server/upload/execution):
+
+```powershell
+cd C:\PORT-CMS
+node scripts/recipe-pins.mjs 'C:\isolated-trial\runtime' 'data/verified-result.bin' titleUpdate:0
+```
+
+The helper rejects escaping paths/links and files changing during hashing. It does not
+claim trial validity or independently identify new files; compare against the pinned ZIP
+and review attribution. Only paths/sizes/hashes are saved in CMS. File objects, ZIP indexes,
+trial listings and analysis reports stay temporary in the browser; reselect after reload.
+
+### Sonic example and interaction budget (2026-10-28)
+
+The same generic analyzer and ZIP inspector were run read-only against the public
+`hedge-dev/UnleashedRecomp` latest stable **v1.0.3** release. The API supplies
+`UnleashedRecomp-Windows.zip`, **53,386,467 bytes**, without a digest. A bounded HTTPS
+download through GitHub's release asset host was inspected without extracting or running:
+actual SHA-256 **65793fbf3bfa392703275d3a1759bea20bc3d62f3bb39b066b85e5e7fb2d5d32**;
+four files, candidate **UnleashedRecomp.exe**, no stripPrefix. This is an observed artifact
+pin, not embedded game-specific configuration or an installation/gameplay claim.
+
+Rechecked [v1.0.3 main.cpp](https://github.com/hedge-dev/UnleashedRecomp/blob/v1.0.3/UnleashedRecomp/main.cpp):
+installer flags exist, but no documented ISO/TU path handoff was established. Sources
+must still be chosen in the official wizard. No GUI clicking or guessed arguments added.
+
+For a **new recipe from an existing card with its GitHub URL**, assuming an independently
+checked trial and **two sufficient deterministic results** (base + TU), the current UI
+needs **21 interactions**, counting a file/folder picker as one interaction:
+
+| Part | Interactions |
+| --- | --- |
+| Open Builder, analyze, choose asset, open asset download, select local ZIP, choose EXE | 6 |
+| Next, choose ISO+TU template, enter reviewed Title ID and setup flags, Next | 5 |
+| Confirm requirements/trial, choose trial folder, select+hash base result, select TU result+role+hash, validate | 9 |
+| Save private recipe draft | 1 |
+
+Typing a missing GitHub URL adds one interaction. Replacing configured settings adds up
+to three overwrite confirmations; already known fields can remove entries. Navigation,
+selection and confirmation are included; keystrokes and OS dialog internals are not.
+This excludes card metadata/art, download duration and the **one-time external trial**.
+No Sonic trial/output reference was obtained here, so its true first-time completion time
+and sufficiency of two outputs are **not established**. A simple prepared-folder recipe
+has no trial/output-pin work. “A few minutes” is realistic for reviewed compatible inputs
+and existing reference evidence, not a promise to investigate a new upstream contract.
+
+Manual decisions remain: trusted project/version/asset/EXE, installation template,
+Title/Media ID and TU version/region, requirements/dependencies/flags, trial validity and
+which outputs prove each source. Automatic: URL/size, API digest when present or local
+runtime SHA-256, ZIP prefix/EXE candidates, template fields, result sizes/hashes, validators.
+Sonic's existing card/draft, user ISO/TU/DLC and installed Bloodborne/Skate data were not
+read for mutation or launched. No deploy/publication occurred.
