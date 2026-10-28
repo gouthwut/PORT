@@ -1,5 +1,12 @@
 # PORT// progress
 
+## 2026-10-28 — Pre-manual-test build / SQLite verification
+
+- Rechecked the final Stage 10.2 Windows build: the preceding final `tauri build --no-bundle` completed successfully; the matching release EXE is present (88,212,992 bytes, SHA-256 `ed9a9eda514f3f024b9c6f353356cab9f9368c24797a389259fc71d726f4e683`). No source change or redundant rebuild was required.
+- Opened the restored production database with SQLite **mode=ro** and query_only; full `PRAGMA integrity_check` returns exactly `ok` before and after backup. Bloodborne **01.09** and Skate 3 **retail / recomp v2.0.2** registrations are present, their root/data/runtime directories exist, and both manifest hashes match their SQLite records. All three installation/update/removal journals are empty. No payload rehash/gameplay claim.
+- Created a consistent live backup with SQLite backup API to **`C:\PORT\.local\backups\port-20261028-180322-557038-verified.sqlite`**, 3,133,440 bytes, SHA-256 `29b630553255642f1d142d183aeeaf40988e1078ec0e4c903a38ec44b59ef218`. Destination-only journal finalization makes it a standalone file; the independently reopened backup also passes full integrity_check and its installation rows equal the source. Source installation rows remained unchanged. Evidence stays ignored in `.local/stage102/pre-manual-check-20261028-180322-557038.json`.
+- Build/database checks clear the requested prerequisite gate. Sonic still requires a reviewed schema-2 recipe/verified runtime and output hashes as previously documented; this verification did not alter/publish recipes or clear real-game compatibility. No installation mutation/removal, Sonic launch, CMS deploy, source fix or launcher stop/restart.
+
 ## 2026-10-28 — Stage 10.2: multi-source recipes and verified upstream setup (local implementation)
 
 - Retried the owner's attached request after inspecting both repositories, Stage 10/10.1 history and current dirty state. PORT started at `55c284d`, CMS clean at `24c0768`; no previous 10.2 implementation existed. Preserved prior Cargo.toml/Cargo.lock, InstalledLibrary, stage04d tests, shortcut QA script, .sharrowkin and logo-design-skill work outside the new commit. Used Ponytail for the smallest extension of the existing pipeline; no subagents, dependencies or per-game adapter. AGENTS/ROADMAP now record this task's explicit limited authorization.
