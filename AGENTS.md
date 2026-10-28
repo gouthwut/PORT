@@ -1,5 +1,14 @@
 # PORT// — instructions for future sessions
 
+Stage 11.1 Visual Rebuild authorized by the attached 2026-10-28 request: local
+React/Tauri Home and shared shell/sidebar only, using the supplied design pack
+and original generated hero art. This supersedes the 11.0 implementation ban
+only for this visual scope; the numbered migration/API/storage stages in the
+blueprint remain proposed. Preserve existing catalog/detail/library/installer
+contracts, schema-4 port.db, installations, profiles, backups and dirty work.
+No CMS changes, production deploy/publication, accounts/reviews/workshop or other
+screen redesign. See docs/HUB_HOME_REVIEW.md and latest PROGRESS.
+
 Stage 11.0 authorized 2026-10-28: Hub product migration planning and architecture ONLY.
 Read docs/HUB_BLUEPRINT.md, docs/HUB_COMPATIBILITY.md and docs/HUB_REDESIGN_BRIEF.md
 plus latest PROGRESS. Target: games/projects/releases catalog + community, shared

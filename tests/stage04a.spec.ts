@@ -71,6 +71,9 @@ test("shared home/focus, details and library follow install, running and removal
   page,
 }) => {
   await page.goto("/");
+  await page
+    .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
+    .click();
   await expect(
     page.getByRole("button", { name: "Установить", exact: true }),
   ).toBeVisible();
@@ -101,7 +104,10 @@ test("shared home/focus, details and library follow install, running and removal
   await expect(
     page.getByRole("button", { name: "Играть", exact: true }),
   ).toBeEnabled();
-  await page.getByRole("button", { name: "Подробнее", exact: true }).click();
+  await page.getByRole("button", { name: "Главная", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
+    .click();
   await expect(
     page.getByRole("button", { name: "Играть", exact: true }),
   ).toBeEnabled();
@@ -122,6 +128,9 @@ test("shared home/focus, details and library follow install, running and removal
   ).toBeDisabled();
   expect(await page.evaluate(() => (window as any).qa.launches)).toBe(1);
   await page.getByRole("button", { name: "Главная", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
+    .click();
   await expect(
     page.getByRole("button", { name: "Уже запущена", exact: true }),
   ).toBeDisabled();
@@ -137,6 +146,9 @@ test("shared home/focus, details and library follow install, running and removal
     .click();
   await expect(page.getByText("0 установленных игр")).toBeVisible();
   await page.getByRole("button", { name: "Главная", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
+    .click();
   await expect(
     page.getByRole("button", { name: "Установить", exact: true }),
   ).toBeEnabled();
@@ -155,6 +167,9 @@ test("fresh startup reads installed/running backend state and supports many keyb
     q.running = ["qa-0"];
   });
   await page.goto("/");
+  await page
+    .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
+    .click();
   await expect(
     page.getByRole("button", { name: "Уже запущена", exact: true }),
   ).toBeDisabled();
@@ -192,6 +207,9 @@ test("incomplete install offers supported installer retry and never claims ready
     };
   });
   await page.goto("/");
+  await page
+    .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
+    .click();
   await expect(page.getByText(/Установка не завершена/)).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Установить", exact: true }),
@@ -214,6 +232,9 @@ test("unavailable SQLite state disables primary action instead of assuming not i
     };
   });
   await page.goto("/");
+  await page
+    .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
+    .click();
   await expect(page.locator(".installer-error")).toContainText(
     "QA database unavailable",
   );

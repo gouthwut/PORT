@@ -3,6 +3,9 @@ test("web preview exposes honest folder/PKG states without fake installation", a
   page,
 }) => {
   await page.goto("/");
+  await page
+    .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
+    .click();
   await page.getByRole("button", { name: "Установить", exact: true }).click();
   for (const name of [
     "Выбрать папку с файлами игры",
@@ -113,6 +116,9 @@ test("native IPC UI contract: folder import and explicit cancellation (mocked ba
     });
   });
   await page.goto("/");
+  await page
+    .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
+    .click();
   await page.getByRole("button", { name: "Установить", exact: true }).click();
   await page
     .getByRole("button", { name: "Выбрать папку с файлами игры", exact: true })
@@ -189,6 +195,9 @@ test("native IPC UI contract: registered library, launch error, verify and confi
     });
   });
   await page.goto("/");
+  await page
+    .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
+    .click();
   await page.getByRole("button", { name: "Библиотека", exact: true }).click();
   await page.getByRole("button", { name: "Выбрать: Bloodborne" }).click();
   await expect(

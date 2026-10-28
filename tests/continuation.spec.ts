@@ -9,11 +9,11 @@ test("private bundled art is present by default and remains available offline", 
     "Public checkout has no redistribution-restricted art",
   );
   await page.goto("/");
-  await expect(page.locator(".hero img.game-art")).toBeVisible();
+  await expect(page.locator(".port-hero-art")).toBeVisible();
   await expect
     .poll(() =>
       page
-        .locator(".hero img")
+        .locator(".port-hero-art")
         .evaluate((e: HTMLImageElement) => e.complete && e.naturalWidth > 0),
     )
     .toBeTruthy();
@@ -27,7 +27,7 @@ test("private bundled art is present by default and remains available offline", 
       : route.abort(),
   );
   await page.evaluate(() => window.dispatchEvent(new Event("offline")));
-  await page.getByRole("button", { name: "Подробнее: Bloodborne" }).click();
+  await page.getByRole("button", { name: "Открыть проект Bloodborne" }).click();
   await expect(page.locator(".detail-banner img").first()).toBeVisible();
   const thumb = page.getByRole("button", {
     name: "Открыть скриншот 1",
@@ -141,6 +141,9 @@ for (const choice of ["single", "multiple", "cancel", "error"] as const) {
       });
     }, choice);
     await page.goto("/");
+    await page
+      .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
+      .click();
     await page.getByRole("button", { name: "Установить", exact: true }).click();
     await expect(
       page.getByRole("button", { name: "Выбрать PKG", exact: true }),

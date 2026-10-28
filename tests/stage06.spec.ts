@@ -98,6 +98,7 @@ test("local publication activates ISO form and shared destination/shortcut flow"
     { fixture, endpoint },
   );
   await page.goto("/");
+  await page.getByRole("button", { name: "Каталог", exact: true }).click();
   await page.getByRole("button", { name: "Подробнее: Skate 3" }).click();
   await page.getByRole("button", { name: "Установить", exact: true }).click();
   const dialog = page.getByRole("dialog");
@@ -184,7 +185,7 @@ test("release has no Skate card until an owner publication arrives", async ({
   await page.goto("http://127.0.0.1:1421");
   await page.getByRole("button", { name: "Каталог", exact: true }).click();
   await expect(
-    page.getByText("Опубликованных игр пока нет.", { exact: false }),
+    page.getByRole("heading", { name: "Ничего не найдено", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Подробнее: Skate 3" }),

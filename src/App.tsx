@@ -1,31 +1,31 @@
 import { useEffect, useRef, useState } from "react";
 import interLicense from "./assets/fonts/Inter-OFL.txt?raw";
 import manropeLicense from "./assets/fonts/Manrope-OFL.txt?raw";
-import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import {
-  ArrowDownToLine,
+  AnimatePresence,
+  motion,
+  MotionConfig,
+  useReducedMotion,
+} from "motion/react";
+import {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
   CheckCircle2,
-  CircleHelp,
-  Compass,
   Download,
   ExternalLink,
   Folder,
   GitBranch as Github,
   Grid2X2,
   HardDrive,
-  Home,
   Library,
   Search,
-  Settings as SettingsIcon,
   ShieldCheck,
   SlidersHorizontal,
   WifiOff,
   X,
 } from "lucide-react";
-import { collection, type GameTitle } from "./domain";
+import { collection } from "./domain";
 import {
   defaults,
   native,
@@ -57,18 +57,15 @@ import {
   CatalogDetail,
   CatalogSettings,
   CatalogStatus,
-  DynamicHome,
   PublishedCards,
 } from "./components/OnlineCatalog";
 
+import { HubLanding } from "./hub/HubLanding";
+import { HubSidebar } from "./hub/HubSidebar";
+import "./hub/home.css";
+
 type Page =
   "home" | "catalog" | "details" | "library" | "downloads" | "settings";
-const navigation = [
-  { id: "home", label: "Главная", icon: Home },
-  { id: "catalog", label: "Каталог", icon: Compass },
-  { id: "library", label: "Библиотека", icon: Library },
-  { id: "downloads", label: "Загрузки", icon: ArrowDownToLine },
-] as const;
 function Badge({
   children,
   green = false,
@@ -104,46 +101,8 @@ function SectionTitle({
     </div>
   );
 }
-function GameCard({
-  title,
-  onClick,
-  cover,
-  status,
-}: {
-  title: GameTitle;
-  onClick: () => void;
-  cover?: string;
-  status: string;
-}) {
-  return (
-    <button
-      className="game-card bloodborne"
-      onClick={onClick}
-      aria-label={`Подробнее: ${title.name}`}
-    >
-      <div className="game-cover">
-        <GameArt src={cover} label="Обложка Bloodborne" />
-        <span className="cover-arrow">
-          <ArrowUpRight size={18} />
-        </span>
-      </div>
-      <div className="game-meta">
-        <div>
-          <h3>{title.name}</h3>
-          <p>{title.subtitle}</p>
-        </div>
-        <span>{title.year}</span>
-      </div>
-      <div className="game-status">
-        <span className="status-dot" />
-        {status}
-        <span>Windows</span>
-      </div>
-    </button>
-  );
-}
-
 export default function App() {
+  const systemReducedMotion = useReducedMotion();
   const updater = useUpdater();
   const games = useGameState();
   const catalog = useCatalog();
@@ -166,11 +125,17 @@ export default function App() {
     if (!native) return;
     // Cached recipes first (offline), then a refresh from the CMS endpoint.
     const apply = (r: RecipeSummary[]) => {
-      setRecipeCollections(r.filter((x) => x.supported).map((x) => x.collectionId));
+      setRecipeCollections(
+        r.filter((x) => x.supported).map((x) => x.collectionId),
+      );
       setRecipes(r);
     };
-    void invoke<RecipeSummary[]>("list_recipes").then(apply).catch(() => {});
-    void invoke<RecipeSummary[]>("sync_recipes").then(apply).catch(() => {});
+    void invoke<RecipeSummary[]>("list_recipes")
+      .then(apply)
+      .catch(() => {});
+    void invoke<RecipeSummary[]>("sync_recipes")
+      .then(apply)
+      .catch(() => {});
   }, []);
   const recipeFor = (collectionId?: string) =>
     recipes.find((r) => r.collectionId === collectionId);
@@ -332,67 +297,21 @@ export default function App() {
     catalog.snapshot.catalog.games.find((g) => g.id === selectedGame.id);
   const detailGame = selectedPublished || selectedGame;
   const isLight = settings.theme === "system";
+  const reduceMotion = settings.reducedMotion || systemReducedMotion;
   return (
     <MotionConfig reducedMotion={settings.reducedMotion ? "always" : "user"}>
       <div
-        className={`app-shell ${settings.compactCards ? "compact" : ""} ${settings.reducedMotion ? "reduced-motion" : ""} ${isLight ? "system-theme" : ""}`}
+        className={`app-shell port-shell ${page === "home" ? "port-home-active" : ""} ${settings.compactCards ? "compact" : ""} ${settings.reducedMotion ? "reduced-motion" : ""} ${isLight ? "system-theme" : ""}`}
       >
         <a className="skip-link" href="#main">
           К содержимому
         </a>
-        <aside className="sidebar">
-          <button
-            className="brand"
-            onClick={() => navigate("home")}
-            aria-label="PORT — главная"
-          >
-            PORT<span>//</span>
-          </button>
-          <nav aria-label="Основная навигация">
-            {navigation.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                aria-label={label}
-                className={`nav-item ${page === id || (id === "catalog" && page === "details") ? "active" : ""}`}
-                onClick={() => navigate(id)}
-                aria-current={page === id ? "page" : undefined}
-              >
-                <Icon size={19} strokeWidth={1.7} />
-                <span>{label}</span>
-              </button>
-            ))}
-          </nav>
-          <div className="sidebar-bottom">
-            <button
-              className={`nav-item ${page === "settings" ? "active" : ""}`}
-              aria-label="Настройки"
-              onClick={() => navigate("settings")}
-              aria-current={page === "settings" ? "page" : undefined}
-            >
-              <SettingsIcon size={19} strokeWidth={1.7} />
-              <span>Настройки</span>
-              {updater.status.version && (
-                <small
-                  className="update-indicator"
-                  aria-label="Доступно обновление PORT"
-                >
-                  ●
-                </small>
-              )}
-            </button>
-            <button
-              className="profile"
-              aria-label="О PORT"
-              onClick={() => setAbout(true)}
-            >
-              <span className="profile-icon">P</span>
-              <span>
-                О PORT<small>{appVersion}</small>
-              </span>
-              <CircleHelp size={17} />
-            </button>
-          </div>
-        </aside>
+        <HubSidebar
+          page={page}
+          navigate={navigate}
+          onAbout={() => setAbout(true)}
+          update={!!updater.status.version}
+        />
         <div className="content-shell">
           <header className="topbar">
             <form
@@ -407,7 +326,7 @@ export default function App() {
               <input
                 ref={searchRef}
                 aria-label="Поиск игр"
-                placeholder="Поиск игр и коллекций"
+                placeholder="Поиск игр, проектов, платформ…"
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value);
@@ -449,13 +368,13 @@ export default function App() {
             {!ready ? (
               <div className="skeleton" aria-label="Загрузка интерфейса" />
             ) : (
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={page}
-                  initial={{ opacity: 0, y: 6 }}
+                  initial={reduceMotion ? false : { opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.16 }}
+                  exit={reduceMotion ? undefined : { opacity: 0 }}
+                  transition={{ duration: reduceMotion ? 0 : 0.16 }}
                 >
                   {games.error && (
                     <p role="alert" className="installer-error">
@@ -468,81 +387,32 @@ export default function App() {
                       </Button>
                     </p>
                   )}
-                  {page === "home" && catalog.snapshot.source !== "demo" && (
-                    <DynamicHome
+                  {page === "home" && (
+                    <HubLanding
                       catalog={catalog}
-                      state={games}
                       media={gameMedia}
                       onOpen={openGame}
-                      onInstall={(g) =>
-                        beginInstall(recipeFor(g.collectionId) ? g.collectionId : g.adapterId)
-                      }
-                    />
-                  )}
-                  {page === "home" && catalog.snapshot.source === "demo" && (
-                    <>
-                      <div className="page-heading">
-                        <div>
-                          <h1>
-                            Главная
-                            <span className="accent">.</span>
-                          </h1>
-                        </div>
-                      </div>
-                      <CatalogStatus state={catalog} />
-                      <section className="hero">
-                        <GameArt src={media.hero} />
-                        <div className="hero-shade" />
-                        <div className="hero-content">
-                          <div className="hero-wordmark">BLOODBORNE</div>
-                          <p>Тайны Ярнама ждут своего охотника.</p>
-                          <div className="hero-actions">
-                            <GameAction
-                              state={games}
-                              collectionId={collection.id}
-                              onInstall={() => beginInstall()}
-                            />
-                            <Button
-                              variant="secondary"
-                              onClick={() => {
-                                setSelectedGame(null);
-                                navigate("details");
-                              }}
-                            >
-                              Подробнее
-                            </Button>
-                          </div>
-                        </div>
-                      </section>
-                      <SectionTitle
-                        title="В каталоге"
-                        action="Об игре"
-                        onAction={() => {
-                          setSelectedGame(null);
-                          navigate("details");
-                        }}
-                      />
-                      <div className="game-grid">
-                        {collection.titles.map((title) => (
-                          <GameCard
-                            key={title.id}
-                            title={title}
-                            cover={media.cover}
-                            status={
-                              games.items.some(
-                                (i) => i.collectionId === collection.id,
-                              )
-                                ? "В библиотеке"
-                                : "Доступна установка"
+                      activity={
+                        (games.operation?.active ||
+                          games.operation?.phase === "error") && (
+                          <GameAction
+                            state={games}
+                            collectionId={
+                              games.operation?.collectionId || installAdapter
                             }
-                            onClick={() => {
-                              setSelectedGame(null);
-                              navigate("details");
-                            }}
+                            onInstall={() =>
+                              beginInstall(
+                                games.operation?.collectionId || installAdapter,
+                              )
+                            }
                           />
-                        ))}
-                      </div>
-                    </>
+                        )
+                      }
+                      onCatalog={() => {
+                        setFilter("all");
+                        setPage("catalog");
+                      }}
+                    />
                   )}
                   {page === "catalog" && (
                     <>
@@ -991,7 +861,10 @@ export default function App() {
           description="Выберите файлы игры и папку установки."
         >
           {activeRecipe ? (
-            <RecipeInstall recipe={activeRecipe} defaultParent={settings.installDir} />
+            <RecipeInstall
+              recipe={activeRecipe}
+              defaultParent={settings.installDir}
+            />
           ) : installAdapter === "skate3" ? (
             <FolderImport
               sourceKind="xbox360-iso"

@@ -5,9 +5,14 @@ test("navigation, honest installer and all primary screen screenshots", async ({
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Главная." })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Консольные миры на твоём ПК" }),
+  ).toBeVisible();
   await expect(page.locator("main > div")).toHaveCSS("opacity", "1");
   await page.screenshot({ path: ".local/evidence/02-cont-home.png" });
+  await page
+    .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
+    .click();
   await page.getByRole("button", { name: "Установить", exact: true }).click();
   await expect(page.getByRole("dialog")).toContainText(
     "Только чтение заголовка",
@@ -95,7 +100,9 @@ test("offline, keyboard, light theme and responsive layouts", async ({
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Главная." })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Консольные миры на твоём ПК" }),
+  ).toBeVisible();
   await page.keyboard.press("Control+k");
   await expect(page.getByRole("textbox", { name: "Поиск игр" })).toBeFocused();
   await context.setOffline(true);
@@ -112,7 +119,9 @@ test("offline, keyboard, light theme and responsive layouts", async ({
     [480, 850],
   ]) {
     await page.setViewportSize({ width, height });
-    await expect(page.getByRole("heading", { name: "Главная." })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Консольные миры на твоём ПК" }),
+    ).toBeVisible();
     expect(
       await page
         .locator("main")
@@ -170,7 +179,7 @@ test("catalog art is read-only; retained gallery still supports keyboard, restar
     localStorage.getItem("port.media.v1"),
   );
   await page
-    .getByRole("button", { name: "Подробнее: Bloodborne", exact: true })
+    .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
     .click();
   await expect(page.locator('input[type="file"], .media-editor')).toHaveCount(
     0,
@@ -192,7 +201,7 @@ test("catalog art is read-only; retained gallery still supports keyboard, restar
   await expect(thumb).toBeFocused();
   await page.reload();
   await page
-    .getByRole("button", { name: "Подробнее: Bloodborne", exact: true })
+    .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
     .click();
   await expect(page.locator(".screenshot-grid button")).toHaveCount(6);
   await context.setOffline(true);
@@ -210,7 +219,7 @@ test("launcher settings and About describe PORT without game-specific promotion"
   page,
 }) => {
   await page.goto("/");
-  await expect(page.locator(".sidebar")).not.toContainText(
+  await expect(page.locator(".port-sidebar")).not.toContainText(
     /Bloodborne|FromSoftware|SuperMedo/,
   );
   await page.getByRole("button", { name: "Настройки", exact: true }).click();

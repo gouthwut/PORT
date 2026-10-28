@@ -131,6 +131,9 @@ for (const shortcut of [false, true])
   }) => {
     await fixture(page);
     await page.goto("/");
+    await page
+      .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
+      .click();
     await page.getByRole("button", { name: "Установить", exact: true }).click();
     const dialog = page.getByRole("dialog");
     await expect(
@@ -195,6 +198,9 @@ test("destination errors block confirmation; responsive styled install (mocked I
   await fixture(page);
   await page.setViewportSize({ width: 480, height: 850 });
   await page.goto("/");
+  await page
+    .getByRole("button", { name: "Открыть проект Bloodborne", exact: true })
+    .click();
   await page.getByRole("button", { name: "Установить", exact: true }).click();
   const input = page.getByLabel("Папка установки", { exact: true });
   await input.fill("C:\\Windows");
