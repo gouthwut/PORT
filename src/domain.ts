@@ -22,6 +22,7 @@ export type {
   CatalogSnapshot,
 } from "./services/catalog";
 export interface Installation {
+  health?: "installed" | "missing" | "broken";
   id: string;
   collectionId: string;
   runtimePath: string;

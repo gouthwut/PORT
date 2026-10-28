@@ -50,7 +50,45 @@ struct InstanceLock {
     _lock: std::fs::File,
 }
 fn init(conn: &Connection) -> rusqlite::Result<()> {
-    conn.execute_batch("PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY CHECK(id=1), value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS media (id INTEGER PRIMARY KEY CHECK(id=1), value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS installations(id TEXT PRIMARY KEY, value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS installation_jobs(id TEXT PRIMARY KEY, staging TEXT NOT NULL, root TEXT NOT NULL); CREATE TABLE IF NOT EXISTS update_jobs(id TEXT PRIMARY KEY, value TEXT NOT NULL); PRAGMA user_version=4;")
+    let version: u32 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
+    if version > 4 {
+        return Err(rusqlite::Error::InvalidQuery);
+    }
+    conn.execute_batch("PRAGMA journal_mode=WAL; BEGIN IMMEDIATE; CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY CHECK(id=1), value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS media (id INTEGER PRIMARY KEY CHECK(id=1), value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS installations(id TEXT PRIMARY KEY, value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS installation_jobs(id TEXT PRIMARY KEY, staging TEXT NOT NULL, root TEXT NOT NULL); CREATE TABLE IF NOT EXISTS update_jobs(id TEXT PRIMARY KEY, value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS removal_jobs(id TEXT PRIMARY KEY); PRAGMA user_version=4; COMMIT;")
+}
+// Corrupt databases are quarantined intact; no destructive reset or game scan.
+fn open_database(path: &std::path::Path) -> Result<Connection, Box<dyn std::error::Error>> {
+    let conn = Connection::open(path)?;
+    let check = conn.query_row("PRAGMA quick_check", [], |r| r.get::<_, String>(0));
+    let corrupt = match &check {
+        Ok(result) => result != "ok",
+        Err(rusqlite::Error::SqliteFailure(code, _)) => matches!(
+            code.code,
+            rusqlite::ErrorCode::DatabaseCorrupt | rusqlite::ErrorCode::NotADatabase
+        ),
+        Err(_) => false,
+    };
+    if !corrupt {
+        check?;
+        return Ok(conn);
+    }
+    drop(conn);
+    let stamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)?
+        .as_nanos();
+    for suffix in ["", "-wal", "-shm"] {
+        let file = std::path::PathBuf::from(format!("{}{suffix}", path.display()));
+        if file.exists() {
+            let backup =
+                std::path::PathBuf::from(format!("{}.corrupt-{stamp}{suffix}", path.display()));
+            download::safe_existing(&file).map_err(std::io::Error::other)?;
+            if backup.exists() {
+                return Err("Database backup collision".into());
+            }
+            std::fs::rename(file, backup)?;
+        }
+    }
+    Ok(Connection::open(path)?)
 }
 fn read(conn: &Connection) -> Result<Settings, String> {
     let mut stmt = conn
@@ -121,7 +159,7 @@ fn main() {
                 .open(dir.join("port-session.lock"))?;
             fs2::FileExt::try_lock_exclusive(&lock)?;
             app.manage(InstanceLock { _lock: lock });
-            let conn = Connection::open(dir.join("port.db"))?;
+            let conn = open_database(&dir.join("port.db"))?;
             init(&conn)?;
             catalog::init(&conn)?;
             if let Err(error) = install::recover(&conn) {
@@ -160,6 +198,7 @@ fn main() {
             install::update::update_installation,
             pkg_worker::pkg_install_available,
             install::list_installations,
+            install::management::restore_installation,
             install::running_installations,
             install::verify_installation,
             install::launch_installation,
@@ -197,6 +236,36 @@ mod tests {
         );
         conn.execute("DELETE FROM settings", []).unwrap();
         assert_eq!(read(&conn).unwrap(), Settings::default());
+    }
+    #[test]
+    fn database_migration_future_guard_and_corruption_preservation() {
+        let t = tempfile::tempdir().unwrap();
+        let path = t.path().join("port.db");
+        std::fs::write(&path, b"corrupt original bytes").unwrap();
+        let c = open_database(&path).unwrap();
+        init(&c).unwrap();
+        drop(c);
+        assert!(std::fs::read_dir(t.path()).unwrap().any(
+            |e| std::fs::read(e.unwrap().path()).is_ok_and(|b| b == b"corrupt original bytes")
+        ));
+        let c = open_database(&path).unwrap();
+        c.execute("INSERT INTO installations VALUES('old','unchanged')", [])
+            .unwrap();
+        c.execute_batch("PRAGMA user_version=3").unwrap();
+        init(&c).unwrap();
+        assert_eq!(
+            c.query_row("SELECT value FROM installations", [], |r| r
+                .get::<_, String>(0))
+                .unwrap(),
+            "unchanged"
+        );
+        c.execute_batch("PRAGMA user_version=99").unwrap();
+        assert!(init(&c).is_err());
+        assert_eq!(
+            c.query_row("PRAGMA user_version", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            99
+        );
     }
     #[test]
     fn rejects_invalid_settings() {

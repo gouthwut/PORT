@@ -1,6 +1,8 @@
 //! Local installation lifecycle and durable staging; narrow updates live in install_inplace.rs.
 #[path = "install_experience.rs"]
 pub mod experience;
+#[path = "library_management.rs"]
+pub mod management;
 #[path = "skate3.rs"]
 pub mod skate3;
 #[cfg(test)]
@@ -577,8 +579,7 @@ fn record_paths(record: &Installation) -> Result<()> {
     if (record.collection_id == "skate3" && !experience::valid_id(&record.id))
         || record.data_path != root.join(adapter.data).display().to_string()
         || record.runtime_path != root.join(adapter.runtime).display().to_string()
-        || root.file_name().and_then(|s| s.to_str())
-            != Some(format!("PORT-{}-{}", adapter.name, record.id).as_str())
+        || !management::owned_root(root, adapter, &record.id)
     {
         return Err("Некорректная запись установки".into());
     }
@@ -936,16 +937,24 @@ pub fn recover(db: &Connection) -> Result<()> {
         let root = Path::new(&root);
         safe(stage)?;
         safe(root)?;
-        let adapter = if root.file_name().and_then(|v| v.to_str())
-            == Some(format!("PORT-Skate3-{id}").as_str())
+        let adapter = if root
+            .file_name()
+            .and_then(|v| v.to_str())
+            .is_some_and(|name| name == format!("PORT-Skate3-{id}") || name == "Skate 3")
         {
             &crate::adapters::SKATE3
         } else {
             &crate::adapters::BLOODBORNE
         };
         if stage.file_name().and_then(|v| v.to_str()) != Some(format!(".port-stage-{id}").as_str())
-            || root.file_name().and_then(|v| v.to_str())
-                != Some(format!("PORT-{}-{id}", adapter.name).as_str())
+            || !(management::owned_root(root, adapter, &id)
+                || (!root.exists()
+                    && root.file_name().and_then(|n| n.to_str())
+                        == Some(if adapter.id == "skate3" {
+                            "Skate 3"
+                        } else {
+                            adapter.name
+                        })))
             || stage.parent() != root.parent()
         {
             return Err("Некорректный журнал восстановления".into());
@@ -1128,9 +1137,38 @@ pub fn install_packages(
     )
 }
 #[tauri::command]
-pub fn list_installations(db: tauri::State<Database>) -> Result<Vec<Installation>> {
+pub fn list_installations(db: tauri::State<Database>) -> Result<Vec<serde_json::Value>> {
     let conn = db.0.lock().map_err(err)?;
-    records(&conn)
+    records(&conn).map(|items| {
+        items
+            .into_iter()
+            .map(|r| {
+                let removing = conn
+                    .query_row(
+                        "SELECT EXISTS(SELECT 1 FROM removal_jobs WHERE id=?1)",
+                        [&r.id],
+                        |row| row.get::<_, bool>(0),
+                    )
+                    .unwrap_or(false);
+                let health = if removing {
+                    "broken"
+                } else if !Path::new(&r.root).exists() {
+                    "missing"
+                } else if load_manifest(&r).is_err()
+                    || !Path::new(&r.data_path).is_dir()
+                    || crate::adapters::get(&r.collection_id)
+                        .is_ok_and(|a| !Path::new(&r.runtime_path).join(a.executable).is_file())
+                {
+                    "broken"
+                } else {
+                    "installed"
+                };
+                let mut value = serde_json::to_value(r).expect("installation");
+                value["health"] = health.into();
+                value
+            })
+            .collect()
+    })
 }
 /// Reuses the launch/removal process-path guard, including after PORT restarts.
 #[tauri::command]
@@ -1181,6 +1219,19 @@ pub async fn launch_installation(
     setup: Option<bool>,
 ) -> Result<String> {
     let operation = operation(&state, "launching")?;
+    with_db(&app, |db| {
+        if db
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM removal_jobs WHERE id=?1)",
+                [&id],
+                |r| r.get::<_, bool>(0),
+            )
+            .map_err(err)?
+        {
+            return Err("Удаление не завершено. Повторите удаление в библиотеке".into());
+        }
+        Ok(())
+    })?;
     let record = get(&app, &id)?;
     let child = state.child.clone();
     let runtime_lock = state.runtime_lock.clone();
@@ -1235,6 +1286,7 @@ pub fn launch_status(state: tauri::State<Installer>) -> Result<String> {
         None => Ok(String::new()),
     }
 }
+#[cfg(test)]
 fn remove_payload(r: &Installation) -> Result<()> {
     let manifest = load_manifest(r)?;
     let root = Path::new(&r.root);
@@ -1271,11 +1323,43 @@ pub async fn remove_installation(
         return Err("Сначала закройте runtime и игру этой установки".into());
     }
     tauri::async_runtime::spawn_blocking(move || {
-        let _operation=operation;
-        // Only inventoried game files; runtime, saves and unknown files survive.
-        remove_payload(&r)?;
-        with_db(&app, |db| { db.execute("DELETE FROM installations WHERE id=?1", [&id]).map_err(err)?; Ok(()) })?;
-        let warning=crate::shortcuts::remove(&app,&id).err().map(|_| " Ярлык не удалён: он изменён или недоступен.").unwrap_or("");
-        Ok(format!("Игра удалена из библиотеки. Сохранения, настройки, runtime и неизвестные файлы сохранены в {}. Исходная папка не изменена.{warning}", r.root))
-    }).await.map_err(err)?
+        let _operation = operation;
+        let manifest = load_manifest(&r)?;
+        with_db(&app, |db| {
+            db.execute("INSERT OR IGNORE INTO removal_jobs(id) VALUES(?1)", [&id])
+                .map_err(err)?;
+            Ok(())
+        })?;
+        let root = Path::new(&r.root);
+        if read_small(&root.join("port-owner"), 256)? != r.id.as_bytes() {
+            return Err("Владение папкой не подтверждено; файлы сохранены".into());
+        }
+        management::remove_owned_files(&r, &manifest)?;
+        crate::shortcuts::remove(&app, &id)?;
+        management::prune_owned(root, &manifest)?;
+        with_db(&app, |db| {
+            let tx = db.unchecked_transaction().map_err(err)?;
+            tx.execute("DELETE FROM installations WHERE id=?1", [&id])
+                .map_err(err)?;
+            tx.execute("DELETE FROM removal_jobs WHERE id=?1", [&id])
+                .map_err(err)?;
+            tx.commit().map_err(err)
+        })?;
+        // Metadata cleanup after commit is best effort; report leftovers explicitly.
+        let cleanup = (|| -> Result<()> {
+            fs::remove_file(root.join("port-manifest.json")).map_err(err)?;
+            fs::remove_file(root.join("port-owner")).map_err(err)?;
+            management::prune_owned(root, &manifest)
+        })();
+        let warning = cleanup
+            .err()
+            .map(|e| format!(" Метаданные требуют очистки: {e}"))
+            .unwrap_or_default();
+        Ok(format!(
+            "Установка удалена. Сохранения, изменённые и посторонние файлы сохранены: {}.{warning}",
+            r.root
+        ))
+    })
+    .await
+    .map_err(err)?
 }

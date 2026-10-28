@@ -126,7 +126,11 @@ export function InstalledLibrary({
                     <span className="status-dot" />
                     {state.running.includes(i.id)
                       ? "Уже запущена"
-                      : "Готова к игре"}
+                      : i.health === "missing"
+                        ? "Папка не найдена"
+                        : i.health === "broken"
+                          ? "Повреждена запись установки"
+                          : "Готова к игре"}
                   </span>
                 </button>
               </ContextMenu.Trigger>
@@ -339,6 +343,7 @@ export function InstalledLibrary({
                 {state.operation.message}
               </p>
             )}
+            <p className="muted small">Папка установки: {item.root}</p>
             <details className="technical-info">
               <summary>Техническая информация</summary>
               <dl>
@@ -365,13 +370,40 @@ export function InstalledLibrary({
           </div>
         </section>
       )}
+      <Button
+        variant="secondary"
+        disabled={picking || state.busy}
+        onClick={async () => {
+          setPicking(true);
+          try {
+            const { open } = await import("@tauri-apps/plugin-dialog");
+            const path = await open({
+              directory: true,
+              multiple: false,
+              title: "Выберите папку установки PORT",
+            });
+            if (typeof path === "string") {
+              setMessage(
+                await invoke<string>("restore_installation", { path }),
+              );
+              await state.refresh();
+            }
+          } catch (e) {
+            setMessage(String(e));
+          } finally {
+            setPicking(false);
+          }
+        }}
+      >
+        Восстановить связь с установленной игрой
+      </Button>
       <Modal
         open={!!remove}
         onOpenChange={(v) => {
           if (!v) setRemove(null);
         }}
         title={`Удалить ${remove ? name(remove) : "игру"}?`}
-        description="Будут удалены только игровые файлы, скопированные PORT. Исходная папка, сохранения, настройки runtime и неизвестные файлы сохранятся."
+        description="Будут удалены проверенные файлы игры и её runtime, а также ярлык PORT. Ваши сохранения, настройки, исходные ISO/PKG, изменённые и посторонние файлы сохранятся. Непустая папка останется на диске."
       >
         <div className="media-actions">
           <Button

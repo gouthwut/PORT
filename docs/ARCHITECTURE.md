@@ -1,5 +1,9 @@
 # Architecture
 
+## Stage 07 installation management
+
+New installs use readable compiled adapter folder names; legacy numbered paths stay valid. Schema 4 remains stable, with transactional initialization, a future-version guard and separate removal intent table. Corrupt SQLite is retained with timestamped sidecars; explicit folder recovery validates ownership, bounded manifest and all immutable bytes before registration. Library health is a lightweight availability check; verification remains explicit. Removal uses owned manifests and matching hashes for game/runtime files, retains modified or unknown files and profiles, and removes only empty inventoried parent directories. A partial failure retains the row/manifest and blocks launch until deletion is retried. See the Stage 07 progress entry for test boundaries and the missing Skate registration discovered before work.
+
 ## Stage 06 compiled adapter extension
 
 `adapters.rs` owns fixed collection/root/data/runtime/entrypoint identities; `services/adapters.ts` binds exact published game/collection/adapter IDs and implementation (plus Xbox 360 for Skate). `skate3.rs` implements bounded read-only XDVDFS validation, pinned Windows download, staged copy/hash, user-driven official TU3 wizard, pinned-payload verification and atomic schema-4 registration. Shared destination, status, recovery, library, shortcuts, process guards, Explorer, verification and payload-only removal resolve local records. Bloodborne paths/pins/update algorithms and records are preserved. No CMS changes or permanent local Skate catalog card. See [SKATE3.md](SKATE3.md) for the pinned source, import/license limits and owner publication fields.

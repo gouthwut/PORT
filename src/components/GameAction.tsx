@@ -47,6 +47,7 @@ export function GameAction({
       <Button
         aria-label={ariaLabel}
         disabled={
+          (!!item?.health && item.health !== "installed") ||
           !state.ready ||
           !!state.loadError ||
           state.busy ||

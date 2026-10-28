@@ -29,6 +29,12 @@ pub(super) fn destination_for(
     adapter_id: &str,
 ) -> Result<PathBuf> {
     let adapter = crate::adapters::get(adapter_id)?;
+    if installed.iter().any(|r| r.collection_id == adapter_id) {
+        return Err(
+            "Игра уже зарегистрирована. Откройте её в библиотеке или восстановите связь с папкой"
+                .into(),
+        );
+    }
     safe(parent)?;
     if parent.to_string_lossy().len() > 2048 || parent.components().any(|c| matches!(c, Component::Normal(n) if n.to_str().is_none_or(|s| !download::safe_zip_name(s)))) {
         return Err("Папка содержит недопустимое имя Windows".into());
@@ -49,7 +55,12 @@ pub(super) fn destination_for(
             }
         }
     }
-    let root = parent.join(format!("PORT-{}-{id}", adapter.name));
+    let folder = if adapter.id == "skate3" {
+        "Skate 3"
+    } else {
+        adapter.name
+    };
+    let root = parent.join(folder);
     for r in installed {
         if r.id == id {
             return Err(
@@ -57,9 +68,7 @@ pub(super) fn destination_for(
             );
         }
         let existing = Path::new(&r.root);
-        let canonical_root = fs::canonicalize(parent)
-            .map_err(err)?
-            .join(format!("PORT-{}-{id}", adapter.name));
+        let canonical_root = fs::canonicalize(parent).map_err(err)?.join(folder);
         if overlaps_below(parent, existing) || overlaps_below(existing, &canonical_root) {
             return Err(
                 "Назначение пересекается с уже установленной игрой. Выберите другую папку".into(),
