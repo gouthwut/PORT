@@ -1,4 +1,5 @@
 node_modules/
+private-backups/
 .local/
 src/assets/bloodborne-local/
 tools/extractor-lab/bin/

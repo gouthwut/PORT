@@ -1,5 +1,23 @@
 # PORT// progress
 
+## 2026-10-30 — CMS Stage 16C: owner CSV backup verification
+
+- Owner supplied a private Cloudflare Data Studio CSV under `private-backups/`.
+  Added a Git ignore rule; no backup file is tracked. Restricted Windows ACLs
+  to the current owner, SYSTEM and Administrators, including inherited file ACLs.
+- Strict UTF-8/CSV validation passed: 173 records (one manifest and 172 chunks),
+  no missing/duplicate chunks or truncated values. Converted only the CSV wrapper
+  to the existing records input; used the unchanged CMS Stage16C assemble/restore
+  CLI and existing `port-sql-16c` format. No new SQL export format was introduced.
+- Fresh isolated SQLite restore PASS: exact schema/types/cells/rowid association,
+  integrity_check=ok, no FK violations; all media BLOB hashes verified. Private
+  snapshot, restored DB, CLI receipt and independent VERIFICATION.json stay in
+  the ignored backup directory. Source CSV remained byte-identical.
+- Backup verification PASS; production remains NO-GO. Actual-snapshot upgrade/
+  reconciliation rehearsal, real staging OAuth, provenance/recovery scope and
+  separate production authorization remain open. No remote request, production
+  write, deploy, push, client code or user installation change was performed.
+
 ## 2026-10-30 — Stage 19B: Windows download E2E completed
 
 - Resumed the existing isolated installed `app.port.stage19b-qa` acceptance;
