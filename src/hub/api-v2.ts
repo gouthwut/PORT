@@ -1,4 +1,5 @@
 import { publicHttps } from "../services/catalog";
+import { isLocalCms, localCmsFetch } from "./local-cms-qa";
 import { parseV2Media } from "./v2-media";
 import { native } from "../services/settings";
 import {
@@ -253,19 +254,21 @@ function unique(items: { id: string }[]) {
 
 /** Same-origin public HTTPS only; bounded responses, no credentials/redirects/cache writes. */
 export function createV2Client(baseUrl: string, fetcher: typeof fetch = fetch) {
-  const base = publicHttps(baseUrl);
+  const base = isLocalCms(baseUrl) ? new URL(baseUrl) : publicHttps(baseUrl);
   if (base.pathname !== "/" || base.search)
     throw new V2Error("Источник v2 должен быть HTTPS origin");
   async function get(path: string, query: Record<string, string> = {}) {
     const target = new URL(path, base);
     target.search = new URLSearchParams(query).toString();
     try {
-      const r = await fetcher(target.href, {
-        credentials: "omit",
-        redirect: "error",
-        signal: AbortSignal.timeout(15000),
-        headers: { Accept: "application/json" },
-      });
+      const r = isLocalCms(target.href)
+        ? await localCmsFetch(target.href)
+        : await fetcher(target.href, {
+            credentials: "omit",
+            redirect: "error",
+            signal: AbortSignal.timeout(15000),
+            headers: { Accept: "application/json" },
+          });
       if (!r.ok) throw new V2Error(`API v2: HTTP ${r.status}`, r.status);
       if (
         !r.headers
@@ -474,14 +477,18 @@ export function parseSourceConfig(v: unknown): SourceConfig {
   if (o.version === "v1") return { version: "v1" };
   if (o.version !== "v2" || !["v1", "none"].includes(String(o.fallback)))
     throw new V2Error("Неверная конфигурация источника каталога");
-  const baseUrl = url(o.baseUrl);
+  const baseUrl =
+    typeof o.baseUrl === "string" && isLocalCms(o.baseUrl)
+      ? new URL(o.baseUrl).href
+      : url(o.baseUrl);
   const u = new URL(baseUrl);
   if (u.pathname !== "/" || u.search) bad();
   // The packaged CSP permits only this explicit production origin. Alternate
   // native sources require an owner-reviewed matching CSP build configuration.
   if (
     native &&
-    u.origin !== "https://port-catalog-cms.port-catalog-cms.workers.dev"
+    u.origin !== "https://port-catalog-cms.port-catalog-cms.workers.dev" &&
+    !isLocalCms(baseUrl)
   )
     throw new V2Error("Источник v2 не разрешён политикой этого native build");
   return { version: "v2", baseUrl, fallback: o.fallback as "v1" | "none" };

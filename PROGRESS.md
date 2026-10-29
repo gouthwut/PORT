@@ -1,5 +1,70 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 13E: isolated local CMS v2 integration
+
+- Owner authorized local integration/first download E2E only in C:\PORT, no CMS
+  neighbor changes, production changes, ZIP execution or installer build. Read
+  AGENTS/PROGRESS and existing source/transport/downloader. Used Ponytail; no
+  subagents. Existing dirty Cargo/image, InstalledLibrary, stage04d and untracked
+  work are preserved outside the task's staged changes.
+- Existing frontend source override alone was insufficient: public-URL/native
+  source/media-origin validation and native downloader fixed production origin
+  prevented localhost. Added separate `tauri.cms-qa.conf.json`, optional
+  `local-cms-qa` feature, dev-only frontend flag and bounded read-only native
+  transport, plus `scripts/start-cms-qa.ps1`. Exact debug identity app.port.cms-qa;
+  fixed localhost:8787 pinned to 127.0.0.1, no proxies/redirects/credentials/admin
+  routes. Dedicated app/WebView storage and download destination remain inside
+  `.local/cms-qa`. Feature-enabled non-QA/release app fails before DB startup.
+  Production source JSON, CSP, public validation and normal TLS features unchanged.
+- Untrusted local TLS initially failed. Exported public certificate during a
+  deliberately rejected inspection handshake, then curl with per-request CA
+  verified local detail 200. Rust/rustls rejected Wrangler's CA-marked leaf with
+  `CaUsedAsEndEntity`. Optional QA transport uses Windows native TLS with built-in
+  roots disabled and only `.local/cms-qa/localhost.pem` trusted per client; no
+  global trust installation, invalid-cert flags or browser TLS bypass. A real
+  request with an unrelated valid certificate failed with untrusted-root TLS;
+  original PEM restored. No private key or certificate committed.
+- Production anonymous `/v2/projects` still returns 401 “Требуется вход”, before
+  any build validation. Local public detail/builds return 200 anonymously. This
+  identifies the former failure as production endpoint authorization; deployment
+  age/configuration is not inferred and no login/token workaround was attempted.
+- Actual Tauri debug app displayed Zelda/Majora's Mask, recompilation, Nintendo
+  64, cover and four screenshots (shared SHA-256/WebP verification), exact GitHub
+  href and Windows stable v1.2.2 build. Expected API size 28940501 and SHA-256
+  d02b95f1cf5e4d44d6587fa6136c6db521f61aa41ba8700c05f91bea8b0a26d0
+  match owner metadata, but are not independently measured ZIP results. Public
+  review omitted as existing approved-only contract specifies; owner approval
+  state was not read from private CMS storage.
+- **Positive ZIP E2E BLOCKED:** live availability is `unknown`. UI disables the
+  button; direct native IPC by IDs re-fetches local builds and rejects with
+  “Одобренная доступная Windows-сборка не подтверждена”, completed=0. Completed
+  folder opening also rejects. No GitHub ZIP request/download directory,
+  extraction, execution, existing installation or user data operation. Required
+  owner-controlled CMS outcome: expose this verified approved build as explicit
+  `available` in both public detail/builds, retaining URL/size/digest. No client
+  unknown→available conversion or review bypass.
+- Checks: TypeScript/Vite build PASS (existing >500 kB warning); mocked v2/download
+  UI 18/18 PASS; existing six Rust downloader tests PASS (synthetic transfer,
+  mismatch, cancellation); QA scope unit PASS with optional feature. Actual native
+  live negative E2E PASS, independent invalid-trust test PASS; initial native
+  rustls failure and runner rejection-matcher/card-label mistakes were corrected
+  and not counted as successful checks. Checks use the owner's existing dirty
+  tree, including its pre-existing image dependency addition; that unrelated
+  addition is not part of this task commit.
+- See docs/HUB_LOCAL_CMS_QA.md for exact setup, TLS trust, remaining contract gate,
+  reproduction and manual positive-download steps. Ignored evidence under
+  `.local/evidence/13e`: HTTP data, native report/screenshot, negative TLS report.
+  Real streaming progress, ZIP byte/hash verification and successful Explorer
+  opening remain unverified; no successful live download claim. No release,
+  installer, push or next stage.
+
+- Closing checks: final guarded native debug executable relaunched and live
+  negative E2E passed again. Standard-feature QA scope test also passed, confirming
+  the QA identity alone cannot activate local transport. Rust fmt, changed-file
+  Prettier and whitespace checks passed. QA app closed and temporary WebView
+  debugging ended. Task commit includes only its own Cargo feature/lock additions;
+  pre-existing image dependency/lock changes remain in the working tree.
+
 ## 2026-10-29 — Stage 13D: Windows title-bar QA
 
 - Owner authorized local QA/fixes and a local commit from `359ddc1`. Read

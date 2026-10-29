@@ -5,6 +5,7 @@ import fixture from "../../fixtures/catalog/published-v1.json";
 import productionEndpoint from "../catalog-endpoint.json";
 import { native } from "./settings";
 import type { MediaSet } from "./media";
+import { isLocalCms, localCmsFetch } from "../hub/local-cms-qa";
 
 export interface CatalogAsset {
   url: string;
@@ -303,13 +304,15 @@ async function bytes(
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), Math.min(8000, remaining));
   try {
-    const r = await fetch(publicHttps(url), {
-      signal: controller.signal,
-      redirect: "error",
-      credentials: "omit",
-      referrerPolicy: "no-referrer",
-      headers: { Accept: type },
-    });
+    const r = isLocalCms(url)
+      ? await localCmsFetch(url)
+      : await fetch(publicHttps(url), {
+          signal: controller.signal,
+          redirect: "error",
+          credentials: "omit",
+          referrerPolicy: "no-referrer",
+          headers: { Accept: type },
+        });
     if (
       r.status !== 200 ||
       r.headers.get("content-type")?.split(";")[0].trim() !== type ||

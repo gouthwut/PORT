@@ -1,5 +1,9 @@
 # Stage 13B — official release-file downloads
 
+Stage 13E adds an isolated local CMS QA configuration; see
+[HUB_LOCAL_CMS_QA.md](HUB_LOCAL_CMS_QA.md). Live native local catalog/TLS passed;
+the real ZIP transfer remains blocked by `availability: unknown`.
+
 One active download, Windows app only. Project build rows reuse the existing
 button component. A compact bottom-right panel survives navigation and shows
 received/total bytes, percentage and average transfer speed. Unknown total is

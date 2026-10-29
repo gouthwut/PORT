@@ -342,11 +342,15 @@ pub fn start_hub_download(
     if !valid_id(&project_id) || !valid_id(&build_id) {
         return Err("Некорректная сборка".into());
     }
-    let root = app
-        .path()
-        .download_dir()
-        .map_err(|_| "Папка загрузок недоступна")?
-        .join("PORT");
+    let qa = crate::local_cms_qa::enabled(&app.config().identifier);
+    let root = if qa {
+        crate::local_cms_qa::root().join("downloads")
+    } else {
+        app.path()
+            .download_dir()
+            .map_err(|_| "Папка загрузок недоступна")?
+            .join("PORT")
+    };
     let s = state.0.clone();
     let mut status = s.status.lock().unwrap();
     if active(&status) {
@@ -364,6 +368,10 @@ pub fn start_hub_download(
         let work = async {
             let url = format!("{CMS}/v2/projects/{project_id}/builds?channel=all");
             let body = tauri::async_runtime::spawn_blocking(move || {
+                if qa {
+                    let path = Url::parse(&url).map_err(|e| e.to_string())?;
+                    return crate::local_cms_qa::fetch(crate::local_cms_qa::ID, &format!("{}?channel=all", path.path()));
+                }
                 crate::catalog::fetch(
                     &url,
                     1024 * 1024,

@@ -5,6 +5,7 @@ mod catalog;
 mod download;
 mod hub_download;
 mod install;
+mod local_cms_qa;
 mod media;
 mod package;
 mod pkg_worker;
@@ -137,6 +138,10 @@ fn main() {
         return;
     }
     let context = tauri::generate_context!();
+    assert!(
+        !cfg!(feature = "local-cms-qa") || local_cms_qa::enabled(&context.config().identifier),
+        "local-cms-qa requires the dedicated debug app.port.cms-qa identity"
+    );
     #[cfg(windows)]
     windows_identity::set(&context.config().identifier).expect("PORT taskbar identity");
     tauri::Builder::default()
@@ -189,6 +194,7 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            local_cms_qa::local_cms_qa_fetch,
             load_settings,
             save_settings,
             reset_settings,

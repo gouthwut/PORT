@@ -1,0 +1,8 @@
+{
+  "identifier": "app.port.cms-qa",
+  "productName": "PORT CMS QA",
+  "build": { "features": ["local-cms-qa"] },
+  "app": {
+    "appDirectoriesOverride": "C:\\PORT\\.local\\cms-qa\\app-data"
+  }
+}

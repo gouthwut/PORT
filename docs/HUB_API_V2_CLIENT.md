@@ -1,5 +1,9 @@
 # API v2 client — Stages 13A / 13B
 
+Stage 13E's separate dev-only localhost source and native certificate transport
+are documented in [HUB_LOCAL_CMS_QA.md](HUB_LOCAL_CMS_QA.md). Production defaults
+and CSP below are unchanged.
+
 Stage 13B adds the scoped native release-file download flow described in
 [HUB_DOWNLOADS.md](HUB_DOWNLOADS.md). It supersedes the Stage 13A statements below
 that asset URLs have no download action. Official links remain read-only and

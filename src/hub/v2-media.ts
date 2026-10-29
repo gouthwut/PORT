@@ -2,12 +2,17 @@ import { useEffect, useState } from "react";
 import { loadCatalogImage, publicHttps } from "../services/catalog";
 import { emptyMedia, type MediaSet } from "../services/media";
 import endpoint from "../catalog-endpoint.json";
+import { isLocalCms } from "./local-cms-qa";
 
 function asset(raw: unknown) {
   if (typeof raw !== "string") throw Error("Invalid media URL");
-  const u = publicHttps(raw);
+  const u = isLocalCms(raw) ? new URL(raw) : publicHttps(raw);
   const match = /^\/media\/([a-f0-9]{64})\.webp$/.exec(u.pathname);
-  if (u.origin !== new URL(endpoint).origin || u.search || !match)
+  if (
+    (!isLocalCms(raw) && u.origin !== new URL(endpoint).origin) ||
+    u.search ||
+    !match
+  )
     throw Error("Untrusted media URL");
   return { url: u.href, sha256: match[1] };
 }

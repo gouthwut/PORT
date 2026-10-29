@@ -1,5 +1,12 @@
 # PORT// — instructions for future sessions
 
+Stage 13E authorized 2026-10-29: isolated local CMS HTTPS QA only within C:\PORT.
+See docs/HUB_LOCAL_CMS_QA.md and latest PROGRESS. Dedicated debug app.port.cms-qa,
+optional local-cms-qa feature and per-client local certificate trust; production
+config/TLS/CSP remain unchanged. Availability unknown still blocks download even
+with approved review. No CMS neighbor changes, security bypass, ZIP execution,
+production release/push or automatic next stage. Live positive ZIP E2E is blocked.
+
 Stage 13C authorized 2026-10-29: local custom 40px Tauri title bar and scoped
 window controls/drag-region. Preserve Home/catalog/project/hero, Stage 13B
 downloads, EXE/installer icons, legacy engines and user data. See
