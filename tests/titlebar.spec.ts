@@ -77,9 +77,36 @@ test("official window commands, restored state, keyboard and failure feedback", 
   const bar = page.getByRole("banner", { name: "Окно PORT" });
   const panel = page.getByRole("complementary", { name: "Загрузка файла" });
   await expect(panel).toBeVisible();
-  const panelBox = await panel.boundingBox();
-  expect(panelBox!.y).toBeGreaterThanOrEqual(40);
-  expect(panelBox!.y + panelBox!.height).toBeLessThanOrEqual(1000);
+  for (const viewport of [
+    { width: 1440, height: 960 },
+    { width: 800, height: 600 },
+  ]) {
+    await page.setViewportSize(viewport);
+    const panelBox = await panel.boundingBox();
+    expect(panelBox!.y).toBeGreaterThanOrEqual(40);
+    expect(panelBox!.y + panelBox!.height).toBeLessThanOrEqual(viewport.height);
+    expect(panelBox!.x).toBeGreaterThanOrEqual(0);
+    expect(panelBox!.x + panelBox!.width).toBeLessThanOrEqual(viewport.width);
+    await page.getByRole("button", { name: "О PORT", exact: true }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    // DOM hit testing only; this does not certify native nonclient hit testing.
+    expect(
+      await page.evaluate(() =>
+        document
+          .elementFromPoint(100, 20)
+          ?.classList.contains("dialog-overlay"),
+      ),
+    ).toBe(true);
+    const dialogBox = await dialog.boundingBox();
+    expect(dialogBox!.y).toBeGreaterThan(40);
+    expect(dialogBox!.y + dialogBox!.height).toBeLessThanOrEqual(
+      viewport.height,
+    );
+    await page.keyboard.press("Escape");
+    await expect(dialog).not.toBeVisible();
+    await expect(panel).toBeVisible();
+  }
   await bar.getByRole("button", { name: "Свернуть окно" }).focus();
   await page.keyboard.press("Enter");
   await bar.getByRole("button", { name: "Развернуть окно" }).click();
@@ -123,3 +150,48 @@ test("official window commands, restored state, keyboard and failure feedback", 
     "Не удалось выполнить действие с окном",
   );
 });
+
+for (const scale of [1.25, 1.5]) {
+  test.describe(`rendering at ${scale * 100}% device scale (not Windows DPI)`, () => {
+    test.use({ deviceScaleFactor: scale });
+
+    test("title bar, navigation and dialog retain their logical bounds", async ({
+      page,
+    }) => {
+      await page.goto("/");
+      expect(await page.evaluate(() => devicePixelRatio)).toBe(scale);
+      for (const viewport of [
+        { width: 1024, height: 688 },
+        { width: 800, height: 600 },
+      ]) {
+        await page.setViewportSize(viewport);
+        const bar = page.getByRole("banner", { name: "Окно PORT" });
+        await expect(bar).toHaveCSS("height", "40px");
+        const shell = await page.locator(".app-shell").boundingBox();
+        expect(shell!.y).toBe(40);
+        expect(shell!.y + shell!.height).toBe(viewport.height);
+        const controls = await bar.getByRole("button").all();
+        for (const control of controls) {
+          const box = await control.boundingBox();
+          expect(box!.y).toBeGreaterThanOrEqual(0);
+          expect(box!.y + box!.height).toBeLessThanOrEqual(40);
+          expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width);
+        }
+        await page
+          .getByRole("button", { name: "Каталог", exact: true })
+          .click();
+        await expect(page.locator(".hub-catalog")).toBeVisible();
+        await page.getByRole("button", { name: "О PORT", exact: true }).click();
+        const dialog = page.getByRole("dialog");
+        await expect(dialog).toBeVisible();
+        const box = await dialog.boundingBox();
+        expect(box!.y).toBeGreaterThan(40);
+        expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
+        await page.keyboard.press("Escape");
+        await page
+          .getByRole("button", { name: "Главная", exact: true })
+          .click();
+      }
+    });
+  });
+}

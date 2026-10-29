@@ -1,5 +1,48 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 13D: Windows title-bar QA
+
+- Owner authorized local QA/fixes and a local commit from `359ddc1`. Read
+  title-bar sources, permissions, isolated config and docs. No confirmed
+  production defect requiring a code change was found; implementation/design,
+  production window config, API v2, downloader and legacy/user data are unchanged.
+  Applied Ponytail and Computer Use; no subagents or neighboring repository access.
+- Built actual debug exe without bundling using the existing
+  `src-tauri/tauri.titlebar-qa.conf.json`; checked IPC identity
+  `app.port.titlebar-qa`, empty isolated installations, decorations off/resizing
+  on. Additional ignored QA override set only initial size/position to 1000×720
+  at (80,80), retaining original flags/minimum, for accessible border gestures.
+  Display: 1920×1080, working area 1920×1032, native scale factor 1.0.
+- Physical mouse drag PASS on empty bar (+100,+50) and PORT text (+60,+11),
+  with native position reads and unchanged 1440×960 size. All four edges resize
+  PASS; top-left diagonal PASS. Other corners PARTIAL: automation changed only
+  one dimension or none. Native WebView buttons maximize/restore/minimize and
+  scoped close/process exit PASS; injected double-click handler PASS. Physical
+  empty-bar double click maximized to actual working area. PORT double click
+  was followed by restored geometry but concurrent-input warning prevents an
+  unconditional physical acceptance claim. Native About bounds PASS.
+- Snap UNCONFIRMED: left-edge attempt put the window partly off-screen; clipped
+  capture/input coordinates became inconsistent and sometimes showed other
+  foreground content. No success or application-failure inference. Right/top
+  edges, three diagonal corners, Win+Arrow/Win+Z and Windows 125/150% DPI remain
+  manual. No display settings changed. Current HTML maximize button still has
+  no Windows hover Snap Layouts flyout; upstream limitation rechecked, no CSS
+  imitation or Win32 workaround added. Full Windows acceptance remains open.
+- Checks: TypeScript/Vite build PASS (existing >500 kB warning); isolated debug
+  builds PASS; existing v2 15/15 and download UI 3/3 regressions PASS; final
+  title-bar tests 4/4 PASS. New browser rendering cases use device scales 1.25
+  and 1.5 at 1024×688/800×600, explicitly not native Windows DPI. Extended
+  mocked download-panel bounds at 1440×960/800×600 and modal DOM interception.
+  Initial combined run's two new scale tests used the wrong catalog CSS
+  selector; corrected and all four title-bar tests rerun successfully.
+  Changed-file formatting/whitespace checks PASS. No Rust source change or full
+  legacy suite. No production release, installer, push or next stage.
+- Updated docs/HUB_TITLEBAR.md with the evidence matrix, exact limitations,
+  reproduction and remaining manual checklist. Ignored QA evidence/scripts/
+  temporary config are under `.local/evidence/13d` and `.local/stage13d-*`.
+  QA process closed; temporary debugging ended. Pre-existing Cargo/image,
+  InstalledLibrary, stage04d and untracked work remain outside this task commit.
+
 ## 2026-10-29 — Stage 13C: custom title bar
 
 - Owner authorized local title-bar work and a local commit based on `4d6252c`.
