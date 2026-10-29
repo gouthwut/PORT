@@ -2,6 +2,10 @@
 
 ## 2026-10-29 — Stage 17A.1: Premiere Liquid Glass Home sample
 
+- Owner refinement: stronger Liquid Glass in the same local Home sample. More
+  transparency, double specular edges, directional reflections, artwork under
+  card panels; main local blur reduced 14px to 10px. Screenshots/tokens updated;
+  same Chromium checks repeated and passed. Application scope remains unchanged.
 - Owner selected A / Premiere as final direction. One finished local HTML/CSS Home
   sample only, reusing Stage 17A renderer/assets/fonts; original nine layouts intact.
 - Local sidebar/search/artwork glass, specular edges, layered shadows, violet/ice
