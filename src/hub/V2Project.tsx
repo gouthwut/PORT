@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowUpRight, Download } from "lucide-react";
 import { GameArt, Gallery } from "../components/BloodborneMedia";
 import { useV2Media } from "./v2-media";
+import { useWideArtwork } from "./artwork";
 import {
   projectTitle,
   technologyLabels,
@@ -70,35 +71,7 @@ export function V2Project({
   }, [project.id, attempt]);
   const currentProject = data?.project ?? project;
   const media = useV2Media(currentProject.media);
-  const [wideArt, setWideArt] = useState("");
-  useEffect(() => {
-    let active = true;
-    setWideArt("");
-    // CMS frames need enough pixels for the artwork area, not a full 1440px screen.
-    void Promise.all(
-      media.gallery.map(
-        (src) =>
-          new Promise<string>((resolve) => {
-            const image = new Image();
-            image.onload = () => {
-              const ratio = image.naturalWidth / image.naturalHeight;
-              resolve(
-                image.naturalWidth >= 640 && ratio >= 1.5 && ratio <= 2.6
-                  ? src
-                  : "",
-              );
-            };
-            image.onerror = () => resolve("");
-            image.src = src;
-          }),
-      ),
-    ).then((images) => {
-      if (active) setWideArt(images.find(Boolean) ?? "");
-    });
-    return () => {
-      active = false;
-    };
-  }, [media.gallery]);
+  const wideArt = useWideArtwork(media.gallery);
   const panoramic = !!wideArt && media.gallery.includes(wideArt);
   const [linkError, setLinkError] = useState("");
   const title = currentProject.name || projectTitle(currentProject);

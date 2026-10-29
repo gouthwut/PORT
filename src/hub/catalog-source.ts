@@ -99,11 +99,19 @@ export function useProjectCatalog(): ProjectCatalogState {
               const i = index++;
               if (i >= enriched.length || current !== generation.current) break;
               try {
-                const builds = await client.builds(
-                  enriched[i].id,
-                  "windows",
-                  "all",
-                );
+                // Summary responses carry only covers; detail owns validated gallery media.
+                const [detail, buildResult] = await Promise.allSettled([
+                  client.detail(enriched[i].id),
+                  client.builds(enriched[i].id, "windows", "all"),
+                ]);
+                if (detail.status === "fulfilled")
+                  enriched[i] = {
+                    ...enriched[i],
+                    media: detail.value.project.media,
+                    description: detail.value.project.description,
+                  };
+                if (buildResult.status !== "fulfilled") continue;
+                const builds = buildResult.value;
                 enriched[i] = {
                   ...enriched[i],
                   windows: builds.some((b) => !downloadUnavailable(b))

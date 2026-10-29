@@ -1,5 +1,38 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 18C: artwork-led premium launcher redesign
+
+- Implemented the attached composition in the actual React/Tauri UI, retaining
+  Gemini/Liquid Glass. Home/catalog share ProjectCard, with wide CMS artwork,
+  readable project name/description/status, favorites and navigation. Portrait
+  fallback is a compact row; no enlarged cover or blurred poster scenery.
+- Fixed the root data gap: v2 summary has only cover. Existing bounded catalog
+  enrichment now reads validated detail media/description alongside builds, with
+  four projects in flight. Detail failure leaves summary usable; builds retain
+  their existing authority. No API contract/backend changes or invented metadata.
+- Shared geometry-based artwork selection skips portrait/low-resolution frames,
+  ranks suitable frames predictably and falls back to cover. Home copy integrates
+  with the original PORT hero, first cards at Y≈473 vs ≈541 at 1280×720. Sonic's
+  full frame is placed right of desktop copy; Zelda uses a bounded cover/info row.
+  Gallery thumbnails preserve full frames; viewer and keyboard behavior retained.
+- Evidence: 18 browser before + 18 after captures of all six screens on 800×600,
+  1280×720, 1600×900 using the same recorded real local CMS responses/assets.
+  Actual native app.port.cms-qa uses fresh .local/stage18c/app-data and live local
+  Rust HTTPS QA transport: all screens/sizes, enabled CTA, gallery/Escape,
+  maximize/restore, reduced motion, solid fallback, no JS errors/overflow.
+  API/UI versions remain Sonic v1.0.3 and Zelda v1.2.2; no archives downloaded.
+- PASS: TypeScript/frontend build; 56 targeted Playwright tests; 9 Rust hub_download
+  regressions. New coverage includes shared image selection and 10/30 synthetic
+  records, all three sizes, long names and pagination. Updated obsolete narrow-card
+  geometry expectations in Stage 16. Existing Vite >500 kB chunk warning remains.
+- Local WebView2 hover/idle sample: 120 frames, median ≈13.3 ms, p95 ≈13.5 ms,
+  zero intervals >50 ms. This short check is not cross-device GPU certification.
+- Report: docs/PORT_STAGE18C_REDESIGN.md. Screenshots, logs, replay/native scripts:
+  .local/evidence/stage18c/INDEX.md. Real transfer/picker/no-clobber and OS DPI were
+  not repeated; production was not queried. Rust, schema 4, user data, legacy and
+  unrelated dirty files preserved. Local commit only; no push/deploy/release or
+  Stage 19. QA app/debug listener closed after checks.
+
 ## 2026-10-29 — Stage 18B: UI repair, existing Gemini theme preserved
 
 - Repaired Sonic cinematic hero selection/positioning, compact cover fallback for

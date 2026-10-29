@@ -2,24 +2,16 @@ import { t } from "./i18n";
 import { useState, type ReactNode } from "react";
 import {
   ArrowRight,
-  ArrowUpRight,
   FlaskConical,
   Layers3,
   MonitorDown,
   Grid2X2,
-  ImageOff,
   RotateCw,
 } from "lucide-react";
 import type { ProjectCatalogState } from "./catalog-source";
-import {
-  projectTitle,
-  technologyLabels,
-  type CatalogProject,
-} from "./catalog-model";
-import { useV2Media } from "./v2-media";
-import { CompactProjectCard } from "./ProjectCard";
-const platformShort = (platform: string) =>
-  platform.replace("PlayStation ", "PS");
+import { type CatalogProject } from "./catalog-model";
+import { emptyMedia } from "../services/media";
+import { ProjectCard, CompactProjectCard } from "./ProjectCard";
 import hero from "./assets/hub-hero.webp";
 
 export function HubLanding({
@@ -64,8 +56,7 @@ export function HubLanding({
             PORT// <i /> CONSOLE TO PC
           </p>
           <h1 id="hub-title">
-            {t("Консольные")} <br />
-            {t("миры")} <br />
+            {t("Консольные")} {t("миры")} <br />
             <span>{t("на твоём ПК")}</span>
           </h1>
           <p className="port-intro">
@@ -152,7 +143,13 @@ export function HubLanding({
           ) : visible.length ? (
             <div className="port-project-grid">
               {visible.map((p) => (
-                <HomeProject key={p.id} project={p} onOpen={() => onOpen(p)} />
+                <ProjectCard
+                  key={p.id}
+                  project={p}
+                  media={p.media ?? emptyMedia}
+                  home
+                  onOpen={() => onOpen(p)}
+                />
               ))}
             </div>
           ) : (
@@ -209,78 +206,6 @@ export function HubLanding({
         </footer>
       </div>
     </div>
-  );
-}
-
-function HomeProject({
-  project: p,
-  onOpen,
-}: {
-  project: CatalogProject;
-  onOpen: () => void;
-}) {
-  const media = useV2Media(p.media);
-  const [failed, setFailed] = useState("");
-  const screenshot = media.gallery?.[0];
-  const mainImage = screenshot || media.cover;
-  const insetCover = screenshot && media.cover ? media.cover : null;
-  return (
-    <button
-      className="port-project"
-      onClick={onOpen}
-      aria-label={`${t("Открыть проект")} ${projectTitle(p)}`}
-    >
-      <div className="port-project-image">
-        {mainImage && failed !== mainImage ? (
-          <img
-            src={mainImage}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            onError={() => setFailed(mainImage)}
-          />
-        ) : (
-          <div className="port-image-missing">
-            <ImageOff size={26} />
-            <span>{t("Обложка недоступна")}</span>
-          </div>
-        )}
-        {insetCover && (
-          <img
-            className="port-project-inset-cover"
-            src={insetCover}
-            alt=""
-            loading="lazy"
-            decoding="async"
-          />
-        )}
-        <span className="port-project-platform">
-          {p.platforms.map(platformShort).join(" · ") ||
-            t("Платформа не указана")}
-        </span>
-        <span className="port-project-open">
-          <ArrowUpRight size={18} />
-        </span>
-        <div className="port-project-caption">
-          <span
-            className={`port-project-status ${p.windows === "available" ? "has-build" : ""}`}
-          >
-            {p.windows === "available"
-              ? t("Windows-сборка")
-              : p.windows === "unavailable"
-                ? t("Без Windows-сборки")
-                : t("Сборка не указана")}
-          </span>
-          <h3>{projectTitle(p)}</h3>
-        </div>
-      </div>
-      <div className="port-project-meta">
-        <span>{t(technologyLabels[p.kind])}</span>
-        <span>
-          {t("О проекте")} <ArrowRight size={13} />
-        </span>
-      </div>
-    </button>
   );
 }
 

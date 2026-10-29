@@ -1469,11 +1469,6 @@ body {
   gap: 18px;
 }
 
-.hub-catalog-grid:has(> .project-card-wrapper:nth-child(2):last-child) {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  max-width: 1040px;
-}
-
 .project-card-wrapper {
   position: relative;
   min-width: 0;
@@ -2525,5 +2520,379 @@ dialog {
   }
   .project-release-meta {
     min-width: 0;
+  }
+}
+/* Stage 18C — shared artwork-led cards; glass belongs to controls, not scenery. */
+.port-shell .port-hero-copy {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  margin: 0;
+  padding: 28px 32px;
+  max-width: 470px;
+}
+.port-hero-copy::before {
+  display: none;
+}
+.port-shell .port-hero {
+  min-height: 270px;
+  margin-bottom: 12px;
+}
+.port-hero h1 {
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.04;
+}
+.port-hero .port-intro {
+  margin: 10px 0 16px;
+}
+.port-platforms {
+  margin-bottom: 8px;
+}
+.port-section-head {
+  margin-bottom: 6px;
+}
+.port-section-head .port-kicker {
+  display: none;
+}
+.port-order-note {
+  margin: 0 0 12px;
+}
+.port-project-grid {
+  gap: 16px;
+  align-items: start;
+}
+.hub-catalog-layout {
+  grid-template-columns: 184px minmax(0, 1fr);
+  gap: 18px;
+}
+.hub-catalog .hub-catalog-tools {
+  padding: 12px;
+}
+.hub-filter-grid {
+  gap: 12px;
+}
+.hub-catalog .hub-catalog-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+  max-width: 1180px;
+  align-items: start;
+  gap: 16px;
+}
+.port-project-grid .project-card-wrapper,
+.hub-catalog .project-card-wrapper {
+  max-width: 880px;
+}
+.port-project-grid .hub-project-card,
+.hub-catalog .hub-project-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  min-width: 0;
+  padding: 0;
+  border-radius: var(--lg-radius-card);
+  background: #0e1220;
+  border: 1px solid var(--lg-glass-edge);
+  box-shadow:
+    0 8px 24px -12px #000b,
+    inset 0 1px 0 #ffffff1a;
+  text-align: left;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition:
+    transform var(--lg-transition),
+    border-color var(--lg-transition),
+    box-shadow var(--lg-transition);
+}
+.port-project-grid .hub-project-card:hover,
+.hub-catalog .hub-project-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--lg-glass-edge-bright);
+  box-shadow:
+    0 14px 30px -12px #000c,
+    0 0 20px -12px var(--lg-violet);
+}
+.port-project-grid .hub-project-card .port-project-image,
+.hub-catalog .hub-project-card .port-project-image {
+  display: block;
+  height: clamp(170px, 15vw, 215px);
+  max-height: none;
+  aspect-ratio: auto;
+  width: 100%;
+  position: relative;
+  background: #131725;
+  overflow: hidden;
+}
+.port-project-grid .hub-project-card .port-project-image > img,
+.hub-catalog .hub-project-card .port-project-image > img {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  object-fit: cover;
+  object-position: center;
+  filter: none;
+  transition: transform 380ms var(--lg-ease);
+}
+.port-project-grid .hub-project-card .port-project-image::after,
+.hub-catalog .hub-project-card .port-project-image::after {
+  background: linear-gradient(0deg, #0e1220 0%, #0e122040 20%, transparent 50%);
+}
+.port-project-grid .hub-project-copy,
+.hub-catalog .hub-project-copy {
+  background: transparent;
+  padding: 8px 16px 12px;
+  gap: 6px;
+  min-width: 0;
+}
+.hub-project-copy > strong {
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+.hub-project-description {
+  color: var(--lg-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.hub-project-name {
+  display: none;
+}
+.port-project-grid .hub-project-card .port-project-meta,
+.hub-catalog .hub-project-card .port-project-meta {
+  background: transparent;
+  border-top: 0;
+  padding: 0 16px 14px;
+  gap: 12px;
+  font-size: 11px;
+}
+.port-project-meta > span:first-child {
+  padding: 4px 8px;
+  border: 1px solid #c7b5ff26;
+  border-radius: var(--lg-radius-pill);
+}
+.port-project-meta > span:last-child {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--lg-violet);
+}
+.port-project-grid .port-project-open,
+.hub-catalog .port-project-open {
+  display: none;
+}
+/* Preserve the full portrait and spend the remaining width on useful information. */
+.port-project-grid [data-artwork="portrait"] .hub-project-card,
+.hub-catalog [data-artwork="portrait"] .hub-project-card {
+  grid-template-columns: 128px minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  min-height: 200px;
+  background:
+    radial-gradient(ellipse at 0% 0%, #7056ae26, transparent 65%), #0e1220;
+}
+.port-project-grid
+  [data-artwork="portrait"]
+  .hub-project-card
+  .port-project-image,
+.hub-catalog [data-artwork="portrait"] .hub-project-card .port-project-image {
+  grid-row: 1 / 3;
+  height: 100%;
+  min-height: 200px;
+  background: transparent;
+  overflow: visible;
+  position: static;
+}
+.port-project-grid
+  [data-artwork="portrait"]
+  .hub-project-card
+  .port-project-image
+  > img,
+.hub-catalog
+  [data-artwork="portrait"]
+  .hub-project-card
+  .port-project-image
+  > img {
+  object-fit: contain;
+  padding: 16px 0 16px 16px;
+  transform: none;
+}
+.port-project-grid [data-artwork="portrait"] .port-project-image::after,
+.hub-catalog [data-artwork="portrait"] .port-project-image::after {
+  display: none;
+}
+[data-artwork="portrait"] .port-project-platform {
+  left: 144px;
+  right: 48px;
+  width: fit-content;
+  max-width: calc(100% - 192px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.port-project-grid [data-artwork="portrait"] .hub-project-copy,
+.hub-catalog [data-artwork="portrait"] .hub-project-copy {
+  padding-top: 52px;
+}
+.port-project-grid [data-artwork="portrait"] .port-image-missing,
+.hub-catalog [data-artwork="portrait"] .port-image-missing {
+  min-height: 200px;
+  font-size: 11px;
+}
+/* Compact project fallback follows the cover rather than filling the whole window. */
+.hub-project-page .project-hero:not(.project-hero-wide) {
+  max-width: 1000px;
+  padding: 20px 24px;
+  gap: 24px;
+}
+.project-hero:not(.project-hero-wide) > .game-art {
+  order: 0;
+  flex-basis: 148px;
+  width: 148px;
+  height: 214px;
+  box-shadow: none;
+}
+.project-hero:not(.project-hero-wide) .project-hero-shade {
+  display: none;
+}
+.project-hero:not(.project-hero-wide) h1 {
+  font-size: clamp(26px, 2.6vw, 36px);
+}
+.project-hero-wide > .game-art {
+  object-position: 65% center;
+}
+.project-hero-wide .project-hero-content {
+  width: 65%;
+  max-width: 720px;
+}
+.project-hero-wide .project-summary {
+  max-width: 540px;
+}
+.project-download {
+  margin-top: 12px;
+  padding-top: 12px;
+}
+.project-gallery {
+  margin-top: 12px;
+}
+@media (max-width: 1050px) {
+  .hub-catalog-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hub-catalog .hub-catalog-tools {
+    padding: 10px 12px;
+  }
+  .hub-catalog .hub-catalog-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  }
+  .project-hero-wide .project-hero-content {
+    width: 100%;
+  }
+}
+@media (max-width: 900px) {
+  .port-project-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hub-catalog .hub-catalog-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hub-project-page .project-hero:not(.project-hero-wide) {
+    gap: 18px;
+    padding: 18px;
+  }
+  .project-hero:not(.project-hero-wide) > .game-art {
+    flex-basis: 110px;
+    width: 110px;
+    height: 170px;
+  }
+}
+@media (max-height: 750px) {
+  .port-shell .port-hero {
+    min-height: 240px;
+  }
+  .port-shell .port-hero-copy {
+    padding: 20px 26px;
+  }
+  .port-hero h1 {
+    font-size: 28px;
+  }
+  .port-section-head h2 {
+    font-size: 19px;
+  }
+}
+@media (max-height: 650px) {
+  .port-shell .port-hero {
+    min-height: 220px;
+  }
+  .port-shell .port-hero-copy {
+    padding: 16px 24px;
+  }
+  .port-hero h1 {
+    font-size: 26px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .project-card-wrapper .hub-project-card:hover {
+    transform: none;
+  }
+}
+
+.port-project-grid .hub-project-card .port-project-meta > span:last-child,
+.hub-catalog .hub-project-card .port-project-meta > span:last-child {
+  display: inline-flex;
+}
+
+.hub-catalog .hub-catalog-intro {
+  margin-bottom: 12px;
+}
+.hub-catalog .hub-catalog-intro h1 {
+  margin-bottom: 0;
+}
+.hub-catalog .hub-source-status {
+  margin-bottom: 8px;
+}
+.port-shell .port-hero-copy {
+  max-width: 480px;
+}
+.port-project-grid .hub-project-card .port-project-image {
+  height: 160px;
+}
+@media (max-height: 750px) {
+  .port-shell .port-hero {
+    min-height: 230px;
+  }
+}
+
+/* Keep the full frame to the right of the copy on wide desktop heroes. */
+@media (min-width: 1100px) {
+  .project-hero-wide > .game-art {
+    object-fit: contain;
+    object-position: right center;
+  }
+}
+.project-gallery .screenshot-grid button img,
+.project-gallery .screenshot-grid button:hover img {
+  object-fit: contain;
+  transform: none;
+  background: #090c16;
+}
+.port-compact-cover img {
+  object-fit: contain;
+}
+.hub-catalog
+  .hub-catalog-grid:has(> .project-card-wrapper:nth-child(2):last-child) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.hub-catalog .hub-catalog-grid:has(> .project-card-wrapper:only-child) {
+  max-width: 680px;
+}
+@media (max-width: 900px) {
+  .hub-catalog
+    .hub-catalog-grid:has(> .project-card-wrapper:nth-child(2):last-child) {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

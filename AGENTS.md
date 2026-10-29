@@ -1,5 +1,17 @@
 # PORT// — instructions for future sessions
 
+Stage 18C authorized 2026-10-29: real React/Tauri redesign toward the supplied
+Home/catalog/project layout reference, preserving Gemini Liquid Glass. Shared
+artwork-led cards obtain validated gallery media through existing API v2 detail;
+wide frames use conservative resolution/aspect selection, otherwise compact cover
+rows. Home hero copy integrated, Sonic full frame at desktop, compact Zelda,
+uncropped gallery. See docs/PORT_STAGE18C_REDESIGN.md and
+.local/evidence/stage18c/INDEX.md. Browser before/after and live local native QA at
+800x600, 1280x720, 1600x900; separate app.port.cms-qa storage under
+.local/stage18c/app-data. Preserve downloader gates, Stage 15, schema 4, all user
+and legacy data and pre-existing dirty work. No CMS/production changes, push,
+deploy, release or automatic Stage 19; local commit only.
+
 Stage 18B authorized 2026-10-29: repair the existing Stage 18 composition while
 preserving Gemini Liquid Glass. Sonic uses a suitable validated CMS gallery frame;
 projects without wide artwork use a compact cover row. Wider responsive catalog,

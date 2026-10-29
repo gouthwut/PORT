@@ -1,6 +1,7 @@
 import { t } from "./i18n";
 import { FavoriteButton } from "./preferences";
 import { useV2Media } from "./v2-media";
+import { useWideArtwork } from "./artwork";
 import { useState } from "react";
 import {
   ArrowUpRight,
@@ -19,16 +20,19 @@ export function ProjectCard({
   project,
   media: suppliedMedia,
   onOpen,
+  home = false,
 }: {
   project: CatalogProject;
   media: MediaSet;
   onOpen: () => void;
+  home?: boolean;
 }) {
   const v2Media = useV2Media(project.legacy ? undefined : suppliedMedia);
   const media = project.legacy ? suppliedMedia : v2Media;
   const [failed, setFailed] = useState("");
   const [failedFrame, setFailedFrame] = useState("");
-  const frame = media.gallery[0];
+  const selectedFrame = useWideArtwork(media.gallery);
+  const frame = failedFrame === selectedFrame ? "" : selectedFrame;
   const title = projectTitle(project);
   const build = {
     available: t("Windows-сборка"),
@@ -36,28 +40,24 @@ export function ProjectCard({
     unknown: t("Сборка не указана"),
   }[project.windows];
   return (
-    <div className="project-card-wrapper">
+    <div
+      className="project-card-wrapper"
+      data-artwork={frame ? "wide" : "portrait"}
+    >
       <FavoriteButton id={project.id} />
       <button
         className="port-project hub-project-card"
         onClick={onOpen}
-        aria-label={`${t("Подробнее:")} ${title}${project.name && project.name !== title ? ` · ${project.name}` : ""}`}
+        aria-label={
+          home
+            ? `${t("Открыть проект")} ${title}`
+            : `${t("Подробнее:")} ${title}${project.name && project.name !== title ? ` · ${project.name}` : ""}`
+        }
       >
         <span
           className="port-project-image"
           data-has-frame={!!frame && failedFrame !== frame}
         >
-          {(!frame || failedFrame === frame) &&
-            media.cover &&
-            failed !== media.cover && (
-              <img
-                className="catalog-cover-backdrop"
-                src={media.cover}
-                alt=""
-                loading="lazy"
-                decoding="async"
-              />
-            )}
           {frame && failedFrame !== frame ? (
             <img
               src={frame}
@@ -80,19 +80,6 @@ export function ProjectCard({
               <span>{t("Обложка недоступна")}</span>
             </span>
           )}
-          {frame &&
-            failedFrame !== frame &&
-            media.cover &&
-            failed !== media.cover && (
-              <img
-                className="catalog-inset-cover"
-                src={media.cover}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                onError={() => setFailed(media.cover)}
-              />
-            )}
           <span className="port-project-platform">
             {project.platforms.join(" · ") || t("Платформа не указана")}
           </span>
@@ -114,9 +101,14 @@ export function ProjectCard({
             <span />
             {t(build)}
           </span>
-          <strong>{title}</strong>
+          <strong>{project.name || title}</strong>
           {project.name && project.name !== title && (
-            <span className="hub-project-name">{project.name}</span>
+            <span className="hub-project-name">{title}</span>
+          )}
+          {project.description && (
+            <span className="hub-project-description">
+              {project.description}
+            </span>
           )}
         </span>
         <span className="port-project-meta">

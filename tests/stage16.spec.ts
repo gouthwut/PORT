@@ -36,7 +36,8 @@ for (const [width, height] of [
     const card = page.locator(".hub-project-card");
     const rect = await card.boundingBox();
     expect(rect!.y).toBeLessThan(height - 100);
-    expect(rect!.width).toBeLessThanOrEqual(520);
+    // Stage 18C uses wide artwork cards and a single column on compact windows.
+    expect(rect!.width).toBeLessThanOrEqual(880);
     if (width === 800) {
       const toggle = page.getByRole("button", {
         name: "Фильтры каталога",
@@ -105,7 +106,7 @@ test("Stage 16: large catalog uses dense columns and bounded covers", async ({
       .evaluate(
         (el) => getComputedStyle(el).gridTemplateColumns.split(" ").length,
       ),
-  ).toBeGreaterThanOrEqual(4);
+  ).toBeGreaterThanOrEqual(3);
   expect(
     (await page.locator(".hub-project-card").first().boundingBox())!.width,
   ).toBeLessThanOrEqual(520);
