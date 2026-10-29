@@ -460,7 +460,7 @@ test("v2 media loads verified CMS covers/screenshots and reuses the memory cache
     )
     .toBe(16);
   await card.click();
-  await expect(page.locator(".hub-project-overview img")).toHaveAttribute(
+  await expect(page.locator(".project-hero .universal-cover")).toHaveAttribute(
     "src",
     /^data:image\/webp;base64,/,
   );
@@ -556,8 +556,11 @@ for (const failure of [
       page.getByRole("region", { name: "Данные проекта v2" }),
     ).toBeVisible();
     await expect(
-      page.locator(".hub-project-overview .art-empty"),
-    ).toContainText("Обложка недоступна");
+      page.locator('.project-hero[data-artwork="brand"] .universal-art-note'),
+    ).toContainText("Изображение недоступно");
+    await expect(page.locator(".project-hero .universal-brand")).toHaveText(
+      "PORT//",
+    );
     if (failure === "decode") {
       await expect(page.locator(".screenshot-grid .art-empty")).toContainText(
         "Изображение недоступно",
@@ -631,7 +634,7 @@ test("Stage 13A: Home → catalog → official project/releases preserves filter
   await expect(page.locator(".port-home")).toContainText("Original Game");
   await expect(page.locator(".port-home")).toContainText("Сборка не указана");
   await expect(page.locator(".port-home")).not.toContainText("PORT// HUB");
-  await page.getByRole("button", { name: "Исследовать каталог" }).click();
+  await page.getByRole("button", { name: "Весь каталог", exact: true }).click();
   await page.getByLabel("Поиск по игре или проекту").fill("Original");
   await page
     .getByRole("combobox", { name: "Исходная платформа", exact: true })

@@ -1,5 +1,15 @@
 # PORT// — instructions for future sessions
 
+Stage 18D authorized 2026-10-29: universal ProjectHero for project pages and real
+CMS featured carousel on Home. Shared validated artwork selection prefers optional
+future hero/banner, then suitable gallery frame, cover composition, then PORT.
+No game-specific layouts; six slides in stable CMS order, seven-second crossfade,
+manual controls, preload, focus/hover/visibility pause and reduced motion. See
+docs/PORT_STAGE18D_HEROES.md and .local/evidence/stage18d/INDEX.md. Native QA uses
+fresh isolated app.port.cms-qa storage under .local/stage18d/app-data and live local
+API. Keep downloader gates, Stage 15, schema 4, user/legacy data and previous dirty
+work. No CMS/API changes, push/deploy/release or automatic next stage; local commit.
+
 Stage 18C authorized 2026-10-29: real React/Tauri redesign toward the supplied
 Home/catalog/project layout reference, preserving Gemini Liquid Glass. Shared
 artwork-led cards obtain validated gallery media through existing API v2 detail;

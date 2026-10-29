@@ -13,6 +13,7 @@ import { type CatalogProject } from "./catalog-model";
 import { emptyMedia } from "../services/media";
 import { ProjectCard, CompactProjectCard } from "./ProjectCard";
 import hero from "./assets/hub-hero.webp";
+import { FeaturedCarousel } from "./FeaturedCarousel";
 
 export function HubLanding({
   catalog,
@@ -47,31 +48,47 @@ export function HubLanding({
     .slice(0, 3);
   return (
     <div className="port-home">
-      <section className="port-hero" aria-labelledby="hub-title">
-        <img className="port-hero-art" src={hero} alt="" fetchPriority="high" />
-        <div className="port-hero-shade" />
-        <div className="port-hero-copy">
-          <p className="port-kicker">
-            <span />
-            PORT// <i /> CONSOLE TO PC
-          </p>
-          <h1 id="hub-title">
-            {t("Консольные")} {t("миры")} <br />
-            <span>{t("на твоём ПК")}</span>
-          </h1>
-          <p className="port-intro">
-            {t("Открывай независимые порты,")}{" "}
-            <br className="port-desktop-break" />
-            {t("рекомпиляции и новые способы играть.")}{" "}
-          </p>
-          <button className="port-cta" onClick={() => onCatalog()}>
-            {t("Исследовать каталог")} <ArrowRight size={18} />
-          </button>
-        </div>
-        <div className="port-art-credit">
-          {t("Оригинальная иллюстрация PORT//")}
-        </div>
-      </section>
+      {projects.length && !catalog.error ? (
+        <FeaturedCarousel projects={projects} onOpen={onOpen} />
+      ) : (
+        <section className="port-hero" aria-labelledby="hub-title">
+          <img
+            className="port-hero-art"
+            src={hero}
+            alt=""
+            fetchPriority="high"
+          />
+          <div className="port-hero-shade" />
+          <div className="port-hero-copy">
+            <p className="port-kicker">
+              <span />
+              PORT// <i /> CONSOLE TO PC
+            </p>
+            <h1 id="hub-title">
+              {t("Консольные")} {t("миры")} <br />
+              <span>{t("на твоём ПК")}</span>
+            </h1>
+            <p className="port-intro">
+              {t("Открывай независимые порты,")}{" "}
+              <br className="port-desktop-break" />
+              {t("рекомпиляции и новые способы играть.")}{" "}
+            </p>
+            <p className="hero-catalog-state" role="status">
+              {catalog.busy
+                ? t("Загрузка каталога")
+                : catalog.error
+                  ? t("Каталог не удалось загрузить.")
+                  : t("Опубликованные проекты появятся здесь.")}
+            </p>
+            <button className="port-cta" onClick={() => onCatalog()}>
+              {t("Исследовать каталог")} <ArrowRight size={18} />
+            </button>
+          </div>
+          <div className="port-art-credit">
+            {t("Оригинальная иллюстрация PORT//")}
+          </div>
+        </section>
+      )}
 
       <div className="port-home-body">
         <nav
@@ -122,7 +139,7 @@ export function HubLanding({
                   ? t(
                       "Показана сохранённая копия каталога. Обновление пока недоступно.",
                     )
-                  : t("Каталог не удалось загрузить.")}
+                  : t("Повторите загрузку каталога.")}
               </span>
               <button onClick={() => void catalog.refresh()}>
                 <RotateCw size={15} />
@@ -153,7 +170,8 @@ export function HubLanding({
               ))}
             </div>
           ) : (
-            !catalog.error && (
+            !catalog.error &&
+            projects.length > 0 && (
               <p className="port-empty">
                 {t("Опубликованные проекты появятся здесь.")}{" "}
               </p>

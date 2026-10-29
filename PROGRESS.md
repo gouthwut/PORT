@@ -1,5 +1,36 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 18D: universal heroes and dynamic featured carousel
+
+- Added reusable ProjectHero to actual project pages and Home slides, preserving
+  Gemini/Liquid Glass. Shared artwork selection also serves catalog/Home cards:
+  trusted optional future hero/banner, suitable gallery frame, original cover
+  composition, then branded PORT fallback. Full-frame heroes use contain; Zelda's
+  low-resolution gallery is not enlarged. No name/slug-specific presentation.
+- Home now rotates up to six published projects in stable CMS order, without a
+  hardcoded game list. One project has no carousel controls; zero/error states use
+  the original PORT hero. All primary slide actions open the corresponding project;
+  publication never establishes installation or download availability.
+- Seven-second timer, opacity/text transitions, decoded bounded slide preload,
+  arrows/indicators/pause; hover/focus, interaction and hidden/blur pause. Reduced
+  motion disables autoplay/transition. Hidden slides are inert; timers/listeners
+  clean up on navigation. New copy follows existing four-language translations.
+- Browser replay and actual isolated Tauri/WebView2 each captured both Home slides,
+  catalog and Sonic/Zelda pages at 800×600, 1280×720 and 1600×900: 30 screenshots,
+  plus two six-frame transition sequences and real seven-second autoplay checks.
+  Native uses live local CMS via existing Rust HTTPS QA transport, fresh storage
+  .local/stage18d/app-data. No native mocks, user storage or archive/game operations.
+- PASS: TypeScript/frontend build, 73 targeted Playwright checks, formatting and
+  diff checks. Vite's existing >500 kB chunk warning remains.
+  Early checks exposed obsolete hero/placeholder selectors, a duplicate error
+  announcement, oversized QA title and test-clock installation ordering; corrected
+  without weakening media validation or download guards.
+- Report: docs/PORT_STAGE18D_HEROES.md; evidence: .local/evidence/stage18d/INDEX.md.
+  Optional banner integration is documented without changing CMS/API contracts.
+  Rust downloader, schema 4, Stage 15, user/legacy data and unrelated dirty files
+  preserved. Real picker/transfer/no-clobber, OS DPI and other-device GPU behavior
+  were not repeated; production not queried. Local commit only, no next stage.
+
 ## 2026-10-29 — Stage 18C: artwork-led premium launcher redesign
 
 - Implemented the attached composition in the actual React/Tauri UI, retaining

@@ -32,6 +32,9 @@ export function parseV2Media(value: unknown): MediaSet {
   };
   return {
     ...emptyMedia,
+    // Optional forward compatibility; the current v2 API does not promise these.
+    hero: safe(m.hero),
+    banner: safe(m.banner),
     cover: safe(m.cover),
     gallery: Array.isArray(m.screenshots)
       ? m.screenshots.slice(0, 12).map(safe).filter(Boolean)
@@ -60,15 +63,18 @@ export function useV2Media(media?: MediaSet): MediaSet {
     if (!media) return;
     let active = true;
     const load = (url: string) => (url ? image(url) : Promise.resolve(""));
-    void Promise.all([load(media.cover), ...media.gallery.map(load)]).then(
-      ([cover, ...gallery]) => {
-        if (active)
-          setLoaded({
-            source: media,
-            media: { ...emptyMedia, cover, gallery: gallery.filter(Boolean) },
-          });
-      },
-    );
+    void Promise.all([
+      load(media.cover),
+      load(media.hero),
+      load(media.banner),
+      ...media.gallery.map(load),
+    ]).then(([cover, hero, banner, ...gallery]) => {
+      if (active)
+        setLoaded({
+          source: media,
+          media: { cover, hero, banner, gallery: gallery.filter(Boolean) },
+        });
+    });
     return () => {
       active = false;
     };

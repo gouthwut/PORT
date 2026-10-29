@@ -1,7 +1,7 @@
 import { t } from "./i18n";
 import { FavoriteButton } from "./preferences";
 import { useV2Media } from "./v2-media";
-import { useWideArtwork } from "./artwork";
+import { useProjectArtwork } from "./artwork";
 import { useState } from "react";
 import {
   ArrowUpRight,
@@ -29,10 +29,8 @@ export function ProjectCard({
 }) {
   const v2Media = useV2Media(project.legacy ? undefined : suppliedMedia);
   const media = project.legacy ? suppliedMedia : v2Media;
-  const [failed, setFailed] = useState("");
-  const [failedFrame, setFailedFrame] = useState("");
-  const selectedFrame = useWideArtwork(media.gallery);
-  const frame = failedFrame === selectedFrame ? "" : selectedFrame;
+  const art = useProjectArtwork(media);
+  const frame = art.frame;
   const title = projectTitle(project);
   const build = {
     available: t("Windows-сборка"),
@@ -40,10 +38,7 @@ export function ProjectCard({
     unknown: t("Сборка не указана"),
   }[project.windows];
   return (
-    <div
-      className="project-card-wrapper"
-      data-artwork={frame ? "wide" : "portrait"}
-    >
+    <div className="project-card-wrapper" data-artwork={art.kind}>
       <FavoriteButton id={project.id} />
       <button
         className="port-project hub-project-card"
@@ -54,29 +49,26 @@ export function ProjectCard({
             : `${t("Подробнее:")} ${title}${project.name && project.name !== title ? ` · ${project.name}` : ""}`
         }
       >
-        <span
-          className="port-project-image"
-          data-has-frame={!!frame && failedFrame !== frame}
-        >
-          {frame && failedFrame !== frame ? (
+        <span className="port-project-image" data-has-frame={!!frame}>
+          {frame ? (
             <img
               src={frame}
               alt=""
               loading="lazy"
               decoding="async"
-              onError={() => setFailedFrame(frame)}
+              onError={() => art.fail(frame)}
             />
-          ) : media.cover && failed !== media.cover ? (
+          ) : art.cover ? (
             <img
-              src={media.cover}
+              src={art.cover}
               alt=""
               loading="lazy"
               decoding="async"
-              onError={() => setFailed(media.cover)}
+              onError={() => art.fail(art.cover)}
             />
           ) : (
             <span className="port-image-missing">
-              <ImageOff size={28} aria-hidden="true" />
+              <b className="card-brand">PORT//</b>
               <span>{t("Обложка недоступна")}</span>
             </span>
           )}

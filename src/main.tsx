@@ -6,6 +6,7 @@ import "./styles.css";
 import "./theme.css";
 import "./hub/stage16.css";
 import "./hub/stage18-liquid.css";
+import "./hub/stage18d-heroes.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <PreferencesProvider>

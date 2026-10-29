@@ -55,7 +55,7 @@ test("Stage 18C: shared cards skip portrait and low-resolution gallery frames", 
   await expect
     .poll(() =>
       page
-        .locator(".project-hero > img")
+        .locator(".project-hero .universal-frame")
         .evaluate((i: HTMLImageElement) => i.naturalWidth),
     )
     .toBe(1600);
@@ -67,7 +67,9 @@ test("Stage 18C: shared cards skip portrait and low-resolution gallery frames", 
     (await page.locator(".hub-project-card").boundingBox())!.height,
   ).toBeLessThan(260);
   await page.locator(".hub-project-card").click();
-  await expect(page.locator(".project-hero-wide")).toHaveCount(0);
+  await expect(page.locator(".project-hero[data-artwork='wide']")).toHaveCount(
+    0,
+  );
   await expect(
     page.getByRole("button", { name: "Открыть скриншот 1", exact: true }),
   ).toBeVisible();
@@ -132,7 +134,7 @@ for (const count of [10, 30])
         await expect(page.locator(".hub-project-card")).toHaveCount(6);
       }
       await page.screenshot({
-        path: `.local/evidence/stage18c/qa-${count}-${width}.png`,
+        path: `.local/evidence/stage18d/qa-${count}-${width}.png`,
       });
     });
   }

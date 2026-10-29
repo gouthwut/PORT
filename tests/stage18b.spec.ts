@@ -12,10 +12,15 @@ for (const [width, height] of [
   }) => {
     await page.setViewportSize({ width, height });
     await project14Fixture(page, true);
-    await expect(page.locator(".project-hero-wide")).toBeVisible();
+    await expect(
+      page.locator(".project-hero[data-artwork='wide']"),
+    ).toBeVisible();
     const hero = (await page.locator(".project-hero").boundingBox())!;
-    const artwork = (await page.locator(".project-hero > img").boundingBox())!;
-    expect(Math.abs(artwork.width - hero.width)).toBeLessThan(3);
+    const artwork = (await page
+      .locator(".project-hero .universal-frame")
+      .boundingBox())!;
+    expect(artwork.width).toBeLessThanOrEqual(hero.width);
+    expect(artwork.width).toBeGreaterThan(hero.width * 0.3);
     expect(Math.abs(artwork.height - hero.height)).toBeLessThan(3);
     const action = (await page
       .locator(".project-download-button")
@@ -36,7 +41,7 @@ for (const [width, height] of [
       "backdrop-filter",
       "none",
     );
-    await expect(page.locator(".project-hero > img")).toBeVisible();
+    await expect(page.locator(".project-hero .universal-frame")).toBeVisible();
   });
 }
 
@@ -59,17 +64,21 @@ test("Stage 18B: skip portrait gallery frame; compact cover fallback has no empt
   await page.reload();
   await page.getByRole("button", { name: "Каталог", exact: true }).click();
   await page.locator(".hub-project-card").click();
-  await expect(page.locator(".project-hero-wide")).toBeVisible();
+  await expect(
+    page.locator(".project-hero[data-artwork='wide']"),
+  ).toBeVisible();
   expect(
     await page
-      .locator(".project-hero > img")
+      .locator(".project-hero .universal-frame")
       .evaluate((el: HTMLImageElement) => el.naturalWidth),
   ).toBe(1280);
   project.media.screenshots = [];
   await page.reload();
   await page.getByRole("button", { name: "Каталог", exact: true }).click();
   await page.locator(".hub-project-card").click();
-  await expect(page.locator(".project-hero-wide")).toHaveCount(0);
+  await expect(page.locator(".project-hero[data-artwork='wide']")).toHaveCount(
+    0,
+  );
   await expect(page.locator(".project-gallery")).toHaveCount(0);
   expect(
     (await page.locator(".project-hero").boundingBox())!.height,

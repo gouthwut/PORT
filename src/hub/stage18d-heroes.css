@@ -1,0 +1,346 @@
+/* Universal CMS artwork. Existing Gemini glass tokens remain authoritative. */
+.universal-hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid var(--lg-glass-edge);
+  border-radius: var(--lg-radius-panel);
+  background:
+    radial-gradient(ellipse at 80% 35%, #55447a70, transparent 65%), #0c101c;
+  color: var(--lg-text-primary);
+}
+.universal-hero-art,
+.universal-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.universal-hero-art {
+  z-index: -2;
+}
+.universal-hero-art img {
+  position: absolute;
+  display: block;
+}
+.universal-frame {
+  inset: 0 0 0 auto;
+  width: auto;
+  max-width: 72%;
+  height: 100%;
+  object-fit: contain;
+  object-position: right center;
+  mask-image: linear-gradient(90deg, transparent, #000 20%);
+}
+.universal-cover-glow {
+  right: 3%;
+  top: -20%;
+  width: 45%;
+  height: 140%;
+  object-fit: cover;
+  filter: blur(28px) saturate(130%);
+  opacity: 0.26;
+}
+.universal-cover {
+  right: 5%;
+  top: 9%;
+  width: 29%;
+  height: 82%;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 18px #0009);
+}
+.universal-shade {
+  z-index: -1;
+  background:
+    linear-gradient(
+      90deg,
+      #090d18 0%,
+      #090d18eb 33%,
+      #090d1860 60%,
+      #090d1800 90%
+    ),
+    linear-gradient(0deg, #090d1860, transparent 35%);
+}
+.universal-content {
+  position: relative;
+  width: 62%;
+  padding: 28px 30px;
+  min-width: 0;
+}
+.universal-brand {
+  position: absolute;
+  right: 5%;
+  top: 30%;
+  font-size: clamp(40px, 8vw, 110px);
+  font-weight: 800;
+  letter-spacing: -0.08em;
+  color: #b7b0d035;
+}
+.universal-brand > span {
+  color: #b29bff65;
+}
+.universal-art-note {
+  position: absolute;
+  bottom: 18px;
+  right: 22px;
+  font-size: 11px;
+  color: var(--lg-text-secondary);
+}
+.hub-project-page .project-hero.universal-hero {
+  display: block;
+  width: 100%;
+  max-width: none;
+  min-height: 330px;
+  padding: 0;
+  margin-bottom: 14px;
+}
+.project-hero.universal-hero .universal-content {
+  width: 65%;
+  max-width: 780px;
+}
+.project-hero.universal-hero h1 {
+  font-size: clamp(26px, 2.6vw, 38px);
+}
+.project-hero.universal-hero .project-summary {
+  max-width: 550px;
+}
+.featured-carousel {
+  position: relative;
+  margin-bottom: 14px;
+}
+.featured-slides {
+  position: relative;
+  height: 340px;
+  border-radius: var(--lg-radius-panel);
+  background: #0c101c;
+}
+.featured-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 650ms ease,
+    visibility 650ms;
+  pointer-events: none;
+}
+.featured-slide.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  z-index: 1;
+}
+.featured-hero {
+  height: 100%;
+}
+.featured-hero .universal-content {
+  padding: 24px 30px 58px;
+  width: 63%;
+}
+.featured-hero .port-kicker {
+  color: var(--lg-violet);
+  margin: 0 0 12px;
+  font-size: 11px;
+}
+.featured-hero .port-kicker > small {
+  color: var(--lg-text-secondary);
+  font-size: 9px;
+  margin-left: 8px;
+}
+.featured-hero .project-badges {
+  margin-bottom: 10px;
+}
+.featured-hero h1 {
+  margin: 0;
+  font-size: clamp(24px, 2.7vw, 38px);
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.featured-summary {
+  margin: 10px 0 16px;
+  color: var(--lg-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.featured-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.featured-build {
+  font-size: 11px;
+  color: #d1c8e9;
+}
+.featured-carousel .port-cta {
+  padding: 10px 16px;
+  min-height: 42px;
+  font-size: 12px;
+}
+.featured-slide .universal-content {
+  transform: translateY(6px);
+  transition: transform 650ms ease;
+}
+.featured-slide.is-active .universal-content {
+  transform: translateY(0);
+}
+.featured-controls {
+  position: absolute;
+  z-index: 3;
+  left: 24px;
+  bottom: 10px;
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  border: 1px solid var(--lg-glass-edge);
+  border-radius: 40px;
+  background: var(--lg-glass-fill);
+  backdrop-filter: var(--lg-glass-blur-card);
+  box-shadow: var(--lg-glass-shadow);
+  padding: 0 5px;
+}
+.featured-controls button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #e1dbf5;
+  cursor: pointer;
+}
+.featured-controls button:hover {
+  background: #ffffff18;
+}
+.featured-controls button:focus-visible,
+.featured-hero button:focus-visible {
+  outline: 2px solid #c5b0ff;
+  outline-offset: 2px;
+}
+.featured-dots {
+  display: flex;
+}
+.featured-dots button {
+  width: 28px;
+}
+.featured-dots button > span {
+  width: 6px;
+  height: 6px;
+  border-radius: 9px;
+  background: #aaa1bf;
+  transition: width 200ms ease;
+}
+.featured-dots button[aria-current] > span {
+  background: #c1a3ff;
+  width: 16px;
+}
+.featured-counter {
+  padding: 0 9px;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--lg-text-secondary);
+}
+.hero-catalog-state {
+  font-size: 11px;
+  color: var(--lg-text-secondary);
+  margin: -6px 0 12px;
+}
+.card-brand {
+  font-size: 28px;
+  color: #bdabed;
+  letter-spacing: -0.05em;
+}
+[data-artwork="brand"] .port-image-missing {
+  background: radial-gradient(ellipse at 75% 15%, #6a4da74d, #101525);
+}
+@media (max-width: 1050px) {
+  .project-hero.universal-hero .universal-content {
+    width: 72%;
+    padding: 22px;
+  }
+  .universal-cover {
+    right: 3%;
+    width: 23%;
+  }
+  .featured-hero .universal-content {
+    width: 72%;
+    padding-left: 24px;
+  }
+  .featured-hero .port-kicker > small,
+  .featured-build {
+    display: none;
+  }
+  .featured-hero h1 {
+    font-size: 26px;
+  }
+}
+@media (max-height: 750px) {
+  .featured-slides {
+    height: 300px;
+  }
+  .featured-hero .universal-content {
+    padding-top: 18px;
+  }
+  .featured-hero .port-kicker {
+    margin-bottom: 8px;
+  }
+  .featured-hero h1 {
+    font-size: 28px;
+  }
+  .featured-summary {
+    margin: 8px 0 12px;
+  }
+  .hub-project-page .project-hero.universal-hero {
+    min-height: 300px;
+  }
+}
+@media (max-width: 640px) {
+  .universal-content,
+  .featured-hero .universal-content,
+  .project-hero.universal-hero .universal-content {
+    width: 100%;
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  .universal-cover {
+    opacity: 0.22;
+    right: 0;
+    width: 45%;
+  }
+  .universal-frame {
+    width: 100%;
+    max-width: 100%;
+    opacity: 0.55;
+  }
+  .universal-shade {
+    background: linear-gradient(90deg, #090d18f5, #090d1880);
+  }
+  .featured-controls {
+    left: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .featured-slide,
+  .featured-slide .universal-content,
+  .featured-dots button > span {
+    transition: none;
+    transform: none;
+  }
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .featured-controls {
+    background: #171b2b;
+  }
+}
+.no-backdrop .featured-controls {
+  background: #171b2b;
+  backdrop-filter: none;
+}

@@ -1149,6 +1149,40 @@
     "No se pudo quitar el registro. Inténtalo de nuevo.",
     "Impossible de retirer l’entrée. Réessayez."
   ],
+  "Подробности — на странице проекта.": [
+    "Details are on the project page.",
+    "Más detalles en la página del proyecto.",
+    "Détails sur la page du projet."
+  ],
+  "Повторите загрузку каталога.": [
+    "Try loading the catalog again.",
+    "Vuelve a cargar el catálogo.",
+    "Réessayez de charger le catalogue."
+  ],
+  "Избранные проекты каталога": [
+    "Featured catalog projects",
+    "Proyectos destacados del catálogo",
+    "Projets du catalogue à découvrir"
+  ],
+  "Карусель": ["Carousel", "Carrusel", "Carrousel"],
+  "Слайд": ["Slide", "Diapositiva", "Diapositive"],
+  "Предыдущий проект": [
+    "Previous project",
+    "Proyecto anterior",
+    "Projet précédent"
+  ],
+  "Следующий проект": ["Next project", "Proyecto siguiente", "Projet suivant"],
+  "Показать проект": ["Show project", "Mostrar proyecto", "Afficher le projet"],
+  "Включить автосмену": [
+    "Start automatic rotation",
+    "Iniciar rotación automática",
+    "Activer le défilement automatique"
+  ],
+  "Остановить автосмену": [
+    "Stop automatic rotation",
+    "Detener rotación automática",
+    "Arrêter le défilement automatique"
+  ],
   "Дождитесь завершения обновления PORT": [
     "Wait for the PORT update to finish",
     "Espera a que termine la actualización de PORT",

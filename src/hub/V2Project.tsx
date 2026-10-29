@@ -3,9 +3,9 @@ import { compareVersions, newerDownload } from "./releases";
 import { FavoriteButton } from "./preferences";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowUpRight, Download } from "lucide-react";
-import { GameArt, Gallery } from "../components/BloodborneMedia";
+import { Gallery } from "../components/BloodborneMedia";
 import { useV2Media } from "./v2-media";
-import { useWideArtwork } from "./artwork";
+import { ProjectHero } from "./ProjectHero";
 import {
   projectTitle,
   technologyLabels,
@@ -71,8 +71,6 @@ export function V2Project({
   }, [project.id, attempt]);
   const currentProject = data?.project ?? project;
   const media = useV2Media(currentProject.media);
-  const wideArt = useWideArtwork(media.gallery);
-  const panoramic = !!wideArt && media.gallery.includes(wideArt);
   const [linkError, setLinkError] = useState("");
   const title = currentProject.name || projectTitle(currentProject);
   const windows =
@@ -117,149 +115,132 @@ export function V2Project({
         <ArrowLeft size={16} aria-hidden="true" />
         {t(backLabel)}{" "}
       </button>
-      <section
-        className={`hub-project-overview project-hero ${panoramic ? "project-hero-wide" : ""}`}
-        aria-label={t("О проекте")}
+      <ProjectHero
+        media={media}
+        title={title}
+        label={t("О проекте")}
+        className="project-hero"
       >
-        <GameArt
-          src={panoramic ? wideArt : media.cover}
-          fallbackLabel={t("Обложка недоступна")}
-          label={
-            panoramic
-              ? `${t("Скриншоты")} · ${title}`
-              : media.cover
-                ? `${t("Обложка")} ${title}`
-                : t("Обложка недоступна")
-          }
-        />
-        <div className="project-hero-shade" />
-        {panoramic && media.cover && (
-          <div className="project-hero-cover">
-            <GameArt src={media.cover} label={`${t("Обложка")} ${title}`} />
-          </div>
-        )}
-        <div className="project-hero-content">
-          <div className="project-badges">
-            {currentProject.platforms.map((platform) => (
-              <span key={platform}>{platform}</span>
-            ))}
-            <span>{t(technologyLabels[currentProject.kind])}</span>
-            {currentProject.lifecycle !== "unknown" && (
-              <span>{t(lifecycleLabels[currentProject.lifecycle])}</span>
-            )}
-          </div>
-          <div className="project-title-row">
-            <h1>{title}</h1>
-            <FavoriteButton id={project.id} />
-          </div>
-          {currentProject.description && (
-            <p className="project-summary">{currentProject.description}</p>
+        <div className="project-badges">
+          {currentProject.platforms.map((platform) => (
+            <span key={platform}>{platform}</span>
+          ))}
+          <span>{t(technologyLabels[currentProject.kind])}</span>
+          {currentProject.lifecycle !== "unknown" && (
+            <span>{t(lifecycleLabels[currentProject.lifecycle])}</span>
           )}
-          <section
-            id="project-download"
-            className="project-download"
-            aria-label={t("Сборки")}
-          >
-            <h2 className="project-eyebrow">{t("Сборки")}</h2>
-            {busy ? (
-              <p role="status">{t("Загрузка проекта…")}</p>
-            ) : error ? (
-              <p role="alert">
-                {t(error)}{" "}
-                <button
-                  className="text-link"
-                  onClick={() => setAttempt((n) => n + 1)}
+        </div>
+        <div className="project-title-row">
+          <h1>{title}</h1>
+          <FavoriteButton id={project.id} />
+        </div>
+        {currentProject.description && (
+          <p className="project-summary">{currentProject.description}</p>
+        )}
+        <section
+          id="project-download"
+          className="project-download"
+          aria-label={t("Сборки")}
+        >
+          <h2 className="project-eyebrow">{t("Сборки")}</h2>
+          {busy ? (
+            <p role="status">{t("Загрузка проекта…")}</p>
+          ) : error ? (
+            <p role="alert">
+              {t(error)}{" "}
+              <button
+                className="text-link"
+                onClick={() => setAttempt((n) => n + 1)}
+              >
+                {t("Повторить")}{" "}
+              </button>
+            </p>
+          ) : build ? (
+            <>
+              {windows.length > 1 && (
+                <label className="project-build-choice">
+                  {t("Версия для Windows")}{" "}
+                  <select
+                    aria-label={t("Версия для Windows")}
+                    value={build.id}
+                    onChange={(e) => setSelectedBuild(e.target.value)}
+                  >
+                    {windows.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.version}
+                        {downloadUnavailable(b) ? t(" · Недоступна") : ""}
+                        {b.arch !== "unknown" ? ` · ${b.arch}` : ""}
+                        {b.channel === "prerelease"
+                          ? t(" · Предварительная")
+                          : ""}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              {newerDownload(build, downloads.history) && (
+                <p className="project-update-note" role="status">
+                  {t(
+                    "Доступна новая версия. Скачайте новый официальный архив; файлы игры не заменяются.",
+                  )}{" "}
+                </p>
+              )}
+              <div className="project-download-row">
+                <Button
+                  className="project-download-button"
+                  disabled={!native || downloads.busy || !!reason}
+                  onClick={() => void downloads.start(build, title)}
                 >
-                  {t("Повторить")}{" "}
-                </button>
-              </p>
-            ) : build ? (
-              <>
-                {windows.length > 1 && (
-                  <label className="project-build-choice">
-                    {t("Версия для Windows")}{" "}
-                    <select
-                      aria-label={t("Версия для Windows")}
-                      value={build.id}
-                      onChange={(e) => setSelectedBuild(e.target.value)}
-                    >
-                      {windows.map((b) => (
-                        <option key={b.id} value={b.id}>
-                          {b.version}
-                          {downloadUnavailable(b) ? t(" · Недоступна") : ""}
-                          {b.arch !== "unknown" ? ` · ${b.arch}` : ""}
-                          {b.channel === "prerelease"
-                            ? t(" · Предварительная")
-                            : ""}
-                        </option>
+                  <Download size={20} aria-hidden="true" />
+                  {t("Скачать для Windows")}{" "}
+                </Button>
+                <div className="project-release-meta">
+                  <strong>
+                    {t("Версия")} {build.version}
+                  </strong>
+                  <span>
+                    {[
+                      build.size != null
+                        ? `${(build.size / 1024 ** 2).toFixed(1)} ${t("МиБ")}`
+                        : null,
+                      build.channel === "prerelease"
+                        ? t("Предварительная версия")
+                        : t("Стабильная версия"),
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </span>
+                  {!reason && (
+                    <span>
+                      {t("Официальный файл проекта · GitHub Releases")}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <p className="project-download-note">
+                {(reason ? t(reason) : null) ??
+                  (!native
+                    ? t("Скачивание доступно в приложении PORT для Windows")
+                    : t(
+                        "Выберите папку сохранения. Установка и запуск — вручную.",
                       ))}
-                    </select>
-                  </label>
-                )}
-                {newerDownload(build, downloads.history) && (
-                  <p className="project-update-note" role="status">
-                    {t(
-                      "Доступна новая версия. Скачайте новый официальный архив; файлы игры не заменяются.",
-                    )}{" "}
+              </p>
+              {downloads.status?.projectId === project.id &&
+                downloads.status.message && (
+                  <p className="project-download-status" role="status">
+                    {downloadMessage(downloads.status.message)}
                   </p>
                 )}
-                <div className="project-download-row">
-                  <Button
-                    className="project-download-button"
-                    disabled={!native || downloads.busy || !!reason}
-                    onClick={() => void downloads.start(build, title)}
-                  >
-                    <Download size={20} aria-hidden="true" />
-                    {t("Скачать для Windows")}{" "}
-                  </Button>
-                  <div className="project-release-meta">
-                    <strong>
-                      {t("Версия")} {build.version}
-                    </strong>
-                    <span>
-                      {[
-                        build.size != null
-                          ? `${(build.size / 1024 ** 2).toFixed(1)} ${t("МиБ")}`
-                          : null,
-                        build.channel === "prerelease"
-                          ? t("Предварительная версия")
-                          : t("Стабильная версия"),
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </span>
-                    {!reason && (
-                      <span>
-                        {t("Официальный файл проекта · GitHub Releases")}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <p className="project-download-note">
-                  {(reason ? t(reason) : null) ??
-                    (!native
-                      ? t("Скачивание доступно в приложении PORT для Windows")
-                      : t(
-                          "Выберите папку сохранения. Установка и запуск — вручную.",
-                        ))}
-                </p>
-                {downloads.status?.projectId === project.id &&
-                  downloads.status.message && (
-                    <p className="project-download-status" role="status">
-                      {downloadMessage(downloads.status.message)}
-                    </p>
-                  )}
-              </>
-            ) : (
-              <p className="project-unavailable">
-                {t(
-                  "Одобренные сборки для Windows пока не опубликованы. Исходный код и новости — на странице проекта.",
-                )}{" "}
-              </p>
-            )}
-          </section>
-        </div>
-      </section>
+            </>
+          ) : (
+            <p className="project-unavailable">
+              {t(
+                "Одобренные сборки для Windows пока не опубликованы. Исходный код и новости — на странице проекта.",
+              )}{" "}
+            </p>
+          )}
+        </section>
+      </ProjectHero>
       {media.gallery.length > 0 && (
         <Gallery images={media.gallery} title={title} horizontal />
       )}

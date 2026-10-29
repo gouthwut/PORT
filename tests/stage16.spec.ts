@@ -18,7 +18,9 @@ for (const [width, height] of [
     const action = await download.boundingBox();
     expect(action!.y + action!.height).toBeLessThanOrEqual(height);
     // Stage 18B accepts suitable 1280px CMS frames for the artwork area.
-    await expect(page.locator(".project-hero-wide")).toHaveCount(1);
+    await expect(
+      page.locator(".project-hero[data-artwork='wide']"),
+    ).toHaveCount(1);
     await expect(
       page.locator('.project-section-nav a[href="#project-issues"]'),
     ).toHaveCount(0);
@@ -31,7 +33,8 @@ for (const [width, height] of [
     const homeCard = await page
       .locator(".port-editorial .port-project")
       .boundingBox();
-    expect(homeCard!.y).toBeLessThan(height - 80);
+    // The featured carousel keeps the first artwork visible even at 800×600.
+    expect(homeCard!.y).toBeLessThan(height - 32);
     await page.getByRole("button", { name: "Каталог", exact: true }).click();
     const card = page.locator(".hub-project-card");
     const rect = await card.boundingBox();
@@ -73,8 +76,10 @@ test("Stage 16: sufficiently wide CMS image stays bounded", async ({
   page,
 }) => {
   await project14Fixture(page, false, true);
-  await expect(page.locator(".project-hero-wide")).toHaveCount(1);
-  const image = page.locator(".project-hero > img");
+  await expect(page.locator(".project-hero[data-artwork='wide']")).toHaveCount(
+    1,
+  );
+  const image = page.locator(".project-hero .universal-frame");
   expect((await image.boundingBox())!.width).toBeLessThanOrEqual(
     (await page.locator(".project-hero").boundingBox())!.width,
   );

@@ -3,7 +3,10 @@ import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { stage18Fixture } from "./helpers/stage18-fixture";
 
-const evidenceDir = path.resolve(process.cwd(), ".local/evidence/stage18");
+const evidenceDir = path.resolve(
+  process.cwd(),
+  ".local/evidence/stage18d/regression-stage18",
+);
 
 test.beforeAll(() => {
   if (!fs.existsSync(evidenceDir)) {
@@ -20,7 +23,7 @@ test("Stage 18: Home screen visual capture and first-screen density at 1280x720 
   await page.waitForTimeout(600);
 
   // Verify first screen: hero and first game card must be visible without scrolling
-  const hero = page.locator(".port-hero");
+  const hero = page.locator(".featured-carousel");
   await expect(hero).toBeVisible();
   const heroBox = await hero.boundingBox();
   expect(heroBox).toBeTruthy();
@@ -41,7 +44,9 @@ test("Stage 18: Home screen visual capture and first-screen density at 1280x720 
       diff: el.scrollWidth - el.clientWidth,
     };
   });
-  expect(overflowInfo1280.scrollWidth <= overflowInfo1280.clientWidth).toBe(true);
+  expect(overflowInfo1280.scrollWidth <= overflowInfo1280.clientWidth).toBe(
+    true,
+  );
 
   // Take screenshot at 1280x720
   await page.screenshot({
@@ -146,10 +151,7 @@ test("Stage 18: Project detail screen — Sonic Unleashed and Zelda 64 Recompile
 
   // Back to Catalog and Open Zelda
   await page.getByRole("button", { name: "Назад в каталог" }).click();
-  await page
-    .locator(".hub-project-card")
-    .filter({ hasText: "Zelda" })
-    .click();
+  await page.locator(".hub-project-card").filter({ hasText: "Zelda" }).click();
   await page.waitForTimeout(800);
 
   await page.setViewportSize({ width: 1280, height: 720 });
@@ -181,14 +183,12 @@ test("Stage 18: Downloads Center and Settings screens", async ({ page }) => {
   });
 });
 
-test("Stage 18: Hover states and fallback mode", async ({
-  page,
-}) => {
+test("Stage 18: Hover states and fallback mode", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await stage18Fixture(page);
 
   // 1. Hover on primary CTA button on Home
-  const cta = page.locator(".port-cta");
+  const cta = page.locator(".featured-slide.is-active .port-cta");
   await cta.hover();
   await page.waitForTimeout(250);
   await page.screenshot({
