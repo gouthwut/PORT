@@ -49,6 +49,15 @@ struct Inner {
 }
 #[derive(Default)]
 pub struct Downloads(Arc<Inner>);
+impl Downloads {
+    pub fn reserve_for_update(&self) -> Result<std::sync::MutexGuard<'_, Status>> {
+        let status = self.0.status.lock().map_err(|_| "Загрузки недоступны")?;
+        if active(&status) {
+            return Err("Сначала завершите или отмените текущую загрузку".into());
+        }
+        Ok(status)
+    }
+}
 fn active(s: &Status) -> bool {
     matches!(
         s.phase.as_str(),
@@ -370,6 +379,23 @@ fn ensure_absent(path: &std::path::Path) -> Result<()> {
     }
 }
 
+fn native_text(app: &tauri::AppHandle, source: &str) -> String {
+    let language = app
+        .try_state::<crate::Database>()
+        .and_then(|db| db.0.lock().ok().and_then(|conn| crate::read(&conn).ok()))
+        .map(|s| s.language)
+        .unwrap_or_else(crate::default_language);
+    let index = match language.as_str() {
+        "en" => 0,
+        "es" => 1,
+        "fr" => 2,
+        _ => return source.into(),
+    };
+    serde_json::from_str::<Value>(include_str!("../../src/hub/translations.json"))
+        .ok()
+        .and_then(|v| v.get(source)?.get(index)?.as_str().map(str::to_owned))
+        .unwrap_or_else(|| source.into())
+}
 async fn destination(
     app: tauri::AppHandle,
     s: &Inner,
@@ -403,7 +429,7 @@ async fn destination(
         std::fs::create_dir_all(&default).map_err(|_| "Не удалось создать папку Загрузки/PORT")?;
         let default = default.canonicalize().map_err(|_| "Папка загрузок недоступна")?;
         loop {
-            let mut dialog = app.dialog().file().set_title("PORT — выберите папку загрузки").set_directory(&default);
+            let mut dialog = app.dialog().file().set_title(native_text(&app, "PORT — выберите папку загрузки")).set_directory(&default);
             if let Some(window) = app.get_webview_window("main") { dialog = dialog.set_parent(&window); }
             let Some(folder) = dialog.blocking_pick_folder() else { return Ok(None) };
             let root = folder.into_path().map_err(|_| "Некорректная папка загрузки")?;
@@ -412,9 +438,9 @@ async fn destination(
             match ensure_absent(&root.join(&name)) {
                 Ok(()) => return Ok(Some(root)),
                 Err(_) if root.join(&name).exists() => {
-                    let mut message = app.dialog().message(format!("{name} уже существует. Существующий файл будет сохранён. Выберите другую папку или отмените загрузку."))
-                        .title("PORT — файл уже существует")
-                        .buttons(MessageDialogButtons::OkCancelCustom("Выбрать другую папку".into(), "Отмена".into()));
+                    let mut message = app.dialog().message(format!("{name}\n{}", native_text(&app, "Файл уже существует. Существующий файл будет сохранён. Выберите другую папку или отмените загрузку.")))
+                        .title(native_text(&app, "PORT — файл уже существует"))
+                        .buttons(MessageDialogButtons::OkCancelCustom(native_text(&app, "Выбрать другую папку"), native_text(&app, "Отмена")));
                     if let Some(window) = app.get_webview_window("main") { message = message.parent(&window); }
                     if !message.blocking_show() { return Ok(None); }
                 }
@@ -434,6 +460,7 @@ pub fn start_hub_download(
     project_id: String,
     build_id: String,
     project_name: Option<String>,
+    repeat: Option<bool>,
 ) -> Result<()> {
     if !valid_id(&project_id) || !valid_id(&build_id) {
         return Err("Некорректная сборка".into());
@@ -443,6 +470,22 @@ pub fn start_hub_download(
     let mut status = s.status.lock().unwrap();
     if active(&status) {
         return Err("Сначала завершите или отмените текущую загрузку".into());
+    }
+    if repeat != Some(true) {
+        let db = app.state::<crate::Database>();
+        let conn = db.0.lock().map_err(|_| "История недоступна")?;
+        if history(&conn)
+            .map_err(|_| "История недоступна")?
+            .iter()
+            .any(|r| {
+                r.project_id == project_id
+                    && r.build_id == build_id
+                    && r.phase == "completed"
+                    && r.path.as_ref().is_some_and(|p| p.is_file())
+            })
+        {
+            return Err("Этот файл уже скачан. Откройте раздел Загрузки.".into());
+        }
     }
     let previous = status.clone();
     let cancel = Arc::new(Notify::new());
@@ -648,7 +691,7 @@ pub fn prevent_close(window: &tauri::Window, event: &tauri::WindowEvent) {
         let state = window.state::<Downloads>();
         if active(&state.0.status.lock().unwrap()) {
             api.prevent_close();
-            window.dialog().message("Дождитесь завершения загрузки или отмените её в разделе Загрузки, затем закройте PORT.").title("PORT — загрузка продолжается").show(|_| {});
+            window.dialog().message(native_text(window.app_handle(), "Дождитесь завершения загрузки или отмените её в разделе Загрузки, затем закройте PORT.")).title(native_text(window.app_handle(), "PORT — загрузка продолжается")).show(|_| {});
         }
     }
 }
@@ -700,7 +743,7 @@ mod tests {
         std::thread::spawn(move || {
             let (mut stream, _) = listener.accept().unwrap();
             let mut request = [0; 2048];
-            stream.read(&mut request).unwrap();
+            assert!(stream.read(&mut request).unwrap() > 0);
             write!(
                 stream,
                 "HTTP/1.1 200 OK\r\nContent-Length: {declared}\r\nConnection: close\r\n\r\nabc"

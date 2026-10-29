@@ -486,3 +486,32 @@ button:focus-visible {
   outline: 2px solid #c4a6ff;
   outline-offset: 3px;
 }
+
+.setting-row {
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.setting-row > div {
+  min-width: 0;
+}
+.setting-row select {
+  max-width: 100%;
+}
+.port-nav-link > span {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.hub-filter-heading {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.project-update-note {
+  color: #ccb5ff;
+}
+.project-title-row .favorite-button {
+  margin-top: 0;
+}
+.port-download-panel > .text-link {
+  display: block;
+  margin: 10px 0;
+}

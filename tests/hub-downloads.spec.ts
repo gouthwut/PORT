@@ -49,6 +49,9 @@ async function setup(page: Page, builds: unknown[] = [build], native = true) {
               compactCards: false,
               reducedMotion: true,
             };
+          if (command === "load_hub_preferences")
+            return { favorites: [], recent: [] };
+          if (command === "hub_download_history") return [];
           if (command === "hub_download_status") return { ...w.qaStatus };
           if (command === "start_hub_download")
             w.qaStatus = {

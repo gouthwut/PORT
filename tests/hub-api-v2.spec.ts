@@ -620,7 +620,10 @@ test("Stage 13A: Home → catalog → official project/releases preserves filter
   });
   await page.goto("/");
   const nav = page.getByRole("navigation", { name: "Основная навигация" });
-  await expect(nav.getByRole("button")).toHaveCount(2);
+  await expect(nav.getByRole("button")).toHaveCount(3);
+  await expect(
+    nav.getByRole("button", { name: "Загрузки", exact: true }),
+  ).toBeVisible();
   await expect(page.locator(".port-home")).toContainText("Original Game");
   await expect(page.locator(".port-home")).toContainText("Сборка не указана");
   await expect(page.locator(".port-home")).not.toContainText("PORT// HUB");

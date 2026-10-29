@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import { FavoriteButton } from "./preferences";
 import { useV2Media } from "./v2-media";
 import { useState } from "react";
@@ -28,9 +29,9 @@ export function ProjectCard({
   const [failed, setFailed] = useState("");
   const title = projectTitle(project);
   const build = {
-    available: "Windows-сборка",
-    unavailable: "Без Windows-сборки",
-    unknown: "Сборка не указана",
+    available: t("Windows-сборка"),
+    unavailable: t("Без Windows-сборки"),
+    unknown: t("Сборка не указана"),
   }[project.windows];
   return (
     <div className="project-card-wrapper">
@@ -38,7 +39,7 @@ export function ProjectCard({
       <button
         className="port-project hub-project-card"
         onClick={onOpen}
-        aria-label={`Подробнее: ${title}${project.name && project.name !== title ? ` · ${project.name}` : ""}`}
+        aria-label={`${t("Подробнее:")} ${title}${project.name && project.name !== title ? ` · ${project.name}` : ""}`}
       >
         <span className="port-project-image">
           {media.cover && failed !== media.cover ? (
@@ -52,11 +53,11 @@ export function ProjectCard({
           ) : (
             <span className="port-image-missing">
               <ImageOff size={28} aria-hidden="true" />
-              <span>Обложка недоступна</span>
+              <span>{t("Обложка недоступна")}</span>
             </span>
           )}
           <span className="port-project-platform">
-            {project.platforms.join(" · ") || "Платформа не указана"}
+            {project.platforms.join(" · ") || t("Платформа не указана")}
           </span>
           <span className="port-project-open">
             <ArrowUpRight size={18} aria-hidden="true" />
@@ -67,12 +68,14 @@ export function ProjectCard({
             className={`hub-build-status ${project.windows === "available" ? "has-build" : ""}`}
             title={
               project.buildEvidence === "editorial-v1"
-                ? "Наличие сборки по данным каталога. Не является проверкой совместимости."
+                ? t(
+                    "Наличие сборки по данным каталога. Не является проверкой совместимости.",
+                  )
                 : undefined
             }
           >
             <span />
-            {build}
+            {t(build)}
           </span>
           <strong>{title}</strong>
           {project.name && project.name !== title && (
@@ -80,9 +83,9 @@ export function ProjectCard({
           )}
         </span>
         <span className="port-project-meta">
-          <span>{technologyLabels[project.kind]}</span>
+          <span>{t(technologyLabels[project.kind])}</span>
           <span>
-            О проекте <ArrowUpRight size={14} aria-hidden="true" />
+            {t("О проекте")} <ArrowUpRight size={14} aria-hidden="true" />
           </span>
         </span>
       </button>
@@ -106,7 +109,7 @@ export function CompactProjectCard({
     <button
       className="port-compact-project"
       onClick={onOpen}
-      aria-label={`Подборка: ${projectTitle(project)}`}
+      aria-label={`${t("Подборка:")} ${projectTitle(project)}`}
     >
       <span className="port-compact-cover">
         {media.cover && failedCover !== media.cover ? (
@@ -118,12 +121,12 @@ export function CompactProjectCard({
             onError={() => setFailedCover(media.cover)}
           />
         ) : (
-          <ImageOff size={24} role="img" aria-label="Обложка недоступна" />
+          <ImageOff size={24} role="img" aria-label={t("Обложка недоступна")} />
         )}
       </span>
       <span className="port-compact-copy">
         <span className="port-compact-platform">
-          {project.platforms.join(" · ") || "Платформа не указана"}
+          {project.platforms.join(" · ") || t("Платформа не указана")}
         </span>
         <strong>{projectTitle(project)}</strong>
         <span className="port-compact-badges">
@@ -134,14 +137,15 @@ export function CompactProjectCard({
           )}
           {experimental && (
             <span className="port-compact-badge is-experimental">
-              <FlaskConical size={12} aria-hidden="true" /> Экспериментальный
+              <FlaskConical size={12} aria-hidden="true" />
+              {t("Экспериментальный")}{" "}
             </span>
           )}
           {!available && (
             <span className="port-compact-badge is-unavailable">
               {project.windows === "unavailable"
-                ? "Без Windows-сборки"
-                : "Сборка не указана"}
+                ? t("Без Windows-сборки")
+                : t("Сборка не указана")}
             </span>
           )}
         </span>

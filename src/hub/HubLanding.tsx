@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import { useState, type ReactNode } from "react";
 import {
   ArrowRight,
@@ -63,29 +64,32 @@ export function HubLanding({
             PORT// <i /> CONSOLE TO PC
           </p>
           <h1 id="hub-title">
-            Консольные
-            <br />
-            миры
-            <br />
-            <span>на твоём ПК</span>
+            {t("Консольные")} <br />
+            {t("миры")} <br />
+            <span>{t("на твоём ПК")}</span>
           </h1>
           <p className="port-intro">
-            Открывай независимые порты,
-            <br className="port-desktop-break" /> рекомпиляции и новые способы
-            играть.
+            {t("Открывай независимые порты,")}{" "}
+            <br className="port-desktop-break" />
+            {t("рекомпиляции и новые способы играть.")}{" "}
           </p>
           <button className="port-cta" onClick={() => onCatalog()}>
-            Исследовать каталог <ArrowRight size={18} />
+            {t("Исследовать каталог")} <ArrowRight size={18} />
           </button>
         </div>
-        <div className="port-art-credit">Оригинальная иллюстрация PORT//</div>
+        <div className="port-art-credit">
+          {t("Оригинальная иллюстрация PORT//")}
+        </div>
       </section>
 
       <div className="port-home-body">
-        <nav className="port-platforms" aria-label="Быстрый выбор платформы">
+        <nav
+          className="port-platforms"
+          aria-label={t("Быстрый выбор платформы")}
+        >
           <button aria-pressed={!selected} onClick={() => setPlatform("")}>
             <Grid2X2 size={17} />
-            Все платформы
+            {t("Все платформы")}{" "}
           </button>
           {platforms.map(([key, name]) => (
             <button
@@ -107,17 +111,18 @@ export function HubLanding({
         <section className="port-editorial" aria-labelledby="editorial-title">
           <header className="port-section-head">
             <div>
-              <p className="port-kicker">ПРОЕКТЫ СООБЩЕСТВА</p>
+              <p className="port-kicker">{t("ПРОЕКТЫ СООБЩЕСТВА")}</p>
               <h2 id="editorial-title">
-                Выбор редакции<span className="port-section-dot">/</span>
+                {t("Выбор редакции")}
+                <span className="port-section-dot">/</span>
               </h2>
             </div>
             <button onClick={() => onCatalog()}>
-              Весь каталог <ArrowRight size={16} />
+              {t("Весь каталог")} <ArrowRight size={16} />
             </button>
           </header>
           <p className="port-order-note">
-            В порядке каталога PORT
+            {t("В порядке каталога PORT")}{" "}
             {selected
               ? ` · ${platforms.find(([key]) => key === selected)?.[1]}`
               : ""}
@@ -126,19 +131,21 @@ export function HubLanding({
             <div className="port-catalog-notice" role="status">
               <span>
                 {projects.length
-                  ? "Показана сохранённая копия каталога. Обновление пока недоступно."
-                  : "Каталог не удалось загрузить."}
+                  ? t(
+                      "Показана сохранённая копия каталога. Обновление пока недоступно.",
+                    )
+                  : t("Каталог не удалось загрузить.")}
               </span>
               <button onClick={() => void catalog.refresh()}>
                 <RotateCw size={15} />
-                Повторить
+                {t("Повторить")}{" "}
               </button>
             </div>
           )}
           {catalog.busy && !projects.length ? (
             <div
               className="port-project-grid"
-              aria-label="Загрузка каталога"
+              aria-label={t("Загрузка каталога")}
               aria-busy="true"
             >
               {[0, 1, 2].map((n) => (
@@ -154,7 +161,7 @@ export function HubLanding({
           ) : (
             !catalog.error && (
               <p className="port-empty">
-                Опубликованные проекты появятся здесь.
+                {t("Опубликованные проекты появятся здесь.")}{" "}
               </p>
             )
           )}
@@ -164,18 +171,20 @@ export function HubLanding({
             {(builds.length > 0 || experimental.length > 0) && (
               <div className="port-discovery">
                 <ProjectShelf
-                  title="Сборки для Windows"
+                  title={t("Сборки для Windows")}
                   icon={<MonitorDown size={20} />}
                   projects={builds}
                   onOpen={onOpen}
-                  description="Требования и условия запуска — в проекте."
+                  description={t("Требования и условия запуска — в проекте.")}
                 />
                 <ProjectShelf
-                  title="Экспериментальные проекты"
+                  title={t("Экспериментальные проекты")}
                   icon={<FlaskConical size={20} />}
                   projects={experimental}
                   onOpen={onOpen}
-                  description="Альфа- и бета-проекты. Сведения о сборках — в проекте."
+                  description={t(
+                    "Альфа- и бета-проекты. Сведения о сборках — в проекте.",
+                  )}
                 />
               </div>
             )}
@@ -184,8 +193,8 @@ export function HubLanding({
                 <Layers3 size={24} />
               </span>
               <span>
-                <strong>Найди следующий проект</strong>
-                <span>Открой полный каталог и сравни требования.</span>
+                <strong>{t("Найди следующий проект")}</strong>
+                <span>{t("Открой полный каталог и сравни требования.")}</span>
               </span>
               <ArrowRight size={22} />
             </button>
@@ -193,7 +202,9 @@ export function HubLanding({
         )}
         <footer className="port-home-footer">
           <span>
-            Независимые проекты · собственная копия игры может потребоваться
+            {t(
+              "Независимые проекты · собственная копия игры может потребоваться",
+            )}{" "}
           </span>
           <span>
             PORT<span className="port-footer-slash">//</span> <i /> CONSOLE → PC
@@ -217,7 +228,7 @@ function HomeProject({
     <button
       className="port-project"
       onClick={onOpen}
-      aria-label={`Открыть проект ${projectTitle(p)}`}
+      aria-label={`${t("Открыть проект")} ${projectTitle(p)}`}
     >
       <div className="port-project-image">
         {media.cover && failed !== media.cover ? (
@@ -231,11 +242,12 @@ function HomeProject({
         ) : (
           <div className="port-image-missing">
             <ImageOff size={26} />
-            <span>Обложка недоступна</span>
+            <span>{t("Обложка недоступна")}</span>
           </div>
         )}
         <span className="port-project-platform">
-          {p.platforms.map(platformShort).join(" · ") || "Платформа не указана"}
+          {p.platforms.map(platformShort).join(" · ") ||
+            t("Платформа не указана")}
         </span>
         <span className="port-project-open">
           <ArrowUpRight size={18} />
@@ -245,18 +257,18 @@ function HomeProject({
             className={`port-project-status ${p.windows === "available" ? "has-build" : ""}`}
           >
             {p.windows === "available"
-              ? "Windows-сборка"
+              ? t("Windows-сборка")
               : p.windows === "unavailable"
-                ? "Без Windows-сборки"
-                : "Сборка не указана"}
+                ? t("Без Windows-сборки")
+                : t("Сборка не указана")}
           </span>
           <h3>{projectTitle(p)}</h3>
         </div>
       </div>
       <div className="port-project-meta">
-        <span>{technologyLabels[p.kind]}</span>
+        <span>{t(technologyLabels[p.kind])}</span>
         <span>
-          О проекте <ArrowRight size={13} />
+          {t("О проекте")} <ArrowRight size={13} />
         </span>
       </div>
     </button>
@@ -283,9 +295,9 @@ function ProjectShelf({
         <span className="port-shelf-icon" aria-hidden="true">
           {icon}
         </span>
-        <h2>{title}</h2>
+        <h2>{t(title)}</h2>
       </header>
-      <p>{description}</p>
+      <p>{t(description)}</p>
       <ul>
         {projects.map((p) => (
           <li key={p.id}>

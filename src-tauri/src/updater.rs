@@ -415,6 +415,8 @@ fn install(app: &tauri::AppHandle, confirmed: bool) -> Result<()> {
         let _operation = install::updater_operation(&installer)?;
         let downloader = app.state::<download::Download>();
         let _download = downloader.reserve_for_update()?;
+        let hub = app.state::<crate::hub_download::Downloads>();
+        let _hub_download = hub.reserve_for_update()?;
         install::updater_safe(app, &installer)?;
         let db = app.state::<Database>();
         let conn = db.0.lock().map_err(|_| "База данных занята")?;

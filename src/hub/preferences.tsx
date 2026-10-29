@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import {
   createContext,
   useContext,
@@ -6,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { Star } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { native } from "../services/settings";
 
@@ -66,7 +68,9 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
       .catch(() => {
         if (active)
           setError(
-            "Не удалось прочитать избранное и недавние проекты. Перезапустите PORT.",
+            t(
+              "Не удалось прочитать избранное и недавние проекты. Перезапустите PORT.",
+            ),
           );
       });
     return () => {
@@ -84,7 +88,9 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         setError("");
       } catch {
         setError(
-          "Не удалось сохранить избранное и недавние проекты. Повторите действие.",
+          t(
+            "Не удалось сохранить избранное и недавние проекты. Повторите действие.",
+          ),
         );
       }
     });
@@ -124,11 +130,15 @@ export function FavoriteButton({ id }: { id: string }) {
     <button
       className="favorite-button"
       disabled={!p.ready}
-      aria-label={selected ? "Убрать из избранного" : "В избранное"}
+      aria-label={selected ? t("Убрать из избранного") : t("В избранное")}
       aria-pressed={selected}
       onClick={() => p.toggle(id)}
     >
-      <span aria-hidden="true">{selected ? "★" : "☆"}</span>
+      <Star
+        size={20}
+        fill={selected ? "currentColor" : "none"}
+        aria-hidden="true"
+      />
     </button>
   );
 }

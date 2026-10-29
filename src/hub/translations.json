@@ -1,0 +1,1126 @@
+{
+  "Настройки сохранены": [
+    "Settings saved",
+    "Ajustes guardados",
+    "Paramètres enregistrés"
+  ],
+  "Не удалось сохранить настройки. Повторите попытку.": [
+    "Could not save settings. Try again.",
+    "No se pudieron guardar los ajustes. Inténtalo de nuevo.",
+    "Impossible d’enregistrer les paramètres. Réessayez."
+  ],
+  "К содержимому": ["Skip to content", "Ir al contenido", "Aller au contenu"],
+  "Поиск игр": ["Search games", "Buscar juegos", "Rechercher des jeux"],
+  "Поиск игр, проектов, платформ…": [
+    "Search games, projects, platforms…",
+    "Buscar juegos, proyectos, plataformas…",
+    "Rechercher jeux, projets, plateformes…"
+  ],
+  "Очистить поиск": ["Clear search", "Borrar búsqueda", "Effacer la recherche"],
+  "Нет подключения к интернету.": [
+    "You are offline.",
+    "Sin conexión a internet.",
+    "Aucune connexion Internet."
+  ],
+  "Не удалось прочитать настройки. Проверьте локальные данные или сбросьте настройки.": [
+    "Could not read settings. Check local data or reset settings.",
+    "No se pudieron leer los ajustes. Comprueba los datos locales o restablécelos.",
+    "Impossible de lire les paramètres. Vérifiez les données locales ou réinitialisez-les."
+  ],
+  "Недавно просмотренные": [
+    "Recently viewed",
+    "Vistos recientemente",
+    "Consultés récemment"
+  ],
+  "Настройки": ["Settings", "Ajustes", "Paramètres"],
+  "Локальное сохранение": [
+    "Saved locally",
+    "Guardado local",
+    "Enregistré localement"
+  ],
+  "Сохранение…": ["Saving…", "Guardando…", "Enregistrement…"],
+  "Тема приложения": [
+    "App theme",
+    "Tema de la aplicación",
+    "Thème de l’application"
+  ],
+  "Тёмная": ["Dark", "Oscuro", "Sombre"],
+  "Как в системе": ["System", "Sistema", "Système"],
+  "Меньше анимаций": [
+    "Reduce motion",
+    "Reducir movimiento",
+    "Réduire les animations"
+  ],
+  "Компактные карточки": [
+    "Compact cards",
+    "Tarjetas compactas",
+    "Cartes compactes"
+  ],
+  "Внешний вид": ["Appearance", "Apariencia", "Apparence"],
+  "Сбросить настройки": [
+    "Reset settings",
+    "Restablecer ajustes",
+    "Réinitialiser les paramètres"
+  ],
+  "Игры и сохранения останутся": [
+    "Games and saves will be kept",
+    "Se conservarán los juegos y las partidas",
+    "Les jeux et sauvegardes seront conservés"
+  ],
+  "Сбросить": ["Reset", "Restablecer", "Réinitialiser"],
+  "Локальные данные": ["Local data", "Datos locales", "Données locales"],
+  "Режим браузера: настройки хранятся в localStorage.": [
+    "Browser preview: settings are stored in localStorage.",
+    "Vista previa: los ajustes se guardan en localStorage.",
+    "Aperçu navigateur : les paramètres sont stockés dans localStorage."
+  ],
+  "Загрузка интерфейса": [
+    "Loading interface",
+    "Cargando interfaz",
+    "Chargement de l’interface"
+  ],
+  "PORT не распространяет игровые файлы. Совместимость и способ запуска указаны на странице каждой игры.": [
+    "PORT does not distribute game files. See each project for compatibility and launch requirements.",
+    "PORT no distribuye archivos de juegos. Consulta cada proyecto para conocer la compatibilidad y los requisitos.",
+    "PORT ne distribue pas de fichiers de jeux. Consultez chaque projet pour la compatibilité et les conditions de lancement."
+  ],
+  "Шрифты и лицензии": [
+    "Fonts and licenses",
+    "Fuentes y licencias",
+    "Polices et licences"
+  ],
+  "О PORT": ["About PORT", "Acerca de PORT", "À propos de PORT"],
+  "Отмена": ["Cancel", "Cancelar", "Annuler"],
+  "Настройки сброшены": [
+    "Settings reset",
+    "Ajustes restablecidos",
+    "Paramètres réinitialisés"
+  ],
+  "Не удалось сбросить настройки": [
+    "Could not reset settings",
+    "No se pudieron restablecer los ajustes",
+    "Impossible de réinitialiser les paramètres"
+  ],
+  "Сбросить настройки?": [
+    "Reset settings?",
+    "¿Restablecer los ajustes?",
+    "Réinitialiser les paramètres ?"
+  ],
+  "Настройки PORT вернутся к исходным значениям. Игровые файлы не затрагиваются.": [
+    "PORT settings will return to their defaults. Game files will be kept.",
+    "Los ajustes de PORT volverán a sus valores predeterminados. Se conservarán los archivos de juegos.",
+    "Les paramètres PORT seront réinitialisés. Les fichiers de jeux seront conservés."
+  ],
+  "Скрыть уведомление": [
+    "Dismiss notification",
+    "Ocultar notificación",
+    "Masquer la notification"
+  ],
+  "Главная": ["Home", "Inicio", "Accueil"],
+  "Каталог": ["Catalog", "Catálogo", "Catalogue"],
+  "Загрузки": ["Downloads", "Descargas", "Téléchargements"],
+  "PORT — главная": ["PORT — Home", "PORT — Inicio", "PORT — Accueil"],
+  "ОБЗОР": ["EXPLORE", "EXPLORAR", "EXPLORER"],
+  "Основная навигация": [
+    "Main navigation",
+    "Navegación principal",
+    "Navigation principale"
+  ],
+  "Доступно обновление PORT": [
+    "PORT update available",
+    "Actualización de PORT disponible",
+    "Mise à jour de PORT disponible"
+  ],
+  "Консольные": ["Console", "Mundos", "Les mondes"],
+  "миры": ["worlds", "de consola", "des consoles"],
+  "на твоём ПК": ["on your PC", "en tu PC", "sur votre PC"],
+  "Открывай независимые порты,": [
+    "Discover independent ports,",
+    "Descubre ports independientes,",
+    "Découvrez des portages indépendants,"
+  ],
+  "рекомпиляции и новые способы играть.": [
+    "recompilations and new ways to play.",
+    "recompilaciones y nuevas formas de jugar.",
+    "des recompilations et de nouvelles façons de jouer."
+  ],
+  "Исследовать каталог": [
+    "Explore catalog",
+    "Explorar catálogo",
+    "Explorer le catalogue"
+  ],
+  "Оригинальная иллюстрация PORT//": [
+    "Original PORT// illustration",
+    "Ilustración original de PORT//",
+    "Illustration originale PORT//"
+  ],
+  "Все платформы": [
+    "All platforms",
+    "Todas las plataformas",
+    "Toutes les plateformes"
+  ],
+  "Быстрый выбор платформы": [
+    "Quick platform selection",
+    "Selección rápida de plataforma",
+    "Sélection rapide de plateforme"
+  ],
+  "ПРОЕКТЫ СООБЩЕСТВА": [
+    "COMMUNITY PROJECTS",
+    "PROYECTOS DE LA COMUNIDAD",
+    "PROJETS DE LA COMMUNAUTÉ"
+  ],
+  "Выбор редакции": [
+    "Featured projects",
+    "Proyectos destacados",
+    "Projets à découvrir"
+  ],
+  "Весь каталог": ["Full catalog", "Todo el catálogo", "Tout le catalogue"],
+  "В порядке каталога PORT": [
+    "In PORT catalog order",
+    "En el orden del catálogo PORT",
+    "Dans l’ordre du catalogue PORT"
+  ],
+  "Каталог не удалось загрузить.": [
+    "Could not load the catalog.",
+    "No se pudo cargar el catálogo.",
+    "Impossible de charger le catalogue."
+  ],
+  "Показана сохранённая копия каталога. Обновление пока недоступно.": [
+    "Showing the last loaded catalog. Refresh is unavailable.",
+    "Se muestra el último catálogo cargado. No se puede actualizar.",
+    "Le dernier catalogue chargé est affiché. L’actualisation est indisponible."
+  ],
+  "Повторить": ["Try again", "Reintentar", "Réessayer"],
+  "Опубликованные проекты появятся здесь.": [
+    "Published projects will appear here.",
+    "Los proyectos publicados aparecerán aquí.",
+    "Les projets publiés apparaîtront ici."
+  ],
+  "Загрузка каталога": [
+    "Loading catalog",
+    "Cargando catálogo",
+    "Chargement du catalogue"
+  ],
+  "Сборки для Windows": [
+    "Windows builds",
+    "Versiones para Windows",
+    "Versions Windows"
+  ],
+  "Требования и условия запуска — в проекте.": [
+    "See each project for requirements.",
+    "Consulta los requisitos de cada proyecto.",
+    "Consultez les conditions de chaque projet."
+  ],
+  "Экспериментальные проекты": [
+    "Experimental projects",
+    "Proyectos experimentales",
+    "Projets expérimentaux"
+  ],
+  "Альфа- и бета-проекты. Сведения о сборках — в проекте.": [
+    "Alpha and beta projects. See each project for builds.",
+    "Proyectos alfa y beta. Consulta sus versiones en cada proyecto.",
+    "Projets alpha et bêta. Consultez chaque projet pour les versions."
+  ],
+  "Найди следующий проект": [
+    "Find your next project",
+    "Encuentra tu próximo proyecto",
+    "Trouvez votre prochain projet"
+  ],
+  "Открой полный каталог и сравни требования.": [
+    "Browse the full catalog and compare requirements.",
+    "Explora el catálogo completo y compara requisitos.",
+    "Parcourez le catalogue et comparez les conditions requises."
+  ],
+  "Независимые проекты · собственная копия игры может потребоваться": [
+    "Independent projects · your own game copy may be required",
+    "Proyectos independientes · puede requerirse tu propia copia del juego",
+    "Projets indépendants · votre propre copie du jeu peut être requise"
+  ],
+  "Обложка недоступна": [
+    "Cover unavailable",
+    "Portada no disponible",
+    "Jaquette indisponible"
+  ],
+  "Платформа не указана": [
+    "Platform unspecified",
+    "Plataforma sin especificar",
+    "Plateforme non précisée"
+  ],
+  "Сборка не указана": [
+    "Build unspecified",
+    "Versión sin especificar",
+    "Version non précisée"
+  ],
+  "Без Windows-сборки": [
+    "No Windows build",
+    "Sin versión para Windows",
+    "Aucune version Windows"
+  ],
+  "Windows-сборка": [
+    "Windows build",
+    "Versión para Windows",
+    "Version Windows"
+  ],
+  "О проекте": ["About project", "Acerca del proyecto", "À propos du projet"],
+  "PORT// / ПРОЕКТЫ": [
+    "PORT// / PROJECTS",
+    "PORT// / PROYECTOS",
+    "PORT// / PROJETS"
+  ],
+  "Независимые порты и новые способы играть.": [
+    "Independent ports and new ways to play.",
+    "Ports independientes y nuevas formas de jugar.",
+    "Portages indépendants et nouvelles façons de jouer."
+  ],
+  "Найди игру, сравни технологии, узнай о проекте.": [
+    "Find a game, compare technologies, explore the project.",
+    "Busca un juego, compara tecnologías y descubre el proyecto.",
+    "Trouvez un jeu, comparez les technologies, découvrez le projet."
+  ],
+  "Избранное": ["Favorites", "Favoritos", "Favoris"],
+  "Найти проект": ["Find a project", "Buscar un proyecto", "Trouver un projet"],
+  "Сбросить фильтры": [
+    "Reset filters",
+    "Restablecer filtros",
+    "Réinitialiser les filtres"
+  ],
+  "Поиск по игре или проекту": [
+    "Search by game or project",
+    "Buscar por juego o proyecto",
+    "Rechercher un jeu ou un projet"
+  ],
+  "Название игры или проекта": [
+    "Game or project name",
+    "Nombre del juego o proyecto",
+    "Nom du jeu ou du projet"
+  ],
+  "Очистить запрос каталога": [
+    "Clear catalog search",
+    "Borrar búsqueda del catálogo",
+    "Effacer la recherche du catalogue"
+  ],
+  "Исходная платформа": [
+    "Original platform",
+    "Plataforma original",
+    "Plateforme d’origine"
+  ],
+  "Технология": ["Technology", "Tecnología", "Technologie"],
+  "Все технологии": [
+    "All technologies",
+    "Todas las tecnologías",
+    "Toutes les technologies"
+  ],
+  "Стадия разработки": [
+    "Development stage",
+    "Etapa de desarrollo",
+    "Stade de développement"
+  ],
+  "Все стадии": ["All stages", "Todas las etapas", "Tous les stades"],
+  "Все": ["All", "Todas", "Toutes"],
+  "Доступны": ["Available", "Disponibles", "Disponibles"],
+  "Недоступны": ["Unavailable", "No disponibles", "Indisponibles"],
+  "Не указано": ["Unspecified", "Sin especificar", "Non précisé"],
+  "Наличие Windows-сборки": [
+    "Windows build availability",
+    "Disponibilidad de versión para Windows",
+    "Disponibilité d’une version Windows"
+  ],
+  "Фильтры каталога": [
+    "Catalog filters",
+    "Filtros del catálogo",
+    "Filtres du catalogue"
+  ],
+  "Проекты": ["Projects", "Proyectos", "Projets"],
+  "Сортировка": ["Sort by", "Ordenar por", "Trier par"],
+  "Порядок каталога": [
+    "Catalog order",
+    "Orden del catálogo",
+    "Ordre du catalogue"
+  ],
+  "Название: А → Я": ["Name: A → Z", "Nombre: A → Z", "Nom : A → Z"],
+  "Название: Я → А": ["Name: Z → A", "Nombre: Z → A", "Nom : Z → A"],
+  "Опубликованный каталог": [
+    "Published catalog",
+    "Catálogo publicado",
+    "Catalogue publié"
+  ],
+  "Обновление каталога…": [
+    "Refreshing catalog…",
+    "Actualizando catálogo…",
+    "Actualisation du catalogue…"
+  ],
+  "Каталог ещё не загружен": [
+    "Catalog not loaded yet",
+    "Catálogo aún no cargado",
+    "Catalogue pas encore chargé"
+  ],
+  "Каталог сохранён на компьютере": [
+    "Catalog saved on this computer",
+    "Catálogo guardado en este equipo",
+    "Catalogue enregistré sur cet ordinateur"
+  ],
+  "Локальные тестовые данные": [
+    "Local test data",
+    "Datos de prueba locales",
+    "Données de test locales"
+  ],
+  "Обновить": ["Refresh", "Actualizar", "Actualiser"],
+  "Обновить каталог": [
+    "Refresh catalog",
+    "Actualizar catálogo",
+    "Actualiser le catalogue"
+  ],
+  "Состояние каталога": [
+    "Catalog status",
+    "Estado del catálogo",
+    "État du catalogue"
+  ],
+  "Не удалось загрузить каталог. Проверь подключение и повтори попытку.": [
+    "Could not load the catalog. Check your connection and try again.",
+    "No se pudo cargar el catálogo. Comprueba la conexión e inténtalo de nuevo.",
+    "Impossible de charger le catalogue. Vérifiez la connexion et réessayez."
+  ],
+  "Не удалось обновить каталог. Последние данные сохранены.": [
+    "Could not refresh the catalog. The last loaded data is still available.",
+    "No se pudo actualizar el catálogo. Los últimos datos siguen disponibles.",
+    "Impossible d’actualiser le catalogue. Les dernières données restent disponibles."
+  ],
+  "Некоторые изображения недоступны. Сведения о проектах сохранены.": [
+    "Some images are unavailable. Project details are still available.",
+    "Algunas imágenes no están disponibles. La información de los proyectos se conserva.",
+    "Certaines images sont indisponibles. Les informations des projets sont conservées."
+  ],
+  "Каталог пока пуст": [
+    "The catalog is empty",
+    "El catálogo está vacío",
+    "Le catalogue est vide"
+  ],
+  "Ничего не найдено": [
+    "No results found",
+    "No se encontraron resultados",
+    "Aucun résultat"
+  ],
+  "Попробуй другое название или сбрось фильтры.": [
+    "Try another name or reset the filters.",
+    "Prueba otro nombre o restablece los filtros.",
+    "Essayez un autre nom ou réinitialisez les filtres."
+  ],
+  "Проекты каталога": [
+    "Catalog projects",
+    "Proyectos del catálogo",
+    "Projets du catalogue"
+  ],
+  "Назад": ["Back", "Atrás", "Retour"],
+  "Страница": ["Page", "Página", "Page"],
+  "из": ["of", "de", "sur"],
+  "Далее": ["Next", "Siguiente", "Suivant"],
+  "Страницы каталога": [
+    "Catalog pages",
+    "Páginas del catálogo",
+    "Pages du catalogue"
+  ],
+  "Наличие сборки не подтверждает совместимость. Требования к оригинальным файлам — в информации о проекте.": [
+    "A build does not confirm compatibility. See the project for original-file requirements.",
+    "Una versión no confirma la compatibilidad. Consulta los requisitos de archivos originales en el proyecto.",
+    "La présence d’une version ne confirme pas la compatibilité. Consultez le projet pour les fichiers d’origine requis."
+  ],
+  "Наличие сборки по данным каталога. Не является проверкой совместимости.": [
+    "Build availability from the catalog. Compatibility has not been verified.",
+    "Disponibilidad según el catálogo. La compatibilidad no está verificada.",
+    "Disponibilité selon le catalogue. Compatibilité non vérifiée."
+  ],
+  "Экспериментальный": ["Experimental", "Experimental", "Expérimental"],
+  "Не удалось загрузить проект. Проверьте подключение и повторите попытку.": [
+    "Could not load the project. Check your connection and try again.",
+    "No se pudo cargar el proyecto. Comprueba la conexión e inténtalo de nuevo.",
+    "Impossible de charger le projet. Vérifiez la connexion et réessayez."
+  ],
+  "Источник проекта v2 не настроен": [
+    "Project source is not configured",
+    "La fuente del proyecto no está configurada",
+    "La source du projet n’est pas configurée"
+  ],
+  "Минимальные": ["Minimum", "Mínimos", "Minimum"],
+  "Рекомендуемые": ["Recommended", "Recomendados", "Recommandé"],
+  "Назад в каталог": [
+    "Back to catalog",
+    "Volver al catálogo",
+    "Retour au catalogue"
+  ],
+  "Сборки": ["Builds", "Versiones", "Versions"],
+  "Одобренные сборки для Windows пока не опубликованы. Исходный код и новости — на странице проекта.": [
+    "No approved Windows builds published yet. See the official project for source code and news.",
+    "Aún no hay versiones aprobadas para Windows. Consulta el proyecto oficial para ver el código y las noticias.",
+    "Aucune version Windows approuvée n’est publiée. Consultez le projet officiel pour le code source et les nouvelles."
+  ],
+  "Версия для Windows": [
+    "Windows version",
+    "Versión para Windows",
+    "Version Windows"
+  ],
+  " · Недоступна": [" · Unavailable", " · No disponible", " · Indisponible"],
+  " · Предварительная": [" · Prerelease", " · Preliminar", " · Préversion"],
+  "Доступна новая версия. Скачайте новый официальный архив; файлы игры не заменяются.": [
+    "New version available. Download a new official archive; game files will be kept.",
+    "Nueva versión disponible. Descarga un nuevo archivo oficial; los archivos del juego se conservarán.",
+    "Nouvelle version disponible. Téléchargez une nouvelle archive officielle ; les fichiers du jeu sont conservés."
+  ],
+  "Скачать для Windows": [
+    "Download for Windows",
+    "Descargar para Windows",
+    "Télécharger pour Windows"
+  ],
+  "Версия": ["Version", "Versión", "Version"],
+  "Стабильная версия": ["Stable release", "Versión estable", "Version stable"],
+  "Предварительная версия": ["Prerelease", "Versión preliminar", "Préversion"],
+  "Официальный файл проекта · GitHub Releases": [
+    "Official project file · GitHub Releases",
+    "Archivo oficial del proyecto · GitHub Releases",
+    "Fichier officiel du projet · GitHub Releases"
+  ],
+  "Выберите папку сохранения. Установка и запуск — вручную.": [
+    "Choose a save folder. Install and launch manually.",
+    "Elige una carpeta. La instalación y el inicio son manuales.",
+    "Choisissez un dossier. Installation et lancement manuels."
+  ],
+  "Скачивание доступно в приложении PORT для Windows": [
+    "Downloads are available in PORT for Windows",
+    "Las descargas están disponibles en PORT para Windows",
+    "Les téléchargements sont disponibles dans PORT pour Windows"
+  ],
+  "Загрузка проекта…": [
+    "Loading project…",
+    "Cargando proyecto…",
+    "Chargement du projet…"
+  ],
+  "Оригинальная платформа": [
+    "Original platform",
+    "Plataforma original",
+    "Plateforme d’origine"
+  ],
+  "Тип порта": ["Port type", "Tipo de port", "Type de portage"],
+  "Платформы проекта": [
+    "Project platforms",
+    "Plataformas del proyecto",
+    "Plateformes du projet"
+  ],
+  "Разработчики порта": [
+    "Port developers",
+    "Desarrolladores del port",
+    "Développeurs du portage"
+  ],
+  "Подробнее о проекте": [
+    "More about the project",
+    "Más sobre el proyecto",
+    "En savoir plus sur le projet"
+  ],
+  "Что нового в": ["What’s new in", "Novedades de", "Nouveautés de"],
+  "Системные требования": [
+    "System requirements",
+    "Requisitos del sistema",
+    "Configuration requise"
+  ],
+  "ОС": ["OS", "SO", "Système"],
+  "Процессор": ["CPU", "Procesador", "Processeur"],
+  "Видеокарта": ["GPU", "Tarjeta gráfica", "Carte graphique"],
+  "Память": ["Memory", "Memoria", "Mémoire"],
+  "Место на диске": ["Disk space", "Espacio en disco", "Espace disque"],
+  "Источник:": ["Source:", "Fuente:", "Source :"],
+  "Для начала игры": ["Before you play", "Antes de jugar", "Avant de jouer"],
+  "Зависимости": ["Dependencies", "Dependencias", "Dépendances"],
+  " (необязательно)": [" (optional)", " (opcional)", " (facultatif)"],
+  "Инструкция": ["Instructions", "Instrucciones", "Instructions"],
+  "Известные проблемы": [
+    "Known issues",
+    "Problemas conocidos",
+    "Problèmes connus"
+  ],
+  "Данные проекта v2": [
+    "Project details",
+    "Detalles del proyecto",
+    "Informations du projet"
+  ],
+  "От разработчиков проекта": [
+    "From the project developers",
+    "De los desarrolladores del proyecto",
+    "Des développeurs du projet"
+  ],
+  "Не удалось открыть ссылку": [
+    "Could not open the link",
+    "No se pudo abrir el enlace",
+    "Impossible d’ouvrir le lien"
+  ],
+  "Проверка сборки": [
+    "Checking build",
+    "Comprobando versión",
+    "Vérification de la version"
+  ],
+  "Выбор папки": ["Choosing folder", "Eligiendo carpeta", "Choix du dossier"],
+  "Скачивание": ["Downloading", "Descargando", "Téléchargement"],
+  "Проверка целостности": [
+    "Verifying integrity",
+    "Verificando integridad",
+    "Vérification de l’intégrité"
+  ],
+  "Загрузка завершена": [
+    "Download complete",
+    "Descarga completada",
+    "Téléchargement terminé"
+  ],
+  "Загрузка отменена": [
+    "Download cancelled",
+    "Descarga cancelada",
+    "Téléchargement annulé"
+  ],
+  "Загрузка прервана": [
+    "Download interrupted",
+    "Descarga interrumpida",
+    "Téléchargement interrompu"
+  ],
+  "Ошибка загрузки": [
+    "Download failed",
+    "Error de descarga",
+    "Échec du téléchargement"
+  ],
+  "Официальные архивы проектов. Установка и запуск — вручную.": [
+    "Official project archives. Install and launch manually.",
+    "Archivos oficiales de proyectos. La instalación y el inicio son manuales.",
+    "Archives officielles des projets. Installation et lancement manuels."
+  ],
+  "Перед закрытием PORT завершите или отмените загрузку. Повторная попытка начнётся с начала.": [
+    "Finish or cancel the download before closing PORT. A retry starts from the beginning.",
+    "Completa o cancela la descarga antes de cerrar PORT. Los reintentos empiezan desde cero.",
+    "Terminez ou annulez le téléchargement avant de fermer PORT. Un nouvel essai reprend depuis le début."
+  ],
+  "История загрузок пока пуста": [
+    "No downloads yet",
+    "Aún no hay descargas",
+    "Aucun téléchargement"
+  ],
+  "Загрузка файла": [
+    "File download",
+    "Descarga de archivo",
+    "Téléchargement de fichier"
+  ],
+  "Прогресс скачивания": [
+    "Download progress",
+    "Progreso de descarga",
+    "Progression du téléchargement"
+  ],
+  "Отменить загрузку": [
+    "Cancel download",
+    "Cancelar descarga",
+    "Annuler le téléchargement"
+  ],
+  "Открыть папку": ["Open folder", "Abrir carpeta", "Ouvrir le dossier"],
+  "Убрать из истории": [
+    "Remove from history",
+    "Quitar del historial",
+    "Retirer de l’historique"
+  ],
+  "Закрыть уведомление": [
+    "Dismiss notification",
+    "Cerrar notificación",
+    "Fermer la notification"
+  ],
+  "Файл сохранён": ["File saved", "Archivo guardado", "Fichier enregistré"],
+  " · размер неизвестен": [
+    " · unknown size",
+    " · tamaño desconocido",
+    " · taille inconnue"
+  ],
+  "/с": ["/s", "/s", "/s"],
+  "Не удалось прочитать избранное и недавние проекты. Перезапустите PORT.": [
+    "Could not read favorites and recent projects. Restart PORT.",
+    "No se pudieron leer los favoritos y proyectos recientes. Reinicia PORT.",
+    "Impossible de lire les favoris et projets récents. Redémarrez PORT."
+  ],
+  "Не удалось сохранить избранное и недавние проекты. Повторите действие.": [
+    "Could not save favorites and recent projects. Try again.",
+    "No se pudieron guardar los favoritos y proyectos recientes. Inténtalo de nuevo.",
+    "Impossible d’enregistrer les favoris et projets récents. Réessayez."
+  ],
+  "В избранное": [
+    "Add to favorites",
+    "Añadir a favoritos",
+    "Ajouter aux favoris"
+  ],
+  "Убрать из избранного": [
+    "Remove from favorites",
+    "Quitar de favoritos",
+    "Retirer des favoris"
+  ],
+  "Не удалось выполнить действие с окном. Повторите попытку.": [
+    "Could not perform the window action. Try again.",
+    "No se pudo realizar la acción de ventana. Inténtalo de nuevo.",
+    "Impossible d’effectuer cette action sur la fenêtre. Réessayez."
+  ],
+  "Свернуть окно": [
+    "Minimize window",
+    "Minimizar ventana",
+    "Réduire la fenêtre"
+  ],
+  "Развернуть окно": [
+    "Maximize window",
+    "Maximizar ventana",
+    "Agrandir la fenêtre"
+  ],
+  "Восстановить окно": [
+    "Restore window",
+    "Restaurar ventana",
+    "Restaurer la fenêtre"
+  ],
+  "Закрыть окно": ["Close window", "Cerrar ventana", "Fermer la fenêtre"],
+  "Окно PORT": ["PORT window", "Ventana PORT", "Fenêtre PORT"],
+  "Обложка": ["Cover", "Portada", "Jaquette"],
+  "Изображение недоступно": [
+    "Image unavailable",
+    "Imagen no disponible",
+    "Image indisponible"
+  ],
+  "Скриншоты": ["Screenshots", "Capturas de pantalla", "Captures d’écran"],
+  "Прокрутить скриншоты назад": [
+    "Scroll screenshots back",
+    "Desplazar capturas atrás",
+    "Faire défiler les captures vers l’arrière"
+  ],
+  "Прокрутить скриншоты вперёд": [
+    "Scroll screenshots forward",
+    "Desplazar capturas adelante",
+    "Faire défiler les captures vers l’avant"
+  ],
+  "Скриншоты недоступны.": [
+    "Screenshots unavailable.",
+    "Capturas no disponibles.",
+    "Captures indisponibles."
+  ],
+  "· скриншот": ["· screenshot", "· captura", "· capture"],
+  "Стрелки переключают изображения. Escape закрывает просмотр.": [
+    "Use arrow keys to browse. Escape closes the viewer.",
+    "Usa las flechas para navegar. Escape cierra el visor.",
+    "Utilisez les flèches pour parcourir. Échap ferme l’aperçu."
+  ],
+  "Закрыть просмотр": ["Close viewer", "Cerrar visor", "Fermer l’aperçu"],
+  "Предыдущий скриншот": [
+    "Previous screenshot",
+    "Captura anterior",
+    "Capture précédente"
+  ],
+  "Следующий скриншот": [
+    "Next screenshot",
+    "Captura siguiente",
+    "Capture suivante"
+  ],
+  "Проверка обновлений…": [
+    "Checking for updates…",
+    "Buscando actualizaciones…",
+    "Recherche de mises à jour…"
+  ],
+  "Установлена актуальная версия": [
+    "You have the latest version",
+    "Tienes la versión más reciente",
+    "Vous avez la dernière version"
+  ],
+  "Доступно обновление": [
+    "Update available",
+    "Actualización disponible",
+    "Mise à jour disponible"
+  ],
+  "Загрузка обновления…": [
+    "Downloading update…",
+    "Descargando actualización…",
+    "Téléchargement de la mise à jour…"
+  ],
+  "Обновление проверено и готово к установке": [
+    "Update verified and ready to install",
+    "Actualización verificada y lista para instalar",
+    "Mise à jour vérifiée et prête à installer"
+  ],
+  "Запуск установщика…": [
+    "Starting installer…",
+    "Iniciando instalador…",
+    "Lancement du programme d’installation…"
+  ],
+  "Обновление не завершено": [
+    "Update incomplete",
+    "Actualización incompleta",
+    "Mise à jour incomplète"
+  ],
+  "Официальный канал ещё не подключён": [
+    "Official update channel is not configured yet",
+    "El canal oficial aún no está configurado",
+    "Le canal officiel n’est pas encore configuré"
+  ],
+  "Обновления доступны в Windows-приложении": [
+    "Updates are available in the Windows app",
+    "Las actualizaciones están disponibles en la aplicación para Windows",
+    "Les mises à jour sont disponibles dans l’application Windows"
+  ],
+  "Обновления PORT//": [
+    "PORT// updates",
+    "Actualizaciones de PORT//",
+    "Mises à jour PORT//"
+  ],
+  "Текущая версия": ["Current version", "Versión actual", "Version actuelle"],
+  "Проверить обновления": [
+    "Check for updates",
+    "Buscar actualizaciones",
+    "Rechercher des mises à jour"
+  ],
+  "Изолированный тестовый канал": [
+    "Isolated test channel",
+    "Canal de prueba aislado",
+    "Canal de test isolé"
+  ],
+  "Состояние обновлений недоступно": [
+    "Update status unavailable",
+    "Estado de actualización no disponible",
+    "État des mises à jour indisponible"
+  ],
+  "Доступная версия:": [
+    "Available version:",
+    "Versión disponible:",
+    "Version disponible :"
+  ],
+  "Что изменилось": ["What changed", "Qué ha cambiado", "Modifications"],
+  "Загрузка обновления PORT": [
+    "Downloading PORT update",
+    "Descargando actualización de PORT",
+    "Téléchargement de la mise à jour PORT"
+  ],
+  "МБ": ["MB", "MB", "Mo"],
+  "Загрузить обновление": [
+    "Download update",
+    "Descargar actualización",
+    "Télécharger la mise à jour"
+  ],
+  "Установить и перезапустить": [
+    "Install and restart",
+    "Instalar y reiniciar",
+    "Installer et redémarrer"
+  ],
+  "Позже": ["Later", "Más tarde", "Plus tard"],
+  "Подтвердить и перезапустить": [
+    "Confirm and restart",
+    "Confirmar y reiniciar",
+    "Confirmer et redémarrer"
+  ],
+  "Установить обновление PORT//?": [
+    "Install PORT// update?",
+    "¿Instalar la actualización de PORT//?",
+    "Installer la mise à jour PORT// ?"
+  ],
+  "PORT закроется на время установки и запустится снова. Сначала завершите операции с играми и закройте игровые окна. Библиотека, настройки и сохранения сохранятся.": [
+    "PORT will close during installation and restart. Finish game operations and close game windows first. Your library, settings and saves will be kept.",
+    "PORT se cerrará durante la instalación y se reiniciará. Termina las operaciones y cierra los juegos primero. Se conservarán la biblioteca, los ajustes y las partidas.",
+    "PORT se fermera pendant l’installation et redémarrera. Terminez les opérations et fermez les jeux. Bibliothèque, paramètres et sauvegardes seront conservés."
+  ],
+  "Закрыть": ["Close", "Cerrar", "Fermer"],
+  "Нужна сборка для Windows": [
+    "A Windows build is required",
+    "Se requiere una versión para Windows",
+    "Une version Windows est requise"
+  ],
+  "Доступность файла не подтверждена": [
+    "File availability is unconfirmed",
+    "La disponibilidad del archivo no está confirmada",
+    "La disponibilité du fichier n’est pas confirmée"
+  ],
+  "Файл сборки пока не опубликован": [
+    "Build file not published yet",
+    "El archivo aún no está publicado",
+    "Le fichier n’est pas encore publié"
+  ],
+  "Скачивание этого файла пока недоступно в PORT": [
+    "This file cannot be downloaded in PORT yet",
+    "Este archivo aún no se puede descargar en PORT",
+    "Ce fichier ne peut pas encore être téléchargé dans PORT"
+  ],
+  "Не удалось получить состояние загрузки.": [
+    "Could not get download status.",
+    "No se pudo obtener el estado de descarga.",
+    "Impossible de lire l’état du téléchargement."
+  ],
+  "Не удалось выполнить действие. Повторите попытку.": [
+    "Could not complete the action. Try again.",
+    "No se pudo completar la acción. Inténtalo de nuevo.",
+    "Impossible d’effectuer cette action. Réessayez."
+  ],
+  "Не удалось повторить загрузку. Проверьте доступность сборки.": [
+    "Could not retry the download. Check build availability.",
+    "No se pudo reintentar la descarga. Comprueba su disponibilidad.",
+    "Impossible de relancer le téléchargement. Vérifiez la disponibilité de la version."
+  ],
+  "Язык интерфейса": [
+    "Interface language",
+    "Idioma de la interfaz",
+    "Langue de l’interface"
+  ],
+  "Нативный порт": ["Native port", "Port nativo", "Portage natif"],
+  "Рекомпиляция": ["Recompilation", "Recompilación", "Recompilation"],
+  "Декомпиляция": ["Decompilation", "Descompilación", "Décompilation"],
+  "Слой совместимости": [
+    "Compatibility layer",
+    "Capa de compatibilidad",
+    "Couche de compatibilité"
+  ],
+  "Порт исходного кода": [
+    "Source port",
+    "Port de código fuente",
+    "Portage du code source"
+  ],
+  "Другая технология": [
+    "Other technology",
+    "Otra tecnología",
+    "Autre technologie"
+  ],
+  "Активная разработка": [
+    "Active development",
+    "Desarrollo activo",
+    "Développement actif"
+  ],
+  "Поддержка": ["Maintenance", "Mantenimiento", "Maintenance"],
+  "Бета": ["Beta", "Beta", "Bêta"],
+  "Альфа": ["Alpha", "Alfa", "Alpha"],
+  "Архив": ["Archived", "Archivado", "Archivé"],
+  "Не указана": ["Unspecified", "Sin especificar", "Non précisé"],
+  "Проект на GitHub": [
+    "Project on GitHub",
+    "Proyecto en GitHub",
+    "Projet sur GitHub"
+  ],
+  "Сайт проекта": ["Project website", "Sitio del proyecto", "Site du projet"],
+  "Релизы": ["Releases", "Lanzamientos", "Versions publiées"],
+  "Источник каталога: API v2": [
+    "Catalog source: API v2",
+    "Fuente del catálogo: API v2",
+    "Source du catalogue : API v2"
+  ],
+  "Проверка сборки в CMS…": [
+    "Checking build with CMS…",
+    "Comprobando versión con CMS…",
+    "Vérification de la version avec le CMS…"
+  ],
+  "Подключение к серверу файла…": [
+    "Connecting to the file server…",
+    "Conectando al servidor del archivo…",
+    "Connexion au serveur de fichiers…"
+  ],
+  "Скачивание официального файла…": [
+    "Downloading official file…",
+    "Descargando archivo oficial…",
+    "Téléchargement du fichier officiel…"
+  ],
+  "Проверка целостности файла…": [
+    "Verifying file integrity…",
+    "Verificando integridad del archivo…",
+    "Vérification de l’intégrité du fichier…"
+  ],
+  "Файл сохранён. Запуск выполняется вручную.": [
+    "File saved. Launch manually.",
+    "Archivo guardado. Inícialo manualmente.",
+    "Fichier enregistré. Lancez-le manuellement."
+  ],
+  "Выберите папку для сохранения файла": [
+    "Choose a folder to save the file",
+    "Elige una carpeta para guardar el archivo",
+    "Choisissez un dossier pour enregistrer le fichier"
+  ],
+  "Скачанный файл больше не найден": [
+    "The downloaded file could not be found",
+    "No se encuentra el archivo descargado",
+    "Le fichier téléchargé est introuvable"
+  ],
+  "Не удалось показать файл в Проводнике": [
+    "Could not reveal the file in Explorer",
+    "No se pudo mostrar el archivo en el Explorador",
+    "Impossible d’afficher le fichier dans l’Explorateur"
+  ],
+  "Не удалось подтвердить сборку в публичном API CMS. Проверьте доступность каталога и повторите попытку.": [
+    "Could not verify the build with CMS. Check catalog availability and try again.",
+    "No se pudo verificar la versión con CMS. Comprueba el catálogo e inténtalo de nuevo.",
+    "Impossible de vérifier la version avec le CMS. Vérifiez le catalogue et réessayez."
+  ],
+  "Соединение прервано. Повторите скачивание.": [
+    "Connection interrupted. Try downloading again.",
+    "Conexión interrumpida. Vuelve a descargar.",
+    "Connexion interrompue. Relancez le téléchargement."
+  ],
+  "Ошибка сети. Повторите скачивание.": [
+    "Network error. Try downloading again.",
+    "Error de red. Vuelve a descargar.",
+    "Erreur réseau. Relancez le téléchargement."
+  ],
+  "Не удалось записать файл. Проверьте место на диске.": [
+    "Could not write the file. Check disk space.",
+    "No se pudo escribir el archivo. Comprueba el espacio en disco.",
+    "Impossible d’écrire le fichier. Vérifiez l’espace disque."
+  ],
+  "SHA-256 файла не совпадает с CMS": [
+    "File SHA-256 does not match CMS",
+    "El SHA-256 del archivo no coincide con CMS",
+    "Le SHA-256 du fichier ne correspond pas au CMS"
+  ],
+  "Файл получен не полностью или превышает лимит": [
+    "File is incomplete or exceeds the limit",
+    "El archivo está incompleto o supera el límite",
+    "Le fichier est incomplet ou dépasse la limite"
+  ],
+  "Загрузка прервана при закрытии PORT. Повторите скачивание с начала.": [
+    "Download interrupted when PORT closed. Download again from the beginning.",
+    "Descarga interrumpida al cerrar PORT. Vuelve a descargar desde cero.",
+    "Téléchargement interrompu à la fermeture de PORT. Recommencez depuis le début."
+  ],
+  "Не удалось сохранить историю. Файл на диске не удалён.": [
+    "Could not save history. The file on disk was kept.",
+    "No se pudo guardar el historial. El archivo del disco se conserva.",
+    "Impossible d’enregistrer l’historique. Le fichier sur disque est conservé."
+  ],
+  "Сначала завершите или отмените текущую загрузку": [
+    "Finish or cancel the current download first",
+    "Completa o cancela la descarga actual primero",
+    "Terminez ou annulez d’abord le téléchargement en cours"
+  ],
+  "Файл уже существует. Выберите другую папку и повторите скачивание.": [
+    "File already exists. Choose another folder and try again.",
+    "El archivo ya existe. Elige otra carpeta e inténtalo de nuevo.",
+    "Le fichier existe déjà. Choisissez un autre dossier et réessayez."
+  ],
+  "Одобренная доступная Windows-сборка не подтверждена": [
+    "An approved available Windows build could not be confirmed",
+    "No se confirmó una versión aprobada y disponible para Windows",
+    "Aucune version Windows approuvée et disponible n’a pu être confirmée"
+  ],
+  "Бесплатный Windows-лаунчер нативных ПК-портов и рекомпиляций консольных игр.": [
+    "Free Windows launcher for independent PC ports and console-game recompilations.",
+    "Lanzador gratuito de Windows para ports independientes y recompilaciones de juegos de consola.",
+    "Lanceur Windows gratuit pour portages indépendants et recompilations de jeux de console."
+  ],
+  "Подробнее:": ["Details:", "Detalles:", "Détails :"],
+  "Подборка:": ["Featured:", "Destacado:", "Sélection :"],
+  "Открыть проект": ["Open project", "Abrir proyecto", "Ouvrir le projet"],
+  "Открыть скриншот": ["Open screenshot", "Abrir captura", "Ouvrir la capture"],
+  "Скриншот": ["Screenshot", "Captura", "Capture"],
+  "PORT — выберите папку загрузки": [
+    "PORT — choose download folder",
+    "PORT — elige carpeta de descarga",
+    "PORT — choisir le dossier de téléchargement"
+  ],
+  "PORT — файл уже существует": [
+    "PORT — file already exists",
+    "PORT — el archivo ya existe",
+    "PORT — le fichier existe déjà"
+  ],
+  "Выбрать другую папку": [
+    "Choose another folder",
+    "Elegir otra carpeta",
+    "Choisir un autre dossier"
+  ],
+  "Файл уже существует. Существующий файл будет сохранён. Выберите другую папку или отмените загрузку.": [
+    "The file already exists and will be kept. Choose another folder or cancel.",
+    "El archivo ya existe y se conservará. Elige otra carpeta o cancela.",
+    "Le fichier existe déjà et sera conservé. Choisissez un autre dossier ou annulez."
+  ],
+  "Дождитесь завершения загрузки или отмените её в разделе Загрузки, затем закройте PORT.": [
+    "Wait for the download to finish or cancel it in Downloads, then close PORT.",
+    "Espera a que termine la descarga o cancélala en Descargas y cierra PORT.",
+    "Attendez la fin du téléchargement ou annulez-le dans Téléchargements, puis fermez PORT."
+  ],
+  "PORT — загрузка продолжается": [
+    "PORT — download in progress",
+    "PORT — descarga en curso",
+    "PORT — téléchargement en cours"
+  ],
+  "Не удалось сохранить историю загрузок": [
+    "Could not save download history",
+    "No se pudo guardar el historial",
+    "Impossible d’enregistrer l’historique"
+  ],
+  "Не удалось прочитать историю загрузок": [
+    "Could not read download history",
+    "No se pudo leer el historial",
+    "Impossible de lire l’historique"
+  ],
+  "Не удалось сохранить файл": [
+    "Could not save the file",
+    "No se pudo guardar el archivo",
+    "Impossible d’enregistrer le fichier"
+  ],
+  "Не удалось завершить сохранение файла": [
+    "Could not finish saving the file",
+    "No se pudo completar el guardado",
+    "Impossible de terminer l’enregistrement du fichier"
+  ],
+  "Папка загрузки недоступна": [
+    "Download folder unavailable",
+    "Carpeta de descarga no disponible",
+    "Dossier de téléchargement indisponible"
+  ],
+  "Не удалось создать временный файл": [
+    "Could not create a temporary file",
+    "No se pudo crear un archivo temporal",
+    "Impossible de créer un fichier temporaire"
+  ],
+  "Размер файла не совпадает с CMS или превышает лимит": [
+    "File size differs from CMS or exceeds the limit",
+    "El tamaño difiere de CMS o supera el límite",
+    "La taille diffère du CMS ou dépasse la limite"
+  ],
+  "Размер файла превышает ожидаемый": [
+    "File exceeds the expected size",
+    "El archivo supera el tamaño esperado",
+    "Le fichier dépasse la taille prévue"
+  ],
+  "Нет размера или SHA-256 для проверки завершения": [
+    "No size or SHA-256 provided to verify completion",
+    "No hay tamaño ni SHA-256 para verificar la descarga",
+    "Aucune taille ni SHA-256 pour vérifier le téléchargement"
+  ],
+  "Сборка отсутствует или неоднозначна": [
+    "Build is missing or ambiguous",
+    "La versión no existe o es ambigua",
+    "La version est absente ou ambiguë"
+  ],
+  "Не удалось подтвердить источник сборки": [
+    "Could not verify the build source",
+    "No se pudo verificar la fuente",
+    "Impossible de vérifier la source de la version"
+  ],
+  "Небезопасное имя файла релиза": [
+    "Release filename is unsafe",
+    "El nombre del archivo no es seguro",
+    "Le nom du fichier n’est pas sûr"
+  ],
+  "Некорректный ответ CMS": [
+    "Invalid CMS response",
+    "Respuesta de CMS no válida",
+    "Réponse du CMS incorrecte"
+  ],
+  "Нет сборок": [
+    "No builds available",
+    "No hay versiones disponibles",
+    "Aucune version disponible"
+  ],
+  "Не удалось проверить файл назначения": [
+    "Could not check the destination file",
+    "No se pudo comprobar el archivo de destino",
+    "Impossible de vérifier le fichier de destination"
+  ],
+  "Ошибка сети. Проверьте подключение и повторите попытку.": [
+    "Network error. Check your connection and try again.",
+    "Error de red. Comprueba la conexión e inténtalo de nuevo.",
+    "Erreur réseau. Vérifiez la connexion et réessayez."
+  ],
+  "Все загрузки": [
+    "All downloads",
+    "Todas las descargas",
+    "Tous les téléchargements"
+  ],
+  "Этот файл уже скачан. Откройте раздел Загрузки.": [
+    "This file has already been downloaded. Open Downloads.",
+    "Este archivo ya está descargado. Abre Descargas.",
+    "Ce fichier a déjà été téléchargé. Ouvrez Téléchargements."
+  ],
+  "МиБ": ["MiB", "MiB", "Mio"],
+  "ГиБ": ["GiB", "GiB", "Gio"]
+}

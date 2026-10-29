@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import { useDeferredValue, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
@@ -83,14 +84,14 @@ export function HubCatalog({
     <div className="hub-catalog">
       <header className="hub-catalog-intro">
         <div>
-          <p className="port-kicker">PORT// / ПРОЕКТЫ</p>
+          <p className="port-kicker">{t("PORT// / ПРОЕКТЫ")}</p>
           <h1>
-            Каталог<span>.</span>
+            {t("Каталог")}
+            <span>.</span>
           </h1>
           <p>
-            Независимые порты и новые способы играть.
-            <br />
-            Найди игру, сравни технологии, узнай о проекте.
+            {t("Независимые порты и новые способы играть.")} <br />
+            {t("Найди игру, сравни технологии, узнай о проекте.")}{" "}
           </p>
         </div>
         <Layers3
@@ -100,7 +101,7 @@ export function HubCatalog({
           aria-hidden="true"
         />
       </header>
-      <section className="hub-catalog-tools" aria-label="Фильтры каталога">
+      <section className="hub-catalog-tools" aria-label={t("Фильтры каталога")}>
         <div className="hub-filter-heading">
           <button
             aria-pressed={favoritesOnly}
@@ -109,26 +110,27 @@ export function HubCatalog({
               onQuery({ ...query, page: 1 });
             }}
           >
-            Избранное
+            {t("Избранное")}{" "}
           </button>
           <span>
-            <SlidersHorizontal size={16} aria-hidden="true" /> Найти проект
+            <SlidersHorizontal size={16} aria-hidden="true" />
+            {t("Найти проект")}{" "}
           </span>
           <button onClick={reset} disabled={!active}>
-            Сбросить фильтры <X size={14} aria-hidden="true" />
+            {t("Сбросить фильтры")} <X size={14} aria-hidden="true" />
           </button>
         </div>
         <label className="hub-catalog-search">
           <Search size={19} aria-hidden="true" />
           <input
-            aria-label="Поиск по игре или проекту"
-            placeholder="Название игры или проекта"
+            aria-label={t("Поиск по игре или проекту")}
+            placeholder={t("Название игры или проекта")}
             value={query.search}
             onChange={(e) => change({ search: e.target.value })}
           />
           {query.search && (
             <button
-              aria-label="Очистить запрос каталога"
+              aria-label={t("Очистить запрос каталога")}
               onClick={() => change({ search: "" })}
             >
               <X size={17} />
@@ -137,46 +139,46 @@ export function HubCatalog({
         </label>
         <div className="hub-filter-grid">
           <label>
-            Исходная платформа
+            {t("Исходная платформа")}{" "}
             <select
-              aria-label="Исходная платформа"
+              aria-label={t("Исходная платформа")}
               value={query.platform}
               onChange={(e) => change({ platform: e.target.value })}
             >
-              <option value="">Все платформы</option>
+              <option value="">{t("Все платформы")}</option>
               {platforms.map((p) => (
                 <option key={p}>{p}</option>
               ))}
             </select>
           </label>
           <label>
-            Технология
+            {t("Технология")}{" "}
             <select
-              aria-label="Технология"
+              aria-label={t("Технология")}
               value={query.kind}
               onChange={(e) => change({ kind: e.target.value })}
             >
-              <option value="">Все технологии</option>
+              <option value="">{t("Все технологии")}</option>
               {Object.entries(technologyLabels)
                 .filter(([key]) => key !== "compatibility-runtime")
                 .map(([key, label]) => (
                   <option key={key} value={key}>
-                    {label}
+                    {t(label)}
                   </option>
                 ))}
             </select>
           </label>
           <label>
-            Стадия разработки
+            {t("Стадия разработки")}{" "}
             <select
-              aria-label="Стадия разработки"
+              aria-label={t("Стадия разработки")}
               value={query.lifecycle}
               onChange={(e) => change({ lifecycle: e.target.value })}
             >
-              <option value="">Все стадии</option>
+              <option value="">{t("Все стадии")}</option>
               {Object.entries(lifecycleLabels).map(([key, label]) => (
                 <option key={key} value={key}>
-                  {label}
+                  {t(label)}
                 </option>
               ))}
             </select>
@@ -185,83 +187,85 @@ export function HubCatalog({
         <div
           className="hub-build-filter"
           role="group"
-          aria-label="Наличие Windows-сборки"
+          aria-label={t("Наличие Windows-сборки")}
         >
-          <span>Windows-сборка</span>
+          <span>{t("Windows-сборка")}</span>
           {[
-            ["", "Все"],
-            ["available", "Доступны"],
-            ["unavailable", "Недоступны"],
-            ["unknown", "Не указано"],
+            ["", t("Все")],
+            ["available", t("Доступны")],
+            ["unavailable", t("Недоступны")],
+            ["unknown", t("Не указано")],
           ].map(([key, label]) => (
             <button
               key={key}
               aria-pressed={query.windows === key}
               onClick={() => change({ windows: key })}
             >
-              {label}
+              {t(label)}
             </button>
           ))}
         </div>
       </section>
       <div className="hub-catalog-results-head">
         <h2 ref={resultsRef} tabIndex={-1}>
-          Проекты{" "}
+          {t("Проекты")}{" "}
           <span aria-live="polite" aria-atomic="true">
             {result.total}
           </span>
         </h2>
         <label>
-          Сортировка
+          {t("Сортировка")}{" "}
           <select
-            aria-label="Сортировка"
+            aria-label={t("Сортировка")}
             value={query.sort}
             onChange={(e) =>
               change({ sort: e.target.value as CatalogQuery["sort"] })
             }
           >
-            <option value="catalog">Порядок каталога</option>
-            <option value="name">Название: А → Я</option>
-            <option value="name-desc">Название: Я → А</option>
+            <option value="catalog">{t("Порядок каталога")}</option>
+            <option value="name">{t("Название: А → Я")}</option>
+            <option value="name-desc">{t("Название: Я → А")}</option>
           </select>
         </label>
       </div>
-      <div className="hub-source-status" aria-label="Состояние каталога">
+      <div className="hub-source-status" aria-label={t("Состояние каталога")}>
         <span>
           <span>
             {catalog.source === "demo"
-              ? "Локальные тестовые данные"
+              ? t("Локальные тестовые данные")
               : catalog.source === "cache"
-                ? "Каталог сохранён на компьютере"
+                ? t("Каталог сохранён на компьютере")
                 : catalog.source === "empty" && !catalog.busy
-                  ? "Каталог ещё не загружен"
+                  ? t("Каталог ещё не загружен")
                   : catalog.busy
-                    ? "Обновление каталога…"
-                    : "Опубликованный каталог"}
+                    ? t("Обновление каталога…")
+                    : t("Опубликованный каталог")}
           </span>
           {!native && " · WEB PREVIEW"}
         </span>
         <button
-          aria-label="Обновить каталог"
+          aria-label={t("Обновить каталог")}
           disabled={catalog.busy}
           onClick={() => void catalog.refresh()}
         >
           <RotateCw size={14} aria-hidden="true" />
-          Обновить
+          {t("Обновить")}{" "}
         </button>
       </div>
       {error && (
         <div className="hub-catalog-error" role="alert">
           <span>
             {projects.length
-              ? "Не удалось обновить каталог. Последние данные сохранены."
-              : "Не удалось загрузить каталог. Проверь подключение и повтори попытку."}
+              ? t("Не удалось обновить каталог. Последние данные сохранены.")
+              : t(
+                  "Не удалось загрузить каталог. Проверь подключение и повтори попытку.",
+                )}
           </span>
           <button
             disabled={catalog.busy}
             onClick={() => void catalog.refresh()}
           >
-            Повторить
+            {t("Повторить")}{" "}
           </button>
         </div>
       )}
@@ -269,20 +273,22 @@ export function HubCatalog({
         <p className="hub-catalog-note" role="status">
           {developerMode
             ? catalog.warning
-            : "Некоторые изображения недоступны. Сведения о проектах сохранены."}
+            : t(
+                "Некоторые изображения недоступны. Сведения о проектах сохранены.",
+              )}
         </p>
       )}
       {catalog.notice && (
         <p className="hub-catalog-note" role="status">
-          {catalog.notice}
+          {t(catalog.notice)}
         </p>
       )}
       <section
-        aria-label="Проекты каталога"
+        aria-label={t("Проекты каталога")}
         aria-busy={catalog.busy || deferredSearch !== query.search}
       >
         {catalog.busy && !projects.length ? (
-          <div className="hub-catalog-grid" aria-label="Загрузка каталога">
+          <div className="hub-catalog-grid" aria-label={t("Загрузка каталога")}>
             {[0, 1, 2].map((n) => (
               <div key={n} className="port-card-skeleton" />
             ))}
@@ -304,17 +310,17 @@ export function HubCatalog({
               <Search size={32} aria-hidden="true" />
               <h3>
                 {projects.length || active
-                  ? "Ничего не найдено"
-                  : "Каталог пока пуст"}
+                  ? t("Ничего не найдено")
+                  : t("Каталог пока пуст")}
               </h3>
               <p>
                 {projects.length
-                  ? "Попробуй другое название или сбрось фильтры."
-                  : "Опубликованные проекты появятся здесь."}
+                  ? t("Попробуй другое название или сбрось фильтры.")
+                  : t("Опубликованные проекты появятся здесь.")}
               </p>
               {active && (
                 <button className="text-link" onClick={reset}>
-                  Сбросить фильтры
+                  {t("Сбросить фильтры")}{" "}
                 </button>
               )}
             </div>
@@ -322,29 +328,33 @@ export function HubCatalog({
         )}
       </section>
       {result.pages > 1 && (
-        <nav className="hub-catalog-pagination" aria-label="Страницы каталога">
+        <nav
+          className="hub-catalog-pagination"
+          aria-label={t("Страницы каталога")}
+        >
           <button
             disabled={result.page === 1}
             onClick={() => paging(result.page - 1)}
           >
             <ArrowLeft size={16} />
-            Назад
+            {t("Назад")}{" "}
           </button>
           <span>
-            Страница {result.page} из {result.pages}
+            {t("Страница")} {result.page}
+            {t("из")} {result.pages}
           </span>
           <button
             disabled={result.page === result.pages}
             onClick={() => paging(result.page + 1)}
           >
-            Далее
-            <ArrowRight size={16} />
+            {t("Далее")} <ArrowRight size={16} />
           </button>
         </nav>
       )}
       <footer className="hub-catalog-note">
-        Наличие сборки не подтверждает совместимость. Требования к оригинальным
-        файлам — в информации о проекте.
+        {t(
+          "Наличие сборки не подтверждает совместимость. Требования к оригинальным файлам — в информации о проекте.",
+        )}{" "}
       </footer>
     </div>
   );

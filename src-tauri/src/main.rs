@@ -23,14 +23,20 @@ use tauri::Manager;
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct Settings {
     theme: String,
+    #[serde(default = "default_language")]
+    language: String,
     install_dir: String,
     reduced_motion: bool,
     compact_cards: bool,
+}
+fn default_language() -> String {
+    "ru".into()
 }
 impl Default for Settings {
     fn default() -> Self {
         Self {
             theme: "dark".into(),
+            language: default_language(),
             install_dir: String::new(),
             reduced_motion: false,
             compact_cards: false,
@@ -39,6 +45,9 @@ impl Default for Settings {
 }
 impl Settings {
     fn validate(&self) -> Result<(), String> {
+        if !["ru", "en", "es", "fr"].contains(&self.language.as_str()) {
+            return Err("Недопустимый язык".into());
+        }
         if !["dark", "system"].contains(&self.theme.as_str()) {
             return Err("Недопустимая тема".into());
         }

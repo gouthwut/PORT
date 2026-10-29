@@ -1,3 +1,4 @@
+import { t } from "../hub/i18n";
 import { useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowLeft, ArrowRight, ImageOff, X } from "lucide-react";
@@ -5,8 +6,8 @@ import { Button } from "./ui";
 
 export function GameArt({
   src,
-  label = "Обложка",
-  fallbackLabel = "Изображение недоступно",
+  label = t("Обложка"),
+  fallbackLabel = t("Изображение недоступно"),
   className = "game-art",
   loading,
 }: {
@@ -60,12 +61,12 @@ export function Gallery({
       className={`gallery-section${horizontal ? " project-gallery" : ""}`}
     >
       <div className="project-gallery-heading">
-        <h2>Скриншоты</h2>
+        <h2>{t("Скриншоты")}</h2>
         {horizontal && (
           <div>
             <button
               className="icon-button"
-              aria-label="Прокрутить скриншоты назад"
+              aria-label={t("Прокрутить скриншоты назад")}
               onClick={() =>
                 strip.current?.scrollBy({
                   left: -strip.current.clientWidth * 0.8,
@@ -81,7 +82,7 @@ export function Gallery({
             </button>
             <button
               className="icon-button"
-              aria-label="Прокрутить скриншоты вперёд"
+              aria-label={t("Прокрутить скриншоты вперёд")}
               onClick={() =>
                 strip.current?.scrollBy({
                   left: strip.current.clientWidth * 0.8,
@@ -107,18 +108,18 @@ export function Gallery({
                 returnFocus.current = e.currentTarget;
                 setIndex(i);
               }}
-              aria-label={`Открыть скриншот ${i + 1}`}
+              aria-label={`${t("Открыть скриншот")} ${i + 1}`}
             >
               <GameArt
                 className=""
                 loading="lazy"
                 src={src}
-                label={`${title} — скриншот ${i + 1}`}
+                label={`${title} — ${t("Скриншот")} ${i + 1}`}
               />
             </button>
           ))
         ) : (
-          <p className="gallery-empty">Скриншоты недоступны.</p>
+          <p className="gallery-empty">{t("Скриншоты недоступны.")}</p>
         )}
       </div>
       <Dialog.Root
@@ -147,17 +148,23 @@ export function Gallery({
             }}
           >
             <Dialog.Title>
-              {title} · скриншот {(index ?? 0) + 1} / {images.length}
+              {title}
+              {t("· скриншот")} {(index ?? 0) + 1} / {images.length}
             </Dialog.Title>
             <Dialog.Description>
-              Стрелки переключают изображения. Escape закрывает просмотр.
+              {t(
+                "Стрелки переключают изображения. Escape закрывает просмотр.",
+              )}{" "}
             </Dialog.Description>
-            <Dialog.Close className="icon-button" aria-label="Закрыть просмотр">
+            <Dialog.Close
+              className="icon-button"
+              aria-label={t("Закрыть просмотр")}
+            >
               <X />
             </Dialog.Close>
             <Button
               variant="secondary"
-              aria-label="Предыдущий скриншот"
+              aria-label={t("Предыдущий скриншот")}
               onClick={() => change(-1)}
             >
               <ArrowLeft />
@@ -166,12 +173,12 @@ export function Gallery({
               <GameArt
                 className=""
                 src={images[index]}
-                label={`${title} — скриншот ${index + 1}`}
+                label={`${title} — ${t("Скриншот")} ${index + 1}`}
               />
             )}
             <Button
               variant="secondary"
-              aria-label="Следующий скриншот"
+              aria-label={t("Следующий скриншот")}
               onClick={() => change(1)}
             >
               <ArrowRight />

@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import { compareVersions, newerDownload } from "./releases";
 import { FavoriteButton } from "./preferences";
 import { useEffect, useState } from "react";
@@ -40,7 +41,7 @@ export function V2Project({
             : sourceConfig,
         );
         if (config.version !== "v2")
-          throw Error("Источник проекта v2 не настроен");
+          throw Error(t("Источник проекта v2 не настроен"));
         return createV2Client(config.baseUrl).detail(project.id);
       })
       .then((result) => {
@@ -49,7 +50,9 @@ export function V2Project({
       .catch(() => {
         if (active)
           setError(
-            "Не удалось загрузить проект. Проверьте подключение и повторите попытку.",
+            t(
+              "Не удалось загрузить проект. Проверьте подключение и повторите попытку.",
+            ),
           );
       })
       .finally(() => {
@@ -93,8 +96,8 @@ export function V2Project({
     ),
   ];
   const specs = [
-    ["Минимальные", req?.requirements.minimum],
-    ["Рекомендуемые", req?.requirements.recommended],
+    [t("Минимальные"), req?.requirements.minimum],
+    [t("Рекомендуемые"), req?.requirements.recommended],
   ] as const;
   const hasSpecs = specs.some(
     ([, values]) => values && Object.values(values).some(Boolean),
@@ -102,25 +105,26 @@ export function V2Project({
   return (
     <article className="hub-project-page">
       <button className="back-link" onClick={onBack}>
-        <ArrowLeft size={16} aria-hidden="true" /> Назад в каталог
+        <ArrowLeft size={16} aria-hidden="true" />
+        {t("Назад в каталог")}{" "}
       </button>
       <section
         className="hub-project-overview project-hero"
-        aria-label="О проекте"
+        aria-label={t("О проекте")}
       >
         <GameArt
           src={media.gallery[0] || media.cover}
-          fallbackLabel="Обложка недоступна"
+          fallbackLabel={t("Обложка недоступна")}
           label={
             media.gallery[0] || media.cover
-              ? `Обложка ${title}`
-              : "Обложка недоступна"
+              ? `${t("Обложка")} ${title}`
+              : t("Обложка недоступна")
           }
         />
         <div className="project-hero-shade" />
         <div className="project-hero-content">
           <p className="project-eyebrow">
-            {technologyLabels[currentProject.kind]}
+            {t(technologyLabels[currentProject.kind])}
             {currentProject.platforms.length > 0 &&
               ` · ${currentProject.platforms.join(" / ")}`}
           </p>
@@ -131,37 +135,37 @@ export function V2Project({
           {currentProject.description && (
             <p className="project-summary">{currentProject.description}</p>
           )}
-          <section className="project-download" aria-label="Сборки">
-            <h2 className="project-eyebrow">Сборки</h2>
+          <section className="project-download" aria-label={t("Сборки")}>
+            <h2 className="project-eyebrow">{t("Сборки")}</h2>
             {busy ? (
-              <p role="status">Загрузка проекта…</p>
+              <p role="status">{t("Загрузка проекта…")}</p>
             ) : error ? (
               <p role="alert">
-                {error}{" "}
+                {t(error)}{" "}
                 <button
                   className="text-link"
                   onClick={() => setAttempt((n) => n + 1)}
                 >
-                  Повторить
+                  {t("Повторить")}{" "}
                 </button>
               </p>
             ) : build ? (
               <>
                 {windows.length > 1 && (
                   <label className="project-build-choice">
-                    Версия для Windows
+                    {t("Версия для Windows")}{" "}
                     <select
-                      aria-label="Версия для Windows"
+                      aria-label={t("Версия для Windows")}
                       value={build.id}
                       onChange={(e) => setSelectedBuild(e.target.value)}
                     >
                       {windows.map((b) => (
                         <option key={b.id} value={b.id}>
                           {b.version}
-                          {downloadUnavailable(b) ? " · Недоступна" : ""}
+                          {downloadUnavailable(b) ? t(" · Недоступна") : ""}
                           {b.arch !== "unknown" ? ` · ${b.arch}` : ""}
                           {b.channel === "prerelease"
-                            ? " · Предварительная"
+                            ? t(" · Предварительная")
                             : ""}
                         </option>
                       ))}
@@ -170,8 +174,9 @@ export function V2Project({
                 )}
                 {newerDownload(build, downloads.history) && (
                   <p className="project-update-note" role="status">
-                    Доступна новая версия. Скачайте новый официальный архив;
-                    файлы игры не заменяются.
+                    {t(
+                      "Доступна новая версия. Скачайте новый официальный архив; файлы игры не заменяются.",
+                    )}{" "}
                   </p>
                 )}
                 <div className="project-download-row">
@@ -180,39 +185,46 @@ export function V2Project({
                     disabled={!native || downloads.busy || !!reason}
                     onClick={() => void downloads.start(build, title)}
                   >
-                    <Download size={20} aria-hidden="true" /> Скачать для
-                    Windows
+                    <Download size={20} aria-hidden="true" />
+                    {t("Скачать для Windows")}{" "}
                   </Button>
                   <div className="project-release-meta">
-                    <strong>Версия {build.version}</strong>
+                    <strong>
+                      {t("Версия")} {build.version}
+                    </strong>
                     <span>
                       {[
                         build.size != null
-                          ? `${(build.size / 1024 ** 2).toFixed(1)} МиБ`
+                          ? `${(build.size / 1024 ** 2).toFixed(1)} ${t("МиБ")}`
                           : null,
                         build.channel === "prerelease"
-                          ? "Предварительная версия"
-                          : "Стабильная версия",
+                          ? t("Предварительная версия")
+                          : t("Стабильная версия"),
                       ]
                         .filter(Boolean)
                         .join(" · ")}
                     </span>
                     {!reason && (
-                      <span>Официальный файл проекта · GitHub Releases</span>
+                      <span>
+                        {t("Официальный файл проекта · GitHub Releases")}
+                      </span>
                     )}
                   </div>
                 </div>
                 <p className="project-download-note">
-                  {reason ??
+                  {(reason ? t(reason) : null) ??
                     (!native
-                      ? "Скачивание доступно в приложении PORT для Windows"
-                      : "Выберите папку сохранения. Установка и запуск — вручную.")}
+                      ? t("Скачивание доступно в приложении PORT для Windows")
+                      : t(
+                          "Выберите папку сохранения. Установка и запуск — вручную.",
+                        ))}
                 </p>
               </>
             ) : (
               <p className="project-unavailable">
-                Одобренные сборки для Windows пока не опубликованы. Исходный код
-                и новости — на странице проекта.
+                {t(
+                  "Одобренные сборки для Windows пока не опубликованы. Исходный код и новости — на странице проекта.",
+                )}{" "}
               </p>
             )}
           </section>
@@ -221,23 +233,23 @@ export function V2Project({
       <dl className="project-facts">
         {currentProject.platforms.length > 0 && (
           <div>
-            <dt>Оригинальная платформа</dt>
+            <dt>{t("Оригинальная платформа")}</dt>
             <dd>{currentProject.platforms.join(" / ")}</dd>
           </div>
         )}
         <div>
-          <dt>Тип порта</dt>
-          <dd>{technologyLabels[currentProject.kind]}</dd>
+          <dt>{t("Тип порта")}</dt>
+          <dd>{t(technologyLabels[currentProject.kind])}</dd>
         </div>
         {systems.length > 0 && (
           <div>
-            <dt>Платформы проекта</dt>
+            <dt>{t("Платформы проекта")}</dt>
             <dd>{systems.join(" · ")}</dd>
           </div>
         )}
         {!!currentProject.developers?.length && (
           <div>
-            <dt>Разработчики порта</dt>
+            <dt>{t("Разработчики порта")}</dt>
             <dd>{currentProject.developers.join(" · ")}</dd>
           </div>
         )}
@@ -248,27 +260,32 @@ export function V2Project({
       {currentProject.description &&
         currentProject.description.length > 120 && (
           <details className="project-section">
-            <summary>Подробнее о проекте</summary>
+            <summary>{t("Подробнее о проекте")}</summary>
             <p>{currentProject.description}</p>
           </details>
         )}
       {build?.changelog && (
         <details className="project-section project-changelog">
-          <summary>Что нового в {build.version}</summary>
+          <summary>
+            {t("Что нового в")} {build.version}
+          </summary>
           <p>{build.changelog}</p>
         </details>
       )}
-      <section className="project-information" aria-label="Данные проекта v2">
+      <section
+        className="project-information"
+        aria-label={t("Данные проекта v2")}
+      >
         {hasSpecs && (
           <section className="project-section">
-            <h2>Системные требования</h2>
+            <h2>{t("Системные требования")}</h2>
             <div className="project-spec-columns">
               {specs.map(
                 ([label, values]) =>
                   values &&
                   Object.values(values).some(Boolean) && (
-                    <div key={label}>
-                      <h3>{label}</h3>
+                    <div key={t(label)}>
+                      <h3>{t(label)}</h3>
                       <dl>
                         {Object.entries(values)
                           .filter(([, value]) => value)
@@ -277,11 +294,11 @@ export function V2Project({
                               <dt>
                                 {
                                   {
-                                    os: "ОС",
-                                    cpu: "Процессор",
-                                    gpu: "Видеокарта",
-                                    memory: "Память",
-                                    storage: "Место на диске",
+                                    os: t("ОС"),
+                                    cpu: t("Процессор"),
+                                    gpu: t("Видеокарта"),
+                                    memory: t("Память"),
+                                    storage: t("Место на диске"),
                                   }[key]
                                 }
                               </dt>
@@ -295,13 +312,15 @@ export function V2Project({
             </div>
             {req?.requirements.notes && <p>{req.requirements.notes}</p>}
             {req?.requirements.source && (
-              <p className="muted">Источник: {req.requirements.source}</p>
+              <p className="muted">
+                {t("Источник:")} {req.requirements.source}
+              </p>
             )}
           </section>
         )}
         {!!req?.sourceRequirements.length && (
           <section className="project-section">
-            <h2>Для начала игры</h2>
+            <h2>{t("Для начала игры")}</h2>
             <ul>
               {req.sourceRequirements.map((s, i) => (
                 <li key={i}>{s}</li>
@@ -311,12 +330,12 @@ export function V2Project({
         )}
         {!!req?.dependencies.length && (
           <section className="project-section">
-            <h2>Зависимости</h2>
+            <h2>{t("Зависимости")}</h2>
             <ul>
               {req.dependencies.map((d, i) => (
                 <li key={i}>
                   {d.name}
-                  {!d.required && " (необязательно)"}
+                  {!d.required && t(" (необязательно)")}
                 </li>
               ))}
             </ul>
@@ -324,7 +343,7 @@ export function V2Project({
         )}
         {!!install?.install.steps.length && (
           <details className="project-section">
-            <summary>Инструкция</summary>
+            <summary>{t("Инструкция")}</summary>
             <ol>
               {install.install.steps.map((s, i) => (
                 <li key={i}>{s}</li>
@@ -335,7 +354,7 @@ export function V2Project({
         )}
         {!!install?.knownIssues.length && (
           <details className="project-section">
-            <summary>Известные проблемы</summary>
+            <summary>{t("Известные проблемы")}</summary>
             <ul>
               {install.knownIssues.map((s, i) => (
                 <li key={i}>
@@ -349,7 +368,7 @@ export function V2Project({
       </section>
       {!!currentProject.officialLinks.length && (
         <section className="project-section">
-          <h2>От разработчиков проекта</h2>
+          <h2>{t("От разработчиков проекта")}</h2>
           <div className="hub-project-links">
             {currentProject.officialLinks.map((link) => (
               <a
@@ -374,11 +393,11 @@ export function V2Project({
                     : undefined
                 }
               >
-                {link.label} <ArrowUpRight size={15} aria-hidden="true" />
+                {t(link.label)} <ArrowUpRight size={15} aria-hidden="true" />
               </a>
             ))}
           </div>
-          {linkError && <p role="alert">{linkError}</p>}
+          {linkError && <p role="alert">{t(linkError)}</p>}
         </section>
       )}
     </article>

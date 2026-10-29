@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import translations from "../src/hub/translations.json" with { type: "json" };
 const origin = "https://port-catalog-cms.port-catalog-cms.workers.dev";
 async function fixture(page: Page) {
   const projects = [
@@ -140,8 +141,9 @@ test("version ordering never guesses dates, prereleases or architectures", async
 }) => {
   await page.goto("/");
   const result = await page.evaluate(async () => {
-    const { compareVersions, newerDownload } =
-      await import("/src/hub/releases.ts");
+    const { compareVersions, newerDownload } = await import(
+      /* @vite-ignore */ ["/src/hub/releases.ts"].join("")
+    );
     const build = {
       id: "new",
       projectId: "p",
@@ -171,4 +173,68 @@ test("version ordering never guesses dates, prereleases or architectures", async
     ];
   });
   expect(result).toEqual([1, 0, null, null, true, false, false, false]);
+});
+
+test("four languages persist and catalog path fits narrow and wide windows", async ({
+  page,
+}) => {
+  await fixture(page);
+  const names = ["Настройки", "Settings", "Ajustes", "Paramètres"];
+  const catalogs = ["Каталог", "Catalog", "Catálogo", "Catalogue"];
+  const downloads = ["Загрузки", "Downloads", "Descargas", "Téléchargements"];
+  const langs = ["ru", "en", "es", "fr"];
+  for (let i = 0; i < langs.length; i++) {
+    await page
+      .getByRole("button", { name: names[Math.max(0, i - 1)], exact: true })
+      .click();
+    await page
+      .locator("select")
+      .filter({ has: page.locator('option[value="fr"]') })
+      .selectOption(langs[i]);
+    await expect(page.locator("html")).toHaveAttribute("lang", langs[i]);
+    await page.getByRole("button", { name: downloads[i], exact: true }).click();
+    await expect(page.locator(".downloads-center h1")).toContainText(
+      downloads[i],
+    );
+    await page.getByRole("button", { name: catalogs[i], exact: true }).click();
+    await expect(page.locator(".hub-project-card")).toHaveCount(3);
+    for (const [width, height] of [
+      [1440, 960],
+      [1024, 768],
+      [800, 600],
+      [480, 800],
+      [320, 720],
+    ]) {
+      await page.setViewportSize({ width, height });
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+    }
+    await page.screenshot({
+      path: `.local/evidence/15/browser-catalog-${langs[i]}-320.png`,
+      fullPage: true,
+    });
+    await page
+      .locator(".hub-project-card")
+      .filter({ hasText: "Zelda64Recomp" })
+      .click();
+    await expect(page.locator(".project-hero h1")).toHaveText("Zelda64Recomp");
+    await page.keyboard.press("Escape");
+    await expect(page.locator(".hub-catalog-intro h1")).toBeVisible();
+    await page.setViewportSize({ width: 1440, height: 960 });
+  }
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+  await expect(
+    page.getByRole("button", { name: "Catalogue", exact: true }),
+  ).toBeVisible();
+});
+
+test("each translated entry covers all three additional languages", async () => {
+  for (const row of Object.values(translations)) {
+    expect(row).toHaveLength(3);
+    expect(row.every((text) => text.trim().length > 0)).toBe(true);
+  }
 });

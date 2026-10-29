@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, X } from "lucide-react";
 import type { DownloadState } from "./downloads";
@@ -6,9 +7,17 @@ import "./downloads.css";
 
 const bytes = (n: number) =>
   n >= 1024 ** 3
-    ? `${(n / 1024 ** 3).toFixed(2)} ГиБ`
-    : `${(n / 1024 ** 2).toFixed(1)} МиБ`;
-export function DownloadPanel({ state }: { state: DownloadState }) {
+    ? `${(n / 1024 ** 3).toFixed(2)} ${t("ГиБ")}`
+    : `${(n / 1024 ** 2).toFixed(1)} ${t("МиБ")}`;
+export function DownloadPanel({
+  state,
+  onDetails,
+  suppressed = false,
+}: {
+  state: DownloadState;
+  onDetails?: () => void;
+  suppressed?: boolean;
+}) {
   const s = state.status;
   const [dismissed, setDismissed] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -62,14 +71,20 @@ export function DownloadPanel({ state }: { state: DownloadState }) {
     interacting,
     dismissed,
   ]);
-  const visible = !hidden && (!!s?.phase || !!state.error);
+  useEffect(() => {
+    if (suppressed) {
+      setHovered(false);
+      setFocused(false);
+    }
+  }, [suppressed]);
+  const visible = !suppressed && !hidden && (!!s?.phase || !!state.error);
   return (
     <>
       {visible && (
         <aside
           ref={panel}
           className={`port-download-panel${dismissed ? " is-closing" : ""}`}
-          aria-label="Загрузка файла"
+          aria-label={t("Загрузка файла")}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
           onFocusCapture={() => setFocused(true)}
@@ -80,7 +95,7 @@ export function DownloadPanel({ state }: { state: DownloadState }) {
           {!state.busy && (
             <button
               className="icon-button download-dismiss"
-              aria-label="Закрыть уведомление"
+              aria-label={t("Закрыть уведомление")}
               onClick={() => setDismissed(true)}
             >
               <X size={16} />
@@ -88,23 +103,24 @@ export function DownloadPanel({ state }: { state: DownloadState }) {
           )}
           <strong>
             {s?.phase === "completed"
-              ? "Загрузка завершена"
+              ? t("Загрузка завершена")
               : s?.phase === "error"
-                ? "Ошибка загрузки"
+                ? t("Ошибка загрузки")
                 : s?.phase === "cancelled"
-                  ? "Загрузка отменена"
-                  : "Загрузка файла"}
+                  ? t("Загрузка отменена")
+                  : t("Загрузка файла")}
           </strong>
           {s?.name && <p className="download-name">{s.name}</p>}
           {s?.phase === "completed" && (
             <p className="download-success" role="status">
-              <CheckCircle2 size={16} aria-hidden="true" /> Файл сохранён
+              <CheckCircle2 size={16} aria-hidden="true" />
+              {t("Файл сохранён")}{" "}
             </p>
           )}
           {s?.phase === "downloading" && (
             <>
               <progress
-                aria-label="Прогресс скачивания"
+                aria-label={t("Прогресс скачивания")}
                 max={s.total ?? undefined}
                 value={s.total ? s.completed : undefined}
               />
@@ -112,17 +128,25 @@ export function DownloadPanel({ state }: { state: DownloadState }) {
                 {bytes(s.completed)}
                 {s.total
                   ? ` / ${bytes(s.total)} · ${Math.floor((s.completed / s.total) * 100)}%`
-                  : " · размер неизвестен"}{" "}
-                · {bytes(s.speed)}/с
+                  : t(" · размер неизвестен")}{" "}
+                · {bytes(s.speed)}
+                {t("/с")}{" "}
               </p>
             </>
           )}
-          {s?.phase !== "completed" && <p role="status">{s?.message}</p>}
-          {state.error && <p role="alert">{state.error}</p>}
+          {s?.phase !== "completed" && (
+            <p role="status">{s?.message && t(s.message)}</p>
+          )}
+          {state.error && <p role="alert">{t(state.error)}</p>}
           {state.busy && s?.phase !== "selecting" && (
             <Button variant="secondary" onClick={() => void state.cancel()}>
-              Отменить загрузку
+              {t("Отменить загрузку")}{" "}
             </Button>
+          )}
+          {onDetails && (
+            <button className="text-link" onClick={onDetails}>
+              {t("Все загрузки")}
+            </button>
           )}
           {s?.phase === "completed" && (
             <Button
@@ -136,7 +160,7 @@ export function DownloadPanel({ state }: { state: DownloadState }) {
                 }
               }}
             >
-              Открыть папку
+              {t("Открыть папку")}{" "}
             </Button>
           )}
         </aside>

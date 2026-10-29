@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import type { DownloadState, DownloadStatus } from "./downloads";
 import { Button } from "../components/ui";
 import "./downloads.css";
@@ -24,21 +25,23 @@ export function DownloadsCenter({ state }: { state: DownloadState }) {
     <section className="hub-catalog downloads-center">
       <div className="page-heading">
         <h1>
-          Загрузки<span className="accent">.</span>
+          {t("Загрузки")}
+          <span className="accent">.</span>
         </h1>
       </div>
       <p className="muted">
-        Официальные архивы проектов. Установка и запуск — вручную.
+        {t("Официальные архивы проектов. Установка и запуск — вручную.")}{" "}
       </p>
       {state.busy && (
         <p role="status">
-          Перед закрытием PORT завершите или отмените загрузку. Повторная
-          попытка начнётся с начала.
+          {t(
+            "Перед закрытием PORT завершите или отмените загрузку. Повторная попытка начнётся с начала.",
+          )}{" "}
         </p>
       )}
-      {state.error && <p role="alert">{state.error}</p>}
+      {state.error && <p role="alert">{t(state.error)}</p>}
       {!rows.length && (
-        <p className="hub-catalog-empty">История загрузок пока пуста</p>
+        <p className="hub-catalog-empty">{t("История загрузок пока пуста")}</p>
       )}
       {rows.map((r, i) => (
         <DownloadRow key={r.id || i} row={r} state={state} />
@@ -66,11 +69,17 @@ function DownloadRow({
       <p>
         {r.version} {r.name && `· ${r.name}`}
       </p>
-      <strong role="status">{labels[r.phase] || "Загрузка файла"}</strong>
+      {r.phase !== "downloading" && (r.total || r.completed > 0) && (
+        <p>
+          {bytes(r.completed)}
+          {r.total ? ` / ${bytes(r.total)}` : ""}
+        </p>
+      )}
+      <strong role="status">{t(labels[r.phase] || "Загрузка файла")}</strong>
       {r.phase === "downloading" && (
         <>
           <progress
-            aria-label="Прогресс скачивания"
+            aria-label={t("Прогресс скачивания")}
             max={r.total || undefined}
             value={r.total ? r.completed : undefined}
           />
@@ -82,14 +91,16 @@ function DownloadRow({
           </p>
         </>
       )}
-      {r.message && r.phase !== "completed" && <p>{r.message}</p>}
+      {r.message &&
+        r.phase !== "completed" &&
+        r.message !== labels[r.phase] && <p>{t(r.message)}</p>}
       {r.phase === "completed" && r.path && (
         <p className="download-path">{r.path}</p>
       )}
       <div className="download-history-actions">
         {active && r.phase !== "selecting" && (
           <Button variant="secondary" onClick={() => void state.cancel()}>
-            Отменить загрузку
+            {t("Отменить загрузку")}{" "}
           </Button>
         )}
         {!active && r.projectId && r.buildId && (
@@ -98,17 +109,17 @@ function DownloadRow({
             disabled={state.busy}
             onClick={() => void state.retry(r)}
           >
-            Повторить
+            {t("Повторить")}{" "}
           </Button>
         )}
         {r.phase === "completed" && (
           <Button variant="secondary" onClick={() => void state.open(r.id)}>
-            Открыть папку
+            {t("Открыть папку")}{" "}
           </Button>
         )}
         {!active && r.id && (
           <Button variant="ghost" onClick={() => void state.remove(r.id!)}>
-            Убрать из истории
+            {t("Убрать из истории")}{" "}
           </Button>
         )}
       </div>

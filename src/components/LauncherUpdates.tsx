@@ -1,3 +1,4 @@
+import { t } from "../hub/i18n";
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { native } from "../services/settings";
@@ -25,10 +26,10 @@ export function LauncherUpdates({ state }: { state: UpdaterState }) {
       className="settings-section launcher-updates"
       aria-labelledby="updates-heading"
     >
-      <h2 id="updates-heading">Обновления PORT//</h2>
+      <h2 id="updates-heading">{t("Обновления PORT//")}</h2>
       <div className="setting-row">
         <div>
-          <h3>Текущая версия</h3>
+          <h3>{t("Текущая версия")}</h3>
           <p>{status.currentVersion}</p>
         </div>
         <Button
@@ -36,35 +37,36 @@ export function LauncherUpdates({ state }: { state: UpdaterState }) {
           disabled={!native || busy || status.downloaded}
           onClick={() => void run("check_app_update")}
         >
-          Проверить обновления
+          {t("Проверить обновления")}{" "}
         </Button>
       </div>
       {status.channel === "isolated-test" && (
-        <p className="muted">Изолированный тестовый канал</p>
+        <p className="muted">{t("Изолированный тестовый канал")}</p>
       )}
       <p role="status" aria-live="polite">
-        {labels[status.phase] || "Состояние обновлений недоступно"}
+        {t(labels[status.phase] || "Состояние обновлений недоступно")}
       </p>
       {status.version && (
         <p>
-          Доступная версия: <strong>{status.version}</strong>
+          {t("Доступная версия:")} <strong>{status.version}</strong>
         </p>
       )}
       {status.notes && (
         <div className="update-notes">
-          <h3>Что изменилось</h3>
+          <h3>{t("Что изменилось")}</h3>
           <p>{status.notes}</p>
         </div>
       )}
       {status.phase === "downloading" && (
         <>
           <progress
-            aria-label="Загрузка обновления PORT"
+            aria-label={t("Загрузка обновления PORT")}
             value={status.total ? status.completed : undefined}
             max={status.total || undefined}
           />
           <p className="muted">
-            {(status.completed / 1048576).toFixed(1)} МБ
+            {(status.completed / 1048576).toFixed(1)}
+            {t("МБ")}{" "}
             {status.total
               ? ` из ${(status.total / 1048576).toFixed(1)} МБ`
               : ""}
@@ -73,7 +75,7 @@ export function LauncherUpdates({ state }: { state: UpdaterState }) {
             variant="secondary"
             onClick={() => void invoke("cancel_app_update").catch(() => {})}
           >
-            Отменить загрузку
+            {t("Отменить загрузку")}{" "}
           </Button>
         </>
       )}
@@ -87,23 +89,25 @@ export function LauncherUpdates({ state }: { state: UpdaterState }) {
       )}
       {status.version && !status.downloaded && (
         <Button disabled={busy} onClick={() => void run("download_app_update")}>
-          Загрузить обновление
+          {t("Загрузить обновление")}{" "}
         </Button>
       )}
       {status.downloaded && (
         <Button disabled={busy} onClick={() => setConfirm(true)}>
-          Установить и перезапустить
+          {t("Установить и перезапустить")}{" "}
         </Button>
       )}
       <Modal
         open={confirm}
         onOpenChange={setConfirm}
-        title="Установить обновление PORT//?"
-        description="PORT закроется на время установки и запустится снова. Сначала завершите операции с играми и закройте игровые окна. Библиотека, настройки и сохранения сохранятся."
+        title={t("Установить обновление PORT//?")}
+        description={t(
+          "PORT закроется на время установки и запустится снова. Сначала завершите операции с играми и закройте игровые окна. Библиотека, настройки и сохранения сохранятся.",
+        )}
       >
         <div className="dialog-actions">
           <Button variant="secondary" onClick={() => setConfirm(false)}>
-            Позже
+            {t("Позже")}{" "}
           </Button>
           <Button
             disabled={pending}
@@ -112,7 +116,7 @@ export function LauncherUpdates({ state }: { state: UpdaterState }) {
               void run("install_app_update", { confirmed: true });
             }}
           >
-            Подтвердить и перезапустить
+            {t("Подтвердить и перезапустить")}{" "}
           </Button>
         </div>
       </Modal>

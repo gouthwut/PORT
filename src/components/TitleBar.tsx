@@ -1,3 +1,4 @@
+import { t } from "../hub/i18n";
 import { useEffect, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Copy, Minus, Square, X } from "lucide-react";
@@ -32,12 +33,12 @@ export function TitleBar({ onError }: { onError: (message: string) => void }) {
       if (action === "toggleMaximize")
         setMaximized(await appWindow.isMaximized());
     } catch {
-      onError("Не удалось выполнить действие с окном. Повторите попытку.");
+      onError(t("Не удалось выполнить действие с окном. Повторите попытку."));
     }
   }
 
   return (
-    <div className="port-titlebar" role="banner" aria-label="Окно PORT">
+    <div className="port-titlebar" role="banner" aria-label={t("Окно PORT")}>
       <div className="port-titlebar-drag" data-tauri-drag-region>
         <span className="port-titlebar-brand" data-tauri-drag-region>
           PORT
@@ -46,20 +47,20 @@ export function TitleBar({ onError }: { onError: (message: string) => void }) {
       <div className="port-window-controls">
         {(
           [
-            ["minimize", "Свернуть окно", Minus],
+            ["minimize", t("Свернуть окно"), Minus],
             [
               "toggleMaximize",
-              maximized ? "Восстановить окно" : "Развернуть окно",
+              maximized ? t("Восстановить окно") : t("Развернуть окно"),
               maximized ? Copy : Square,
             ],
-            ["close", "Закрыть окно", X],
+            ["close", t("Закрыть окно"), X],
           ] as const
         ).map(([action, label, Icon]) => (
           <button
             key={action}
             type="button"
             className={action === "close" ? "port-window-close" : undefined}
-            aria-label={label}
+            aria-label={t(label)}
             title={native ? label : `${label} — доступно в приложении Windows`}
             disabled={!native}
             onClick={() => void control(action)}

@@ -1,3 +1,4 @@
+import { t, setLanguage, useLanguage } from "./hub/i18n";
 import { useEffect, useRef, useState } from "react";
 import interLicense from "./assets/fonts/Inter-OFL.txt?raw";
 import manropeLicense from "./assets/fonts/Manrope-OFL.txt?raw";
@@ -39,12 +40,14 @@ import "./hub/home.css";
 
 type Page = "home" | "catalog" | "details" | "downloads" | "settings";
 export default function App() {
+  useLanguage();
   const systemReducedMotion = useReducedMotion();
   const updater = useUpdater();
   const preferences = usePreferences();
   const downloads = useDownload();
   const projectCatalog = useProjectCatalog();
   const [selectedV2, setSelectedV2] = useState<CatalogProject | null>(null);
+  const [returnPage, setReturnPage] = useState<Page>("catalog");
   const [page, setPage] = useState<Page>("home");
   const [catalogQuery, setCatalogQuery] = useState<CatalogQuery>({
     ...defaultCatalogQuery,
@@ -53,6 +56,7 @@ export default function App() {
   const setQuery = (search: string) =>
     setCatalogQuery((q) => ({ ...q, search, page: 1 }));
   const [settings, setSettings] = useState<Settings>(defaults);
+  useEffect(() => setLanguage(settings.language ?? "ru"), [settings.language]);
   const [ready, setReady] = useState(false);
   const [storageError, setStorageError] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -126,10 +130,28 @@ export default function App() {
     setPage(next);
   }
   function openProject(project: CatalogProject) {
+    setReturnPage(page === "details" ? "catalog" : page);
     preferences.visit(project.id);
     setSelectedV2(project);
     navigate("details");
   }
+  useEffect(() => {
+    const back = (e: KeyboardEvent) => {
+      if (
+        e.key === "Escape" &&
+        !e.defaultPrevented &&
+        page === "details" &&
+        !document.querySelector('[role="dialog"]') &&
+        !["INPUT", "SELECT", "TEXTAREA"].includes(
+          (e.target as HTMLElement)?.tagName,
+        )
+      ) {
+        setPage(returnPage);
+      }
+    };
+    window.addEventListener("keydown", back);
+    return () => window.removeEventListener("keydown", back);
+  }, [page, returnPage]);
   const isLight = settings.theme === "system";
   const reduceMotion = settings.reducedMotion || systemReducedMotion;
   return (
@@ -140,7 +162,7 @@ export default function App() {
           className={`app-shell port-shell ${page === "home" ? "port-home-active" : ""} ${settings.compactCards ? "compact" : ""} ${settings.reducedMotion ? "reduced-motion" : ""} ${isLight ? "system-theme" : ""}`}
         >
           <a className="skip-link" href="#main">
-            К содержимому
+            {t("К содержимому")}{" "}
           </a>
           <HubSidebar
             page={page}
@@ -161,8 +183,8 @@ export default function App() {
                 <Search size={17} />
                 <input
                   ref={searchRef}
-                  aria-label="Поиск игр"
-                  placeholder="Поиск игр, проектов, платформ…"
+                  aria-label={t("Поиск игр")}
+                  placeholder={t("Поиск игр, проектов, платформ…")}
                   value={query}
                   onChange={(e) => {
                     setQuery(e.target.value);
@@ -172,7 +194,7 @@ export default function App() {
                 {query ? (
                   <button
                     type="button"
-                    aria-label="Очистить поиск"
+                    aria-label={t("Очистить поиск")}
                     onClick={() => setQuery("")}
                   >
                     <X size={15} />
@@ -186,23 +208,27 @@ export default function App() {
             {!online && (
               <div role="status" className="offline-banner">
                 <WifiOff size={15} />
-                Нет подключения к интернету.
+                {t("Нет подключения к интернету.")}{" "}
               </div>
             )}
             {preferences.error && (
               <div role="alert" className="offline-banner">
-                {preferences.error}
+                {t(preferences.error)}
               </div>
             )}
             {storageError && (
               <div role="alert" className="offline-banner">
-                Не удалось прочитать настройки. Проверьте локальные данные или
-                сбросьте настройки.
+                {t(
+                  "Не удалось прочитать настройки. Проверьте локальные данные или сбросьте настройки.",
+                )}{" "}
               </div>
             )}
             <main id="main" tabIndex={-1} ref={mainRef} aria-busy={!ready}>
               {!ready ? (
-                <div className="skeleton" aria-label="Загрузка интерфейса" />
+                <div
+                  className="skeleton"
+                  aria-label={t("Загрузка интерфейса")}
+                />
               ) : (
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
@@ -226,7 +252,7 @@ export default function App() {
                         projectCatalog.projects.some((p) => p.id === id),
                       ) && (
                         <section className="recent-projects">
-                          <h2>Недавно просмотренные</h2>
+                          <h2>{t("Недавно просмотренные")}</h2>
                           <div className="hub-catalog-grid">
                             {preferences.recent
                               .map((id) =>
@@ -260,7 +286,7 @@ export default function App() {
                         key={selectedV2.id}
                         project={selectedV2}
                         downloads={downloads}
-                        onBack={() => navigate("catalog")}
+                        onBack={() => navigate(returnPage)}
                       />
                     )}
                     {page === "downloads" && (
@@ -271,23 +297,45 @@ export default function App() {
                         <div className="page-heading">
                           <div>
                             <h1>
-                              Настройки<span className="accent">.</span>
+                              {t("Настройки")}
+                              <span className="accent">.</span>
                             </h1>
                           </div>
                           <span className="quiet-label">
                             <CheckCircle2 size={15} />
-                            {saving ? "Сохранение…" : "Локальное сохранение"}
+                            {saving
+                              ? t("Сохранение…")
+                              : t("Локальное сохранение")}
                           </span>
                         </div>
                         <div className="settings-layout">
                           <div>
-                            <SettingsSection title="Внешний вид">
+                            <SettingsSection title={t("Внешний вид")}>
+                              <div className="setting-row">
+                                <h3>{t("Язык интерфейса")}</h3>
+                                <select
+                                  aria-label={t("Язык интерфейса")}
+                                  value={settings.language ?? "ru"}
+                                  disabled={saving}
+                                  onChange={(e) =>
+                                    void update({
+                                      language: e.target
+                                        .value as Settings["language"],
+                                    })
+                                  }
+                                >
+                                  <option value="ru">Русский</option>
+                                  <option value="en">English</option>
+                                  <option value="es">Español</option>
+                                  <option value="fr">Français</option>
+                                </select>
+                              </div>
                               <div className="setting-row">
                                 <div>
-                                  <h3>Тема приложения</h3>
+                                  <h3>{t("Тема приложения")}</h3>
                                 </div>
                                 <select
-                                  aria-label="Тема приложения"
+                                  aria-label={t("Тема приложения")}
                                   value={settings.theme}
                                   disabled={saving}
                                   onChange={(e) =>
@@ -297,16 +345,18 @@ export default function App() {
                                     })
                                   }
                                 >
-                                  <option value="dark">Тёмная</option>
-                                  <option value="system">Как в системе</option>
+                                  <option value="dark">{t("Тёмная")}</option>
+                                  <option value="system">
+                                    {t("Как в системе")}
+                                  </option>
                                 </select>
                               </div>
                               <div className="setting-row">
                                 <div>
-                                  <h3>Меньше анимаций</h3>
+                                  <h3>{t("Меньше анимаций")}</h3>
                                 </div>
                                 <Switch
-                                  label="Меньше анимаций"
+                                  label={t("Меньше анимаций")}
                                   checked={settings.reducedMotion}
                                   onCheckedChange={(v) =>
                                     update({ reducedMotion: v })
@@ -316,10 +366,10 @@ export default function App() {
                               </div>
                               <div className="setting-row">
                                 <div>
-                                  <h3>Компактные карточки</h3>
+                                  <h3>{t("Компактные карточки")}</h3>
                                 </div>
                                 <Switch
-                                  label="Компактные карточки"
+                                  label={t("Компактные карточки")}
                                   checked={settings.compactCards}
                                   onCheckedChange={(v) =>
                                     update({ compactCards: v })
@@ -329,24 +379,26 @@ export default function App() {
                               </div>
                             </SettingsSection>
                             <SettingsSection
-                              title="Локальные данные"
+                              title={t("Локальные данные")}
                               description={
                                 native
                                   ? undefined
-                                  : "Режим браузера: настройки хранятся в localStorage."
+                                  : t(
+                                      "Режим браузера: настройки хранятся в localStorage.",
+                                    )
                               }
                             >
                               <div className="setting-row">
                                 <div>
-                                  <h3>Сбросить настройки</h3>
-                                  <p>Игры и сохранения останутся</p>
+                                  <h3>{t("Сбросить настройки")}</h3>
+                                  <p>{t("Игры и сохранения останутся")}</p>
                                 </div>
                                 <Button
                                   variant="secondary"
                                   onClick={() => setReset(true)}
                                   disabled={saving}
                                 >
-                                  Сбросить
+                                  {t("Сбросить")}{" "}
                                 </Button>
                               </div>
                             </SettingsSection>
@@ -360,20 +412,25 @@ export default function App() {
               )}
             </main>
           </div>
-          <DownloadPanel state={downloads} />
+          <DownloadPanel
+            state={downloads}
+            onDetails={() => navigate("downloads")}
+            suppressed={page === "downloads"}
+          />
           <Modal
             open={about}
             onOpenChange={setAbout}
-            title="О PORT"
-            description={`Бесплатный Windows-лаунчер нативных ПК-портов и рекомпиляций консольных игр. Версия ${appVersion}.`}
+            title={t("О PORT")}
+            description={`${t("Бесплатный Windows-лаунчер нативных ПК-портов и рекомпиляций консольных игр.")} ${t("Версия")} ${appVersion}.`}
           >
             <div className="about-dialog-content">
               <p>
-                PORT не распространяет игровые файлы. Совместимость и способ
-                запуска указаны на странице каждой игры.
+                {t(
+                  "PORT не распространяет игровые файлы. Совместимость и способ запуска указаны на странице каждой игры.",
+                )}{" "}
               </p>
               <details className="technical-info font-notices">
-                <summary>Шрифты и лицензии</summary>
+                <summary>{t("Шрифты и лицензии")}</summary>
                 <p>
                   Manrope · The Manrope Project Authors. Inter · The Inter
                   Project Authors. SIL Open Font License 1.1.
@@ -388,12 +445,14 @@ export default function App() {
           <Modal
             open={reset}
             onOpenChange={setReset}
-            title="Сбросить настройки?"
-            description="Настройки PORT вернутся к исходным значениям. Игровые файлы не затрагиваются."
+            title={t("Сбросить настройки?")}
+            description={t(
+              "Настройки PORT вернутся к исходным значениям. Игровые файлы не затрагиваются.",
+            )}
           >
             <div className="dialog-actions">
               <Button variant="secondary" onClick={() => setReset(false)}>
-                Отмена
+                {t("Отмена")}{" "}
               </Button>
               <Button
                 variant="danger"
@@ -413,7 +472,7 @@ export default function App() {
                 }}
                 disabled={saving}
               >
-                Сбросить настройки
+                {t("Сбросить настройки")}{" "}
               </Button>
             </div>
           </Modal>
@@ -427,9 +486,9 @@ export default function App() {
                 exit={{ opacity: 0 }}
               >
                 <CheckCircle2 size={17} />
-                <span>{toast}</span>
+                <span>{t(toast)}</span>
                 <button
-                  aria-label="Скрыть уведомление"
+                  aria-label={t("Скрыть уведомление")}
                   onClick={() => setToast("")}
                 >
                   <X size={15} />

@@ -1,3 +1,4 @@
+import { t } from "../hub/i18n";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
@@ -59,7 +60,7 @@ export function Modal({
         <Dialog.Content className="dialog-content">
           <Dialog.Close
             className="icon-button dialog-close"
-            aria-label="Закрыть"
+            aria-label={t("Закрыть")}
           >
             <X size={20} />
           </Dialog.Close>

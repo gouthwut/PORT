@@ -148,6 +148,7 @@ export function useDownload() {
           projectId: row.projectId,
           buildId: row.buildId,
           projectName: row.projectName,
+          repeat: true,
         });
         setStatus(await invoke<DownloadStatus>("hub_download_status"));
       } catch {

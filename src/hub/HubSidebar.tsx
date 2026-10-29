@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import {
   CircleHelp,
   Compass,
@@ -29,7 +30,7 @@ export function HubSidebar({
     <aside className="port-sidebar">
       <button
         className="port-brand"
-        aria-label="PORT — главная"
+        aria-label={t("PORT — главная")}
         onClick={() => navigate("home")}
       >
         <span className="port-brand-mark">
@@ -37,14 +38,14 @@ export function HubSidebar({
         </span>
         PORT<span>//</span>
       </button>
-      <p className="port-nav-caption">ОБЗОР</p>
-      <nav aria-label="Основная навигация">
+      <p className="port-nav-caption">{t("ОБЗОР")}</p>
+      <nav aria-label={t("Основная навигация")}>
         {links.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             className="port-nav-link"
-            aria-label={label}
-            title={label}
+            aria-label={t(label)}
+            title={t(label)}
             aria-current={
               page === id || (id === "catalog" && page === "details")
                 ? "page"
@@ -53,7 +54,7 @@ export function HubSidebar({
             onClick={() => navigate(id)}
           >
             <Icon size={18} strokeWidth={1.7} />
-            <span>{label}</span>
+            <span>{t(label)}</span>
             {id === "home" && <i />}
           </button>
         ))}
@@ -70,23 +71,25 @@ export function HubSidebar({
       <div className="port-sidebar-bottom">
         <button
           className="port-nav-link"
-          aria-label="Настройки"
-          title="Настройки"
+          aria-label={t("Настройки")}
+          title={t("Настройки")}
           aria-current={page === "settings" ? "page" : undefined}
           onClick={() => navigate("settings")}
         >
           <Settings size={18} />
-          <span>Настройки</span>
-          {update && <small aria-label="Доступно обновление PORT">●</small>}
+          <span>{t("Настройки")}</span>
+          {update && (
+            <small aria-label={t("Доступно обновление PORT")}>●</small>
+          )}
         </button>
         <button
           className="port-nav-link"
-          aria-label="О PORT"
-          title="О PORT"
+          aria-label={t("О PORT")}
+          title={t("О PORT")}
           onClick={onAbout}
         >
           <CircleHelp size={18} />
-          <span>О PORT</span>
+          <span>{t("О PORT")}</span>
         </button>
       </div>
     </aside>
