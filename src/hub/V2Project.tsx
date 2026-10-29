@@ -164,7 +164,7 @@ export function V2Project({
                   <Button
                     className="project-download-button"
                     disabled={!native || downloads.busy || !!reason}
-                    onClick={() => void downloads.start(build)}
+                    onClick={() => void downloads.start(build, title)}
                   >
                     <Download size={20} aria-hidden="true" /> Скачать для
                     Windows

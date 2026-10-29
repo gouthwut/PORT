@@ -1,6 +1,6 @@
 //! One approved CMS release asset; no installer, extraction or execution.
 use reqwest::{redirect::Policy, Url};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::{
@@ -17,9 +17,19 @@ use tokio::sync::Notify;
 const CMS: &str = "https://port-catalog-cms.port-catalog-cms.workers.dev";
 const LIMIT: u64 = 32 * 1024 * 1024 * 1024;
 type Result<T> = std::result::Result<T, String>;
-#[derive(Clone, Default, Serialize)]
+#[derive(Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Status {
+    #[serde(default)]
+    id: String,
+    #[serde(default)]
+    project_id: String,
+    #[serde(default)]
+    build_id: String,
+    #[serde(default)]
+    version: String,
+    #[serde(default)]
+    project_name: String,
     phase: String,
     name: String,
     completed: u64,
@@ -36,7 +46,10 @@ struct Inner {
 #[derive(Default)]
 pub struct Downloads(Arc<Inner>);
 fn active(s: &Status) -> bool {
-    matches!(s.phase.as_str(), "selecting" | "checking" | "downloading")
+    matches!(
+        s.phase.as_str(),
+        "selecting" | "checking" | "downloading" | "verifying"
+    )
 }
 fn edit(s: &Inner, f: impl FnOnce(&mut Status)) {
     f(&mut s.status.lock().unwrap());
@@ -120,6 +133,7 @@ fn asset_url(raw: &str) -> Result<(Url, String)> {
     Ok((u, name))
 }
 struct Asset {
+    version: String,
     url: Url,
     name: String,
     size: Option<u64>,
@@ -174,6 +188,11 @@ fn approved(body: &[u8], project: &str, build: &str) -> Result<Asset> {
         )
     };
     Ok(Asset {
+        version: b["version"]
+            .as_str()
+            .filter(|v| v.len() <= 200)
+            .unwrap_or("")
+            .to_string(),
         url,
         name,
         size,
@@ -317,6 +336,10 @@ async fn save_response(
             s.speed = (completed as f64 / start.elapsed().as_secs_f64().max(0.001)) as u64;
         });
     }
+    edit(s, |s| {
+        s.phase = "verifying".into();
+        s.message = "Проверка целостности файла…".into();
+    });
     verify(
         completed,
         total,
@@ -402,6 +425,7 @@ pub fn start_hub_download(
     state: tauri::State<Downloads>,
     project_id: String,
     build_id: String,
+    project_name: Option<String>,
 ) -> Result<()> {
     if !valid_id(&project_id) || !valid_id(&build_id) {
         return Err("Некорректная сборка".into());
@@ -416,10 +440,26 @@ pub fn start_hub_download(
     let cancel = Arc::new(Notify::new());
     *s.cancel.lock().unwrap() = cancel.clone();
     *status = Status {
+        id: format!(
+            "{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map_err(|_| "Ошибка часов")?
+                .as_nanos()
+        ),
+        project_id: project_id.clone(),
+        build_id: build_id.clone(),
+        project_name: project_name
+            .filter(|n| n.len() <= 240 && !n.chars().any(char::is_control))
+            .unwrap_or_else(|| project_id.clone()),
         phase: "checking".into(),
         message: "Проверка сборки в CMS…".into(),
         ..Status::default()
     };
+    if let Err(e) = persist(&app, &status) {
+        *status = previous;
+        return Err(e);
+    }
     drop(status);
     tauri::async_runtime::spawn(async move {
         let fetch = async {
@@ -447,7 +487,12 @@ pub fn start_hub_download(
                 _ = cancel.notified() => return Err("Загрузка отменена".into()),
                 r = fetch => r?,
             };
-            let Some(root) = destination(app, &s, &asset, qa).await? else {
+            edit(&s, |s| {
+                s.version = asset.version.clone();
+                s.name = asset.name.clone();
+            });
+            persist(&app, &s.status.lock().unwrap())?;
+            let Some(root) = destination(app.clone(), &s, &asset, qa).await? else {
                 return Ok(None);
             };
             edit(&s, |s| {
@@ -469,7 +514,11 @@ pub fn start_hub_download(
                     s.message = "Файл сохранён. Запуск выполняется вручную.".into();
                     s.path = Some(path);
                 }
-                Ok(None) => *s = previous,
+                Ok(None) => {
+                    s.phase = "cancelled".into();
+                    s.message = "Загрузка отменена".into();
+                    s.path = None;
+                }
                 Err(e) => {
                     s.path = None;
                     s.phase = if e == "Загрузка отменена" {
@@ -482,6 +531,11 @@ pub fn start_hub_download(
                 }
             }
         });
+        if persist(&app, &s.status.lock().unwrap()).is_err() {
+            edit(&s, |s| {
+                s.message = "Не удалось сохранить историю. Файл на диске не удалён.".into()
+            });
+        }
     });
     Ok(())
 }
@@ -494,9 +548,78 @@ pub fn cancel_hub_download(state: tauri::State<Downloads>) {
         state.0.cancel.lock().unwrap().notify_one();
     }
 }
+pub fn init(conn: &rusqlite::Connection) -> rusqlite::Result<()> {
+    conn.execute_batch(
+        "CREATE TABLE IF NOT EXISTS hub_downloads(id TEXT PRIMARY KEY, value TEXT NOT NULL);",
+    )?;
+    let rows = history(conn)?;
+    for mut row in rows {
+        if active(&row) {
+            row.phase = "interrupted".into();
+            row.message =
+                "Загрузка прервана при закрытии PORT. Повторите скачивание с начала.".into();
+            row.path = None;
+            row.speed = 0;
+            write_record(conn, &row)?;
+        }
+    }
+    Ok(())
+}
+fn write_record(conn: &rusqlite::Connection, s: &Status) -> rusqlite::Result<()> {
+    let value = serde_json::to_string(s).map_err(|_| rusqlite::Error::InvalidQuery)?;
+    conn.execute("INSERT INTO hub_downloads(id,value) VALUES(?1,?2) ON CONFLICT(id) DO UPDATE SET value=excluded.value", rusqlite::params![s.id, value])?;
+    Ok(())
+}
+fn history(conn: &rusqlite::Connection) -> rusqlite::Result<Vec<Status>> {
+    let mut q =
+        conn.prepare("SELECT value FROM hub_downloads ORDER BY length(id) DESC, id DESC")?;
+    let rows = q
+        .query_map([], |r| r.get::<_, String>(0))?
+        .map(|r| serde_json::from_str(&r?).map_err(|_| rusqlite::Error::InvalidQuery))
+        .collect();
+    rows
+}
+fn persist(app: &tauri::AppHandle, s: &Status) -> Result<()> {
+    let db = app.state::<crate::Database>();
+    let conn = db.0.lock().map_err(|_| "История недоступна")?;
+    write_record(&conn, s).map_err(|_| "Не удалось сохранить историю загрузок".into())
+}
 #[tauri::command]
-pub fn open_hub_download_folder(state: tauri::State<Downloads>) -> Result<()> {
-    let status = state.0.status.lock().unwrap();
+pub fn hub_download_history(db: tauri::State<crate::Database>) -> Result<Vec<Status>> {
+    history(&*db.0.lock().map_err(|_| "История недоступна")?)
+        .map_err(|_| "Не удалось прочитать историю загрузок".into())
+}
+#[tauri::command]
+pub fn remove_hub_download(
+    id: String,
+    state: tauri::State<Downloads>,
+    db: tauri::State<crate::Database>,
+) -> Result<()> {
+    let s = state.0.status.lock().unwrap();
+    if s.id == id && active(&s) {
+        return Err("Сначала завершите загрузку".into());
+    }
+    db.0.lock()
+        .map_err(|_| "История недоступна")?
+        .execute("DELETE FROM hub_downloads WHERE id=?1", [id])
+        .map_err(|_| "Не удалось очистить запись")?;
+    Ok(())
+}
+#[tauri::command]
+pub fn open_hub_download_folder(
+    id: Option<String>,
+    state: tauri::State<Downloads>,
+    db: tauri::State<crate::Database>,
+) -> Result<()> {
+    let status = if let Some(id) = id {
+        history(&*db.0.lock().map_err(|_| "История недоступна")?)
+            .map_err(|_| "История недоступна")?
+            .into_iter()
+            .find(|s| s.id == id)
+            .ok_or("Нет записи загрузки")?
+    } else {
+        state.0.status.lock().unwrap().clone()
+    };
     let path = status
         .path
         .as_ref()
@@ -510,10 +633,56 @@ pub fn open_hub_download_folder(state: tauri::State<Downloads>) -> Result<()> {
         .map_err(|_| "Не удалось показать файл в Проводнике")?;
     Ok(())
 }
+pub fn prevent_close(window: &tauri::Window, event: &tauri::WindowEvent) {
+    if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+        let state = window.state::<Downloads>();
+        if active(&state.0.status.lock().unwrap()) {
+            api.prevent_close();
+            window.dialog().message("Дождитесь завершения загрузки или отмените её в разделе Загрузки, затем закройте PORT.").title("PORT — загрузка продолжается").show(|_| {});
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn history_restart_and_removal_preserve_downloaded_file() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("finished.zip");
+        std::fs::write(&path, b"owned bytes").unwrap();
+        let db_path = root.path().join("history.sqlite");
+        let conn = rusqlite::Connection::open(&db_path).unwrap();
+        init(&conn).unwrap();
+        write_record(
+            &conn,
+            &Status {
+                id: "1".into(),
+                phase: "completed".into(),
+                path: Some(path.clone()),
+                version: "1.0.0".into(),
+                ..Status::default()
+            },
+        )
+        .unwrap();
+        write_record(
+            &conn,
+            &Status {
+                id: "2".into(),
+                phase: "downloading".into(),
+                ..Status::default()
+            },
+        )
+        .unwrap();
+        drop(conn);
+        let conn = rusqlite::Connection::open(db_path).unwrap();
+        init(&conn).unwrap();
+        let rows = history(&conn).unwrap();
+        assert_eq!(rows[0].phase, "interrupted");
+        assert_eq!(rows[1].path.as_ref(), Some(&path));
+        conn.execute("DELETE FROM hub_downloads", []).unwrap();
+        assert_eq!(std::fs::read(path).unwrap(), b"owned bytes");
+    }
     async fn fixture_response(declared: usize, hold: bool) -> reqwest::Response {
         use std::io::Read;
         let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
@@ -544,6 +713,7 @@ mod tests {
     }
     fn fixture_asset(hash: Option<String>) -> Asset {
         Asset {
+            version: "1.0.0".into(),
             url: Url::parse("https://github.com/o/r/releases/download/v1/a.zip").unwrap(),
             name: "a.zip".into(),
             size: None,

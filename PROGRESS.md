@@ -1,5 +1,11 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 15 (in progress)
+
+- 15A: native SQLite download history, interruption recovery, native record-based reveal/removal; Downloads navigation and real progress/retry actions. One active operation, picker and no-clobber/HTTPS guards preserved. Active downloads prevent window close with an explanation; forced termination is marked interrupted on restart.
+- Checks: frontend build / TypeScript and 8 native downloader tests pass (including SQLite reopen and record deletion without file deletion). Browser downloader regression in progress. Existing dirty Cargo/image, library, stage04d and untracked work preserved; no push/release/CMS mutation.
+
+
 ## 2026-10-29 — Stage 14B: project redesign and download notification polish
 
 - Authorized local frontend work from 1232f2e only in C:\PORT. Preserved existing

@@ -180,6 +180,7 @@ fn main() {
             let conn = open_database(&dir.join("port.db"))?;
             init(&conn)?;
             catalog::init(&conn)?;
+            hub_download::init(&conn)?;
             install::recipe::init(&conn)?;
             if let Err(error) = install::recover(&conn) {
                 app.state::<install::Installer>().recovery_error(&error);
@@ -193,6 +194,7 @@ fn main() {
             });
             Ok(())
         })
+        .on_window_event(hub_download::prevent_close)
         .invoke_handler(tauri::generate_handler![
             local_cms_qa::local_cms_qa_fetch,
             load_settings,
@@ -218,6 +220,8 @@ fn main() {
             download::download_status,
             download::start_download,
             download::control_download,
+            hub_download::hub_download_history,
+            hub_download::remove_hub_download,
             hub_download::hub_download_status,
             hub_download::start_hub_download,
             hub_download::cancel_hub_download,

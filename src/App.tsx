@@ -23,6 +23,7 @@ import { appVersion, useUpdater } from "./services/updater";
 import { useProjectCatalog } from "./hub/catalog-source";
 import { V2Project } from "./hub/V2Project";
 import { useDownload } from "./hub/downloads";
+import { DownloadsCenter } from "./hub/DownloadsCenter";
 import { DownloadPanel } from "./hub/DownloadPanel";
 import { HubCatalog } from "./hub/HubCatalog";
 import {
@@ -34,7 +35,7 @@ import { HubLanding } from "./hub/HubLanding";
 import { HubSidebar } from "./hub/HubSidebar";
 import "./hub/home.css";
 
-type Page = "home" | "catalog" | "details" | "settings";
+type Page = "home" | "catalog" | "details" | "downloads" | "settings";
 export default function App() {
   const systemReducedMotion = useReducedMotion();
   const updater = useUpdater();
@@ -227,6 +228,9 @@ export default function App() {
                         downloads={downloads}
                         onBack={() => navigate("catalog")}
                       />
+                    )}
+                    {page === "downloads" && (
+                      <DownloadsCenter state={downloads} />
                     )}
                     {page === "settings" && (
                       <>

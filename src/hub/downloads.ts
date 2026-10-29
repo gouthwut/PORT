@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { native } from "../services/settings";
 import type { V2Build } from "./api-v2";
@@ -35,6 +35,11 @@ export function downloadUnavailable(b: V2Build): string | null {
   }
 }
 export interface DownloadStatus {
+  id?: string;
+  projectId?: string;
+  buildId?: string;
+  version?: string;
+  projectName?: string;
   phase: string;
   name: string;
   completed: number;
@@ -45,6 +50,9 @@ export interface DownloadStatus {
 }
 export function useDownload() {
   const [status, setStatus] = useState<DownloadStatus | null>(null);
+  const [history, setHistory] = useState<DownloadStatus[]>([]);
+  const lock = useRef(false);
+  const historyPhase = useRef("");
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState("");
   useEffect(() => {
@@ -55,6 +63,12 @@ export function useDownload() {
       try {
         const next = await invoke<DownloadStatus>("hub_download_status");
         if (active) setStatus(next);
+        const identity = `${next.id}:${next.phase}`;
+        if (identity !== historyPhase.current) {
+          const rows = await invoke<DownloadStatus[]>("hub_download_history");
+          if (active) setHistory(rows ?? []);
+          historyPhase.current = identity;
+        }
       } catch {
         if (active) setError("Не удалось получить состояние загрузки.");
       } finally {
@@ -71,37 +85,78 @@ export function useDownload() {
     starting ||
     status?.phase === "selecting" ||
     status?.phase === "checking" ||
-    status?.phase === "downloading";
-  async function action(command: string) {
+    status?.phase === "downloading" ||
+    status?.phase === "verifying";
+  async function action(command: string, args?: Record<string, unknown>) {
     setError("");
     try {
-      await invoke(command);
+      await invoke(command, args);
     } catch (e) {
-      setError(String(e));
+      setError(
+        typeof e === "string" && e.length < 500
+          ? e
+          : "Не удалось выполнить действие. Повторите попытку.",
+      );
     }
   }
   return {
     status,
+    history,
     busy,
     error,
-    async start(b: V2Build) {
-      if (!native || busy || downloadUnavailable(b)) return;
+    async start(b: V2Build, projectName?: string) {
+      if (!native || busy || lock.current || downloadUnavailable(b)) return;
+      lock.current = true;
       setStarting(true);
       setError("");
       try {
         await invoke("start_hub_download", {
           projectId: b.projectId,
           buildId: b.id,
+          projectName,
         });
         setStatus(await invoke<DownloadStatus>("hub_download_status"));
       } catch (e) {
-        setError(String(e));
+        setError(
+          typeof e === "string" && e.length < 500
+            ? e
+            : "Не удалось выполнить действие. Повторите попытку.",
+        );
       } finally {
+        lock.current = false;
         setStarting(false);
       }
     },
     cancel: () => action("cancel_hub_download"),
-    open: () => action("open_hub_download_folder"),
+    open: (id?: string) =>
+      action("open_hub_download_folder", id ? { id } : undefined),
+    async remove(id: string) {
+      await action("remove_hub_download", { id });
+      setHistory(
+        (await invoke<DownloadStatus[]>("hub_download_history")) ?? [],
+      );
+    },
+    async retry(row: DownloadStatus) {
+      if (!row.projectId || !row.buildId || busy || lock.current) return;
+      lock.current = true;
+      setStarting(true);
+      setError("");
+      try {
+        await invoke("start_hub_download", {
+          projectId: row.projectId,
+          buildId: row.buildId,
+          projectName: row.projectName,
+        });
+        setStatus(await invoke<DownloadStatus>("hub_download_status"));
+      } catch {
+        setError(
+          "Не удалось повторить загрузку. Проверьте доступность сборки.",
+        );
+      } finally {
+        lock.current = false;
+        setStarting(false);
+      }
+    },
   };
 }
 export type DownloadState = ReturnType<typeof useDownload>;

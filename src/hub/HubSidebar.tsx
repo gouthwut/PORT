@@ -1,9 +1,17 @@
-import { CircleHelp, Compass, Home, Settings, Gamepad2 } from "lucide-react";
+import {
+  CircleHelp,
+  Compass,
+  Home,
+  Settings,
+  Gamepad2,
+  Download,
+} from "lucide-react";
 
-export type HubPage = "home" | "catalog" | "details" | "settings";
+export type HubPage = "home" | "catalog" | "details" | "downloads" | "settings";
 const links = [
   { id: "home", label: "Главная", icon: Home },
   { id: "catalog", label: "Каталог", icon: Compass },
+  { id: "downloads", label: "Загрузки", icon: Download },
 ] as const;
 
 export function HubSidebar({

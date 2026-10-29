@@ -121,7 +121,11 @@ test("single native-shaped download: progress survives navigation, cancellation 
   expect(calls).toEqual([
     {
       command: "start_hub_download",
-      args: { projectId: "port-a", buildId: "build-a" },
+      args: {
+        projectId: "port-a",
+        buildId: "build-a",
+        projectName: "Download project",
+      },
     },
   ]);
   await page.getByRole("button", { name: "Назад в каталог" }).click();
@@ -386,5 +390,9 @@ test("Windows version choice preserves availability and approved-build gates", a
           window as unknown as { qaCalls: { command: string; args: unknown }[] }
         ).qaCalls.find((c) => c.command === "start_hub_download")?.args,
     ),
-  ).toEqual({ projectId: "port-a", buildId: "build-a" });
+  ).toEqual({
+    projectId: "port-a",
+    buildId: "build-a",
+    projectName: "Download project",
+  });
 });
