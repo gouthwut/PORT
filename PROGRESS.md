@@ -1,5 +1,15 @@
 # PORT// progress
 
+## 2026-10-30 — CMS Stage16C continuation: real owner OAuth accepted
+
+- Continued in separate PRIVATE C:/PORT-CMS; no PORT client/native/database/game/profile changes. Existing dirty work retained. Bloodborne 1.09 and Skate 3 not operated on.
+- Existing full CMS regression retained: 101 PASS / 0 FAIL / 2 expected native skips. Actual owner-snapshot upgrade/reconciliation/repeat and post-migration old-code rollback/restore PASS; private receipts stay under ignored private-backups. No full suite rerun.
+- Corrected staging GITHUB_CLIENT_ID binding (public ID had been entered as secret name). Production credentials untouched. Headed isolated Chromium in owner Windows session confirms real GitHub OAuth: exact staging callback, owner ID 163909473, session 200, reload 200, logout 200 and subsequent session 401. Sanitized server-response/browser evidence stays in CMS ignored evidence/stage16c. Browser production requests=0; live production/staging DO bindings distinct; production Worker remains 37b8f94a.
+- Owner confirmed no second account; live non-owner 403 remains UNVERIFIED; production provenance/recovery and authenticated migration execution-context acceptance still required. Production NO-GO, no production deploy/migration/writes or next stage. CMS final gate table and production runbook updated.
+- Both GitHub repos confirmed private. Outgoing history token/private-key/storage path scan: PORT 456 blobs, CMS 264 blobs, no findings. CMS history includes 26 previously committed backup/migration artwork files with unestablished redistribution rights; ordinary CMS push would include them and is blocked. No history rewrite/deletion. Safe current CMS changes committed locally. PORT contains no corresponding outgoing artwork finding; owner explicitly authorized safe source push in this continuation.
+- New checks: targeted CMS stub OAuth/security regression 1 PASS (not live proof), TypeScript PASS, production-config Wrangler dry-run PASS, diff whitespace PASS. Stage16C results do not certify public beta distribution or native production download E2E.
+
+
 ## 2026-10-30 — CMS Stage 16C: owner CSV backup verification
 
 - Owner supplied a private Cloudflare Data Studio CSV under `private-backups/`.
