@@ -221,6 +221,9 @@ function HomeProject({
 }) {
   const media = useV2Media(p.media);
   const [failed, setFailed] = useState("");
+  const screenshot = media.gallery?.[0];
+  const mainImage = screenshot || media.cover;
+  const insetCover = screenshot && media.cover ? media.cover : null;
   return (
     <button
       className="port-project"
@@ -228,19 +231,28 @@ function HomeProject({
       aria-label={`${t("Открыть проект")} ${projectTitle(p)}`}
     >
       <div className="port-project-image">
-        {media.cover && failed !== media.cover ? (
+        {mainImage && failed !== mainImage ? (
           <img
-            src={media.cover}
+            src={mainImage}
             alt=""
             loading="lazy"
             decoding="async"
-            onError={() => setFailed(media.cover)}
+            onError={() => setFailed(mainImage)}
           />
         ) : (
           <div className="port-image-missing">
             <ImageOff size={26} />
             <span>{t("Обложка недоступна")}</span>
           </div>
+        )}
+        {insetCover && (
+          <img
+            className="port-project-inset-cover"
+            src={insetCover}
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
         )}
         <span className="port-project-platform">
           {p.platforms.map(platformShort).join(" · ") ||

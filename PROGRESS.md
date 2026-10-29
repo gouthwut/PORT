@@ -1,5 +1,40 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 18: Premium Launcher UI & Liquid Glass Implementation
+
+- Owner authorized transition of Stage 17A Direction A / Premiere Compact into the
+  main React launcher UI, with Apple-inspired Liquid Glass material system.
+- Master styling implemented in `src/hub/stage18-liquid.css`, loaded after Stage 16.
+  Optical material principles: multi-layer specular borders (`inset 0 1px 1px
+  rgba(255,255,255,0.42)`, `inset 0 -1px 1px rgba(0,0,0,0.40)`), surface sheen sweep
+  (`125deg` reflection gradient), high-chroma saturation boost (`blur(12px)
+  saturate(155%) brightness(103%)`), volumetric depth, and dynamic violet/ice hover.
+- Complete fallback architecture: `@supports not (backdrop-filter)` provides solid
+  high-contrast tinted panels; `@media (prefers-reduced-motion)` suppresses sweeps.
+- Home screen redesigned: floating glass sidebar (`.port-sidebar`), capsule search
+  bar (`.port-search-bar`), 320px cinematic hero with integrated glass text plate,
+  and Premiere-style wide cards (`.port-project-card`) featuring screenshot backdrop,
+  floating inset 3D box art (`.port-project-inset-cover`), platform badges, and frosted
+  caption plates.
+- Density requirement: at 1280x720, Hero and project cards are visible on the first
+  screen without scrolling (card Y: 462px < 720px). Zero horizontal scrollbar across
+  viewports (1280x720, 1600x900, 800x600).
+- Catalog screen: compact glass filter bar, dense game showcase grid, and responsive
+  multi-column cards preserving all search/filter/sort/favorite logic.
+- Project Detail screen: panoramic cinema hero, Liquid Glass download plate with
+  prominent amber/violet CTA, screenshot gallery, and collapsible installation info.
+- Downloads Center & Settings: unified glass cards, glowing progress bars, clean
+  empty states, glass toggles and language selectors.
+- Quality & Verification:
+  - `npx tsc --noEmit`: 0 errors.
+  - `npm run build`: Production client build passed (10.32s).
+  - `cargo check --manifest-path src-tauri/Cargo.toml`: Finished dev profile in 14.79s.
+  - `tests/stage18-visual.spec.ts`: 5 of 5 tests passed with 13 visual captures in
+    `.local/evidence/stage18/`.
+  - Active test suites passed: Stage 16, Stage 15, Stage 14B, API v2, Titlebar.
+- Safety: Preserved Rust backend, SQLite schema 4, Bloodborne routines, user data,
+  and all earlier dirty/untracked files. Local commit only; no push, deploy or release.
+
 ## 2026-10-29 — Stage 17A.1: Premiere Liquid Glass Home sample
 
 - Owner refinement: stronger Liquid Glass in the same local Home sample. More

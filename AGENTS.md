@@ -1,5 +1,15 @@
 # PORT// — instructions for future sessions
 
+Stage 18 authorized 2026-10-29: implement Direction A / Premiere Compact and
+Apple-inspired Liquid Glass across desktop launcher React UI. Main styling
+implemented in src/hub/stage18-liquid.css with multi-elevation specular highlights,
+backdrop saturation boost, surface reflection sweep, floating sidebar, glass search
+capsule, wide game cards with inset box art, cinema hero, and unified downloads/settings.
+First-screen density verified at 1280x720 (Hero and cards visible without scrolling).
+See docs/PORT_STAGE18_LIQUID_GLASS.md and visual evidence in .local/evidence/stage18/.
+TypeScript, Playwright suites, and cargo check pass. Keep all native Rust downloaders,
+SQLite schema 4, CMS contracts, and user data intact. Local commit only; no push/release.
+
 Stage 17A.1 authorized 2026-10-29: owner selected A / Premiere as the final design
 direction. One local Home-only Liquid Glass sample is complete beside Stage 17A:
 premiere-liquid.html/css, 1280x720 screenshot and PREMIERE-LIQUID.md tokens.
