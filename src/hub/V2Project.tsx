@@ -1,3 +1,4 @@
+import { compareVersions, newerDownload } from "./releases";
 import { FavoriteButton } from "./preferences";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowUpRight, Download } from "lucide-react";
@@ -63,12 +64,14 @@ export function V2Project({
   const [linkError, setLinkError] = useState("");
   const title = currentProject.name || projectTitle(currentProject);
   const windows =
-    data?.builds.filter(
-      (b) =>
-        b.os === "windows" &&
-        (!b.url ||
-          !/^https:\/\/github\.com\/[^/]+\/[^/]+\/archive\//.test(b.url)),
-    ) ?? [];
+    data?.builds
+      .filter(
+        (b) =>
+          b.os === "windows" &&
+          (!b.url ||
+            !/^https:\/\/github\.com\/[^/]+\/[^/]+\/archive\//.test(b.url)),
+      )
+      .sort((a, b) => compareVersions(b.version, a.version) ?? 0) ?? [];
   const [selectedBuild, setSelectedBuild] = useState("");
   const build =
     windows.find((b) => b.id === selectedBuild) ??
@@ -155,6 +158,7 @@ export function V2Project({
                       {windows.map((b) => (
                         <option key={b.id} value={b.id}>
                           {b.version}
+                          {downloadUnavailable(b) ? " · Недоступна" : ""}
                           {b.arch !== "unknown" ? ` · ${b.arch}` : ""}
                           {b.channel === "prerelease"
                             ? " · Предварительная"
@@ -163,6 +167,12 @@ export function V2Project({
                       ))}
                     </select>
                   </label>
+                )}
+                {newerDownload(build, downloads.history) && (
+                  <p className="project-update-note" role="status">
+                    Доступна новая версия. Скачайте новый официальный архив;
+                    файлы игры не заменяются.
+                  </p>
                 )}
                 <div className="project-download-row">
                   <Button

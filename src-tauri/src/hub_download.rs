@@ -30,6 +30,10 @@ pub struct Status {
     version: String,
     #[serde(default)]
     project_name: String,
+    #[serde(default)]
+    arch: String,
+    #[serde(default)]
+    channel: String,
     phase: String,
     name: String,
     completed: u64,
@@ -134,6 +138,8 @@ fn asset_url(raw: &str) -> Result<(Url, String)> {
 }
 struct Asset {
     version: String,
+    arch: String,
+    channel: String,
     url: Url,
     name: String,
     size: Option<u64>,
@@ -188,6 +194,8 @@ fn approved(body: &[u8], project: &str, build: &str) -> Result<Asset> {
         )
     };
     Ok(Asset {
+        arch: b["arch"].as_str().unwrap_or("unknown").to_string(),
+        channel: b["channel"].as_str().unwrap_or("").to_string(),
         version: b["version"]
             .as_str()
             .filter(|v| v.len() <= 200)
@@ -489,6 +497,8 @@ pub fn start_hub_download(
             };
             edit(&s, |s| {
                 s.version = asset.version.clone();
+                s.arch = asset.arch.clone();
+                s.channel = asset.channel.clone();
                 s.name = asset.name.clone();
             });
             persist(&app, &s.status.lock().unwrap())?;
@@ -714,6 +724,8 @@ mod tests {
     fn fixture_asset(hash: Option<String>) -> Asset {
         Asset {
             version: "1.0.0".into(),
+            arch: "x64".into(),
+            channel: "stable".into(),
             url: Url::parse("https://github.com/o/r/releases/download/v1/a.zip").unwrap(),
             name: "a.zip".into(),
             size: None,

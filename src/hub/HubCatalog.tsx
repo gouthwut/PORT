@@ -139,6 +139,7 @@ export function HubCatalog({
           <label>
             Исходная платформа
             <select
+              aria-label="Исходная платформа"
               value={query.platform}
               onChange={(e) => change({ platform: e.target.value })}
             >
@@ -151,6 +152,7 @@ export function HubCatalog({
           <label>
             Технология
             <select
+              aria-label="Технология"
               value={query.kind}
               onChange={(e) => change({ kind: e.target.value })}
             >
@@ -167,6 +169,7 @@ export function HubCatalog({
           <label>
             Стадия разработки
             <select
+              aria-label="Стадия разработки"
               value={query.lifecycle}
               onChange={(e) => change({ lifecycle: e.target.value })}
             >

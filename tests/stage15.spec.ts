@@ -134,3 +134,41 @@ test("discovery combines original title, console, kind and actual available asse
     page.getByRole("button", { name: "Скачать для Windows", exact: true }),
   ).toHaveCount(0);
 });
+
+test("version ordering never guesses dates, prereleases or architectures", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const result = await page.evaluate(async () => {
+    const { compareVersions, newerDownload } =
+      await import("/src/hub/releases.ts");
+    const build = {
+      id: "new",
+      projectId: "p",
+      version: "1.3.0",
+      os: "windows",
+      arch: "x64",
+      channel: "stable",
+      availability: "available",
+      url: "https://github.com/o/r/releases/download/v1/file.zip",
+    } as any;
+    const row = {
+      phase: "completed",
+      projectId: "p",
+      arch: "x64",
+      channel: "stable",
+      version: "1.2.0",
+    } as any;
+    return [
+      compareVersions("v1.3.0", "1.2"),
+      compareVersions("1.2", "1.2.0"),
+      compareVersions("2026-10-29", "1.0"),
+      compareVersions("1.3-beta", "1.2"),
+      newerDownload(build, [row]),
+      newerDownload(build, [row, { ...row, version: "1.3.0" }]),
+      newerDownload(build, [{ ...row, arch: "arm64" }]),
+      newerDownload(build, [{ ...row, version: "release-x" }]),
+    ];
+  });
+  expect(result).toEqual([1, 0, null, null, true, false, false, false]);
+});

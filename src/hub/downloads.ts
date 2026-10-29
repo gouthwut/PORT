@@ -39,6 +39,8 @@ export interface DownloadStatus {
   projectId?: string;
   buildId?: string;
   version?: string;
+  arch?: string;
+  channel?: string;
   projectName?: string;
   phase: string;
   name: string;
