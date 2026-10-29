@@ -17,6 +17,7 @@ import {
 import { Button, Modal, Switch } from "./components/ui";
 import { emptyMedia } from "./services/media";
 import { LauncherUpdates } from "./components/LauncherUpdates";
+import { TitleBar } from "./components/TitleBar";
 import { appVersion, useUpdater } from "./services/updater";
 
 import { useProjectCatalog } from "./hub/catalog-source";
@@ -128,273 +129,277 @@ export default function App() {
   const reduceMotion = settings.reducedMotion || systemReducedMotion;
   return (
     <MotionConfig reducedMotion={settings.reducedMotion ? "always" : "user"}>
-      <div
-        className={`app-shell port-shell ${page === "home" ? "port-home-active" : ""} ${settings.compactCards ? "compact" : ""} ${settings.reducedMotion ? "reduced-motion" : ""} ${isLight ? "system-theme" : ""}`}
-      >
-        <a className="skip-link" href="#main">
-          К содержимому
-        </a>
-        <HubSidebar
-          page={page}
-          navigate={navigate}
-          onAbout={() => setAbout(true)}
-          update={!!updater.status.version}
-        />
-        <div className="content-shell">
-          <header className="topbar">
-            <form
-              className="search-box"
-              role="search"
-              onSubmit={(e) => {
-                e.preventDefault();
-                setPage("catalog");
-              }}
-            >
-              <Search size={17} />
-              <input
-                ref={searchRef}
-                aria-label="Поиск игр"
-                placeholder="Поиск игр, проектов, платформ…"
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
+      <div className="port-window">
+        <TitleBar onError={setToast} />
+        <div
+          className={`app-shell port-shell ${page === "home" ? "port-home-active" : ""} ${settings.compactCards ? "compact" : ""} ${settings.reducedMotion ? "reduced-motion" : ""} ${isLight ? "system-theme" : ""}`}
+        >
+          <a className="skip-link" href="#main">
+            К содержимому
+          </a>
+          <HubSidebar
+            page={page}
+            navigate={navigate}
+            onAbout={() => setAbout(true)}
+            update={!!updater.status.version}
+          />
+          <div className="content-shell">
+            <header className="topbar">
+              <form
+                className="search-box"
+                role="search"
+                onSubmit={(e) => {
+                  e.preventDefault();
                   setPage("catalog");
                 }}
-              />
-              {query ? (
+              >
+                <Search size={17} />
+                <input
+                  ref={searchRef}
+                  aria-label="Поиск игр"
+                  placeholder="Поиск игр, проектов, платформ…"
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setPage("catalog");
+                  }}
+                />
+                {query ? (
+                  <button
+                    type="button"
+                    aria-label="Очистить поиск"
+                    onClick={() => setQuery("")}
+                  >
+                    <X size={15} />
+                  </button>
+                ) : (
+                  <kbd>Ctrl K</kbd>
+                )}
+              </form>
+              {!native && <div className="build-label">WEB PREVIEW</div>}
+            </header>
+            {!online && (
+              <div role="status" className="offline-banner">
+                <WifiOff size={15} />
+                Нет подключения к интернету.
+              </div>
+            )}
+            {storageError && (
+              <div role="alert" className="offline-banner">
+                Не удалось прочитать настройки. Проверьте локальные данные или
+                сбросьте настройки.
+              </div>
+            )}
+            <main id="main" tabIndex={-1} ref={mainRef} aria-busy={!ready}>
+              {!ready ? (
+                <div className="skeleton" aria-label="Загрузка интерфейса" />
+              ) : (
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={page}
+                    initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reduceMotion ? undefined : { opacity: 0 }}
+                    transition={{ duration: reduceMotion ? 0 : 0.16 }}
+                  >
+                    {page === "home" && (
+                      <HubLanding
+                        catalog={projectCatalog}
+                        onOpen={openProject}
+                        onCatalog={() => {
+                          setPage("catalog");
+                        }}
+                      />
+                    )}
+                    {page === "catalog" && (
+                      <HubCatalog
+                        catalog={projectCatalog}
+                        query={catalogQuery}
+                        onQuery={setCatalogQuery}
+                        media={(p) => p.media ?? emptyMedia}
+                        onOpen={openProject}
+                      />
+                    )}
+                    {page === "details" && selectedV2 && (
+                      <V2Project
+                        key={selectedV2.id}
+                        project={selectedV2}
+                        downloads={downloads}
+                        onBack={() => navigate("catalog")}
+                      />
+                    )}
+                    {page === "settings" && (
+                      <>
+                        <div className="page-heading">
+                          <div>
+                            <h1>
+                              Настройки<span className="accent">.</span>
+                            </h1>
+                          </div>
+                          <span className="quiet-label">
+                            <CheckCircle2 size={15} />
+                            {saving ? "Сохранение…" : "Локальное сохранение"}
+                          </span>
+                        </div>
+                        <div className="settings-layout">
+                          <div>
+                            <SettingsSection title="Внешний вид">
+                              <div className="setting-row">
+                                <div>
+                                  <h3>Тема приложения</h3>
+                                </div>
+                                <select
+                                  aria-label="Тема приложения"
+                                  value={settings.theme}
+                                  disabled={saving}
+                                  onChange={(e) =>
+                                    update({
+                                      theme: e.target
+                                        .value as Settings["theme"],
+                                    })
+                                  }
+                                >
+                                  <option value="dark">Тёмная</option>
+                                  <option value="system">Как в системе</option>
+                                </select>
+                              </div>
+                              <div className="setting-row">
+                                <div>
+                                  <h3>Меньше анимаций</h3>
+                                </div>
+                                <Switch
+                                  label="Меньше анимаций"
+                                  checked={settings.reducedMotion}
+                                  onCheckedChange={(v) =>
+                                    update({ reducedMotion: v })
+                                  }
+                                  disabled={saving}
+                                />
+                              </div>
+                              <div className="setting-row">
+                                <div>
+                                  <h3>Компактные карточки</h3>
+                                </div>
+                                <Switch
+                                  label="Компактные карточки"
+                                  checked={settings.compactCards}
+                                  onCheckedChange={(v) =>
+                                    update({ compactCards: v })
+                                  }
+                                  disabled={saving}
+                                />
+                              </div>
+                            </SettingsSection>
+                            <SettingsSection
+                              title="Локальные данные"
+                              description={
+                                native
+                                  ? undefined
+                                  : "Режим браузера: настройки хранятся в localStorage."
+                              }
+                            >
+                              <div className="setting-row">
+                                <div>
+                                  <h3>Сбросить настройки</h3>
+                                  <p>Игры и сохранения останутся</p>
+                                </div>
+                                <Button
+                                  variant="secondary"
+                                  onClick={() => setReset(true)}
+                                  disabled={saving}
+                                >
+                                  Сбросить
+                                </Button>
+                              </div>
+                            </SettingsSection>
+                            <LauncherUpdates state={updater} />
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              )}
+            </main>
+          </div>
+          <DownloadPanel state={downloads} />
+          <Modal
+            open={about}
+            onOpenChange={setAbout}
+            title="О PORT"
+            description={`Бесплатный Windows-лаунчер нативных ПК-портов и рекомпиляций консольных игр. Версия ${appVersion}.`}
+          >
+            <div className="about-dialog-content">
+              <p>
+                PORT не распространяет игровые файлы. Совместимость и способ
+                запуска указаны на странице каждой игры.
+              </p>
+              <details className="technical-info font-notices">
+                <summary>Шрифты и лицензии</summary>
+                <p>
+                  Manrope · The Manrope Project Authors. Inter · The Inter
+                  Project Authors. SIL Open Font License 1.1.
+                </p>
+                <h3>Manrope</h3>
+                <pre>{manropeLicense}</pre>
+                <h3>Inter</h3>
+                <pre>{interLicense}</pre>
+              </details>
+            </div>
+          </Modal>
+          <Modal
+            open={reset}
+            onOpenChange={setReset}
+            title="Сбросить настройки?"
+            description="Настройки PORT вернутся к исходным значениям. Игровые файлы не затрагиваются."
+          >
+            <div className="dialog-actions">
+              <Button variant="secondary" onClick={() => setReset(false)}>
+                Отмена
+              </Button>
+              <Button
+                variant="danger"
+                onClick={async () => {
+                  setSaving(true);
+                  try {
+                    const s = await settingsService.reset();
+                    setSettings(s);
+                    setStorageError(false);
+                    setReset(false);
+                    setToast("Настройки сброшены");
+                  } catch {
+                    setToast("Не удалось сбросить настройки");
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                disabled={saving}
+              >
+                Сбросить настройки
+              </Button>
+            </div>
+          </Modal>
+          <AnimatePresence>
+            {toast && (
+              <motion.div
+                className="toast"
+                role="status"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+              >
+                <CheckCircle2 size={17} />
+                <span>{toast}</span>
                 <button
-                  type="button"
-                  aria-label="Очистить поиск"
-                  onClick={() => setQuery("")}
+                  aria-label="Скрыть уведомление"
+                  onClick={() => setToast("")}
                 >
                   <X size={15} />
                 </button>
-              ) : (
-                <kbd>Ctrl K</kbd>
-              )}
-            </form>
-            {!native && <div className="build-label">WEB PREVIEW</div>}
-          </header>
-          {!online && (
-            <div role="status" className="offline-banner">
-              <WifiOff size={15} />
-              Нет подключения к интернету.
-            </div>
-          )}
-          {storageError && (
-            <div role="alert" className="offline-banner">
-              Не удалось прочитать настройки. Проверьте локальные данные или
-              сбросьте настройки.
-            </div>
-          )}
-          <main id="main" tabIndex={-1} ref={mainRef} aria-busy={!ready}>
-            {!ready ? (
-              <div className="skeleton" aria-label="Загрузка интерфейса" />
-            ) : (
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={page}
-                  initial={reduceMotion ? false : { opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={reduceMotion ? undefined : { opacity: 0 }}
-                  transition={{ duration: reduceMotion ? 0 : 0.16 }}
-                >
-                  {page === "home" && (
-                    <HubLanding
-                      catalog={projectCatalog}
-                      onOpen={openProject}
-                      onCatalog={() => {
-                        setPage("catalog");
-                      }}
-                    />
-                  )}
-                  {page === "catalog" && (
-                    <HubCatalog
-                      catalog={projectCatalog}
-                      query={catalogQuery}
-                      onQuery={setCatalogQuery}
-                      media={(p) => p.media ?? emptyMedia}
-                      onOpen={openProject}
-                    />
-                  )}
-                  {page === "details" && selectedV2 && (
-                    <V2Project
-                      key={selectedV2.id}
-                      project={selectedV2}
-                      downloads={downloads}
-                      onBack={() => navigate("catalog")}
-                    />
-                  )}
-                  {page === "settings" && (
-                    <>
-                      <div className="page-heading">
-                        <div>
-                          <h1>
-                            Настройки<span className="accent">.</span>
-                          </h1>
-                        </div>
-                        <span className="quiet-label">
-                          <CheckCircle2 size={15} />
-                          {saving ? "Сохранение…" : "Локальное сохранение"}
-                        </span>
-                      </div>
-                      <div className="settings-layout">
-                        <div>
-                          <SettingsSection title="Внешний вид">
-                            <div className="setting-row">
-                              <div>
-                                <h3>Тема приложения</h3>
-                              </div>
-                              <select
-                                aria-label="Тема приложения"
-                                value={settings.theme}
-                                disabled={saving}
-                                onChange={(e) =>
-                                  update({
-                                    theme: e.target.value as Settings["theme"],
-                                  })
-                                }
-                              >
-                                <option value="dark">Тёмная</option>
-                                <option value="system">Как в системе</option>
-                              </select>
-                            </div>
-                            <div className="setting-row">
-                              <div>
-                                <h3>Меньше анимаций</h3>
-                              </div>
-                              <Switch
-                                label="Меньше анимаций"
-                                checked={settings.reducedMotion}
-                                onCheckedChange={(v) =>
-                                  update({ reducedMotion: v })
-                                }
-                                disabled={saving}
-                              />
-                            </div>
-                            <div className="setting-row">
-                              <div>
-                                <h3>Компактные карточки</h3>
-                              </div>
-                              <Switch
-                                label="Компактные карточки"
-                                checked={settings.compactCards}
-                                onCheckedChange={(v) =>
-                                  update({ compactCards: v })
-                                }
-                                disabled={saving}
-                              />
-                            </div>
-                          </SettingsSection>
-                          <SettingsSection
-                            title="Локальные данные"
-                            description={
-                              native
-                                ? undefined
-                                : "Режим браузера: настройки хранятся в localStorage."
-                            }
-                          >
-                            <div className="setting-row">
-                              <div>
-                                <h3>Сбросить настройки</h3>
-                                <p>Игры и сохранения останутся</p>
-                              </div>
-                              <Button
-                                variant="secondary"
-                                onClick={() => setReset(true)}
-                                disabled={saving}
-                              >
-                                Сбросить
-                              </Button>
-                            </div>
-                          </SettingsSection>
-                          <LauncherUpdates state={updater} />
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </motion.div>
-              </AnimatePresence>
+              </motion.div>
             )}
-          </main>
+          </AnimatePresence>
         </div>
-        <DownloadPanel state={downloads} />
-        <Modal
-          open={about}
-          onOpenChange={setAbout}
-          title="О PORT"
-          description={`Бесплатный Windows-лаунчер нативных ПК-портов и рекомпиляций консольных игр. Версия ${appVersion}.`}
-        >
-          <div className="about-dialog-content">
-            <p>
-              PORT не распространяет игровые файлы. Совместимость и способ
-              запуска указаны на странице каждой игры.
-            </p>
-            <details className="technical-info font-notices">
-              <summary>Шрифты и лицензии</summary>
-              <p>
-                Manrope · The Manrope Project Authors. Inter · The Inter Project
-                Authors. SIL Open Font License 1.1.
-              </p>
-              <h3>Manrope</h3>
-              <pre>{manropeLicense}</pre>
-              <h3>Inter</h3>
-              <pre>{interLicense}</pre>
-            </details>
-          </div>
-        </Modal>
-        <Modal
-          open={reset}
-          onOpenChange={setReset}
-          title="Сбросить настройки?"
-          description="Настройки PORT вернутся к исходным значениям. Игровые файлы не затрагиваются."
-        >
-          <div className="dialog-actions">
-            <Button variant="secondary" onClick={() => setReset(false)}>
-              Отмена
-            </Button>
-            <Button
-              variant="danger"
-              onClick={async () => {
-                setSaving(true);
-                try {
-                  const s = await settingsService.reset();
-                  setSettings(s);
-                  setStorageError(false);
-                  setReset(false);
-                  setToast("Настройки сброшены");
-                } catch {
-                  setToast("Не удалось сбросить настройки");
-                } finally {
-                  setSaving(false);
-                }
-              }}
-              disabled={saving}
-            >
-              Сбросить настройки
-            </Button>
-          </div>
-        </Modal>
-        <AnimatePresence>
-          {toast && (
-            <motion.div
-              className="toast"
-              role="status"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-            >
-              <CheckCircle2 size={17} />
-              <span>{toast}</span>
-              <button
-                aria-label="Скрыть уведомление"
-                onClick={() => setToast("")}
-              >
-                <X size={15} />
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </MotionConfig>
   );

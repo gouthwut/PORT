@@ -1,5 +1,49 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 13C: custom title bar
+
+- Owner authorized local title-bar work and a local commit based on `4d6252c`.
+  Added a separate 40px graphite/violet bar with PORT text, existing Lucide
+  icons, keyboard-accessible minimize/maximize/restore/close buttons, restrained
+  hover and muted red close hover. No blur, animation or new dependency. System
+  EXE/installer icons, sidebar branding, Home/catalog/project/hero composition,
+  downloader and legacy backend/data are preserved. No CMS/neighbor access.
+- Tauri configuration disables decorations and explicitly retains resizing.
+  Four main-window capability permissions enable official controls/dragging;
+  existing default permission includes state queries/internal double-click
+  maximize. `data-tauri-drag-region` and documented `app-region: drag` mark only
+  noninteractive regions. Native maximize state follows resize/external changes;
+  action failures use the existing toast. Browser controls are explicitly disabled.
+  Shell/sidebar height and dialog bounds account for the new bar. Download panel
+  keeps its existing bottom-right placement and behavior.
+- Checks: TypeScript/Vite build PASS, final CSS-only Vite build PASS, changed-file
+  formatting/whitespace checks. Existing bundle-size warning remains (~523 kB).
+  Targeted v2/download regression tests passed 18/18; new title-bar tests cover
+  official commands/state/error feedback, keyboard, browser-disabled controls,
+  shell/dialog bounds at 1440x960 and 800x600, and download-panel bounds. Initial
+  new-test failures were incorrect About/status selectors, corrected without
+  relaxing assertions. Final combined run: **20/20 PASS** (15 v2, 3 downloader,
+  2 title-bar tests). Rust formatting check PASS; no Rust algorithm changed.
+- Built and launched actual **debug** Windows executable with separate identity
+  `app.port.titlebar-qa`, verified empty isolated installations, decorations off,
+  resizing enabled, actual maximize/restore/minimize, official injected
+  double-click handler and normal close/process exit. Computer Use visually
+  confirmed the bar integrated with Home and real mouse double-click maximize/
+  restore. Drag attempts did not establish movement and returned inconsistent
+  target-window captures; physical drag/edge resize/Snap are not marked passed.
+  Scale factor was 1.0; mixed-monitor DPI/pen/touch remain manual verification.
+  Native scripts/reports/config/PID are ignored under `.local/stage13c-*`.
+- Windows 11 hover Snap Layouts flyout is not provided by custom HTML controls
+  (known upstream frameless limitation). No fake flyout or Win32 subclassing.
+  Safe alternative is retaining real Windows decorations and removing the
+  custom bar/reserved height if full system caption behavior is required.
+  Preview via committed isolated `tauri.titlebar-qa.conf.json`; instructions and
+  acceptance checklist in docs/HUB_TITLEBAR.md. Live catalog failure remains
+  independent of title-bar work. No production identity/data operations, Rust
+  algorithm changes, full legacy suite, production release/installer, push or
+  next stage. Existing unrelated Cargo/library/tests/untracked work is excluded
+  from the task commit.
+
 ## 2026-10-29 — Stage 13B: first embedded release-file downloader
 
 - Owner authorized local work only in C:\PORT and a local commit. Added one active

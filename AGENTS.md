@@ -1,5 +1,13 @@
 # PORT// — instructions for future sessions
 
+Stage 13C authorized 2026-10-29: local custom 40px Tauri title bar and scoped
+window controls/drag-region. Preserve Home/catalog/project/hero, Stage 13B
+downloads, EXE/installer icons, legacy engines and user data. See
+docs/HUB_TITLEBAR.md for isolated QA preview, native evidence and Windows
+Snap/DPI/manual verification limits. No custom CSS Snap imitation, CMS/neighbor
+access, production release/push or automatic next stage. This supersedes prior
+window-styling restrictions only within this title-bar scope.
+
 Stage 13B authorized 2026-10-29: one active native download of an approved,
 available Windows GitHub Release asset from CMS v2. Rust re-fetches builds from
 the fixed public CMS endpoint by project/build IDs; no frontend-supplied URL.

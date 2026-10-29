@@ -1,0 +1,81 @@
+:root {
+  --port-titlebar-height: 40px;
+}
+.port-window {
+  height: 100dvh;
+  overflow: hidden;
+  background: #060b12;
+}
+.port-titlebar {
+  display: flex;
+  height: var(--port-titlebar-height);
+  background: linear-gradient(100deg, #b8a6ff08, transparent 55%), #080e18;
+  border-bottom: 1px solid #b9b9ff16;
+  color: #b2b6c8;
+  user-select: none;
+}
+.port-titlebar-drag {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  padding-left: 20px;
+}
+[data-tauri-drag-region] {
+  app-region: drag;
+}
+.port-titlebar-brand {
+  font:
+    700 11px "Inter",
+    "Segoe UI",
+    sans-serif;
+  letter-spacing: 0.16em;
+  color: #c8c3dd;
+}
+.port-window-controls {
+  display: flex;
+  flex-shrink: 0;
+}
+.port-window-controls button {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+}
+.port-window-controls button:hover:not(:disabled) {
+  background: #b8a6ff18;
+  color: #f4f2fa;
+}
+.port-window-controls .port-window-close:hover:not(:disabled) {
+  background: #a8424e66;
+  color: #ffe6e9;
+}
+.port-window-controls button:focus-visible {
+  outline: 2px solid #b8a6ff;
+  outline-offset: -3px;
+}
+.port-window-controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.port-window .app-shell.port-shell {
+  height: calc(100dvh - var(--port-titlebar-height));
+}
+.port-window .port-sidebar {
+  height: 100%;
+}
+.port-window .port-home {
+  min-height: calc(100dvh - var(--port-titlebar-height) - 1px);
+}
+.port-window .skip-link:focus {
+  top: calc(var(--port-titlebar-height) + 12px);
+}
+body:has(.port-window) .dialog-content {
+  top: calc(50% + var(--port-titlebar-height) / 2);
+  max-height: calc(100dvh - var(--port-titlebar-height) - 24px);
+}
