@@ -7,7 +7,7 @@ export function downloadUnavailable(b: V2Build): string | null {
   if (b.os !== "windows") return "Нужна сборка для Windows";
   if (b.availability !== "available")
     return "Доступность файла не подтверждена";
-  if (!b.url) return "Прямой URL файла не указан";
+  if (!b.url) return "Файл сборки пока не опубликован";
   try {
     const u = new URL(b.url);
     const parts = u.pathname.split("/").slice(1);
@@ -28,10 +28,10 @@ export function downloadUnavailable(b: V2Build): string | null {
       name.endsWith(".") ||
       /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(name)
     )
-      return "Прямой файл GitHub Release не указан или его имя не поддерживается";
+      return "Скачивание этого файла пока недоступно в PORT";
     return null;
   } catch {
-    return "Прямой URL файла не указан";
+    return "Файл сборки пока не опубликован";
   }
 }
 export interface DownloadStatus {

@@ -1,5 +1,12 @@
 # Stage 13F — download destination and Explorer
 
+Stage 14B presentation update: the canonical path remains in Rust, but is no
+longer printed in the notification. Success fades after seven unpaused seconds;
+hover/focus/folder action pauses it. Closing the notification does not remove
+the status/file or change exact Explorer reveal. See
+[HUB_PROJECT_REDESIGN.md](HUB_PROJECT_REDESIGN.md). Historical Stage 13F checks
+below describe the panel before this presentation change.
+
 2026-10-29. Local implementation only; no release, installer, push, CMS changes,
 archive execution or next stage.
 
@@ -30,7 +37,7 @@ selected directories and their existing contents are never recursively removed.
 Forced process termination may leave a `.part`; it is not a completed download.
 
 Rust returns the actual canonical full file path in `hub_download_status.path`.
-The panel displays it without rebuilding it in JavaScript. On completion,
+The panel keeps it out of ordinary presentation. On completion,
 **Open folder** uses the existing Tauri opener plugin's Windows shell operation
 to reveal that exact file. Missing files fail explicitly; there is no Documents
 fallback. Windows shell path normalization is handled by the installed plugin.

@@ -34,6 +34,8 @@ export interface CatalogProject {
   windows: BuildAvailability;
   buildEvidence: "editorial-v1" | "approved-v2" | "unknown";
   legacy: PublishedGame | null;
+  developers?: string[];
+  targetPlatforms?: ("windows" | "linux" | "macos")[];
   media?: MediaSet;
 }
 

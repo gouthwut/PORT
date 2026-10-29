@@ -1,5 +1,41 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 14B: project redesign and download notification polish
+
+- Authorized local frontend work from 1232f2e only in C:\PORT. Preserved existing
+  dirty Cargo/image, InstalledLibrary, stage04d and untracked work. Used Ponytail
+  and local design guidance; no cloud design upload, subagents, neighbor/CMS
+  mutation, production release/installer, Git push or next stage.
+- Rebuilt V2Project in the PORT visual system: cinematic CMS image hero,
+  first-screen Windows download action, version/size/source, version selection,
+  compact facts, optional developer names, horizontal gallery with the existing
+  accessible Radix viewer, collapsed changelog/instructions and conditional
+  structured sections. Missing data produces no repeated placeholder fields.
+  Source archives have no binary action; approval/availability guards remain.
+  Client reads existing optional developers/changelog fields; CMS API unchanged.
+- Success notification fades after seven unpaused seconds, pauses on hover/focus/
+  folder interaction and supports manual close. Active operations stay visible;
+  errors persist until dismissed. Hidden status is not deleted and polling does
+  not reopen it. Full technical paths no longer appear. Rust downloader, picker,
+  SHA-256, .part, cancel, no-clobber and exact Explorer command are unchanged.
+- PASS: TypeScript/Vite build (existing >500 kB warning), final TypeScript,
+  25 targeted Playwright tests, changed-file Prettier, git diff whitespace.
+  Zelda/Sonic deterministic fixtures at 1440x960, 1024x768, 800x600 and 480x800:
+  CTA in first viewport, no horizontal overflow, gallery paging/arrows/Escape/
+  focus return, disclosures, notification timing/errors/manual close/status
+  retention and Windows version/availability guards. Initial placeholder/timer
+  test failures were corrected; final suite passes.
+- Actual Stage 13F debug QA exe (app.port.cms-qa) served the new frontend:
+  identity via real IPC, enabled CTA and gallery/Escape passed. Inspected native
+  before/after Zelda and final Sonic WebView captures under .local/evidence/14b.
+  Both native/browser checks use clearly labelled synthetic fixture imagery and
+  metadata, not current CMS artwork/compatibility claims. No ZIP or picker action
+  invoked. No native rebuild/backend tests needed for unchanged Rust. Existing
+  Stage 13F transfer evidence and manual dialog limits are preserved. QA app and
+  debug listener stopped after checks. See docs/HUB_PROJECT_REDESIGN.md.
+- Local commit only; exact revision is in git log. Stage 14B complete; no next
+  stage started. Real current CMS artwork and OS picker/transfer were not retested.
+
 ## 2026-10-29 — Stage 13F: download destination and exact file reveal
 
 - Owner authorized work only in C:\PORT from integration b1664518. Read AGENTS,
@@ -49,7 +85,6 @@
   Picker starting path was canonicalized after noticing mixed separators in QA.
   QA app and its debug listener were stopped after checks. See
   docs/HUB_DOWNLOAD_DESTINATION.md for exact reproduction and manual checklist.
-
 
 ## 2026-10-29 — Stage 13E: isolated local CMS v2 integration
 

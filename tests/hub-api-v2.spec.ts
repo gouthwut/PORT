@@ -220,6 +220,7 @@ test("v2 snapshot follows cursors atomically and retains game search/source filt
   await expect(
     page.getByRole("region", { name: "О проекте", exact: true }),
   ).toContainText("Public description <script>unsafe()</script>");
+  await page.getByText("Инструкция", { exact: true }).click();
   await expect(
     page.getByRole("region", { name: "Данные проекта v2" }),
   ).toContainText("Read the official guide");
@@ -564,7 +565,9 @@ for (const failure of [
         page.getByRole("dialog").locator(".art-empty"),
       ).toBeVisible();
     } else {
-      await expect(page.getByText("Скриншоты недоступны.")).toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: "Скриншоты", exact: true }),
+      ).toHaveCount(0);
     }
     if (failure === "unsafe" || failure === "missing")
       expect(requests).toEqual([]);
@@ -645,7 +648,7 @@ test("Stage 13A: Home → catalog → official project/releases preserves filter
     page.getByRole("button", { name: /Установить|Импорт|Играть/ }),
   ).toHaveCount(0);
   await expect(
-    page.getByRole("button", { name: "Скачать файл", exact: true }),
+    page.getByRole("button", { name: "Скачать для Windows", exact: true }),
   ).toBeDisabled();
   await page.getByRole("button", { name: "Назад в каталог" }).click();
   await expect(page.getByLabel("Поиск по игре или проекту")).toHaveValue(
@@ -713,7 +716,10 @@ test("Stage 13A: empty v2 and absent releases stay explicit, compatibility runti
   await expect(page.locator(".hub-project-card")).toHaveCount(1);
   await page.locator(".hub-project-card").click();
   await expect(
-    page.getByText("Одобренные сборки не указаны.", { exact: true }),
+    page.getByText(
+      "Одобренные сборки для Windows пока не опубликованы. Исходный код и новости — на странице проекта.",
+      { exact: true },
+    ),
   ).toBeVisible();
   await expect(page.getByRole("link", { name: /Релиз/ })).toHaveCount(0);
 });

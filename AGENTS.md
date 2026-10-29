@@ -1,5 +1,13 @@
 # PORT// — instructions for future sessions
 
+Stage 14B authorized 2026-10-29: project-only storefront redesign and download
+notification polish. See docs/HUB_PROJECT_REDESIGN.md and latest PROGRESS. Keep
+Home/catalog/titlebar and Stage 13F native guards. Success notification hides
+after seven unpaused seconds; hover/focus/folder action pause it, errors persist
+until dismissed. Canonical file path remains in Rust; hiding never removes it
+or the file. CMS-only validated images, no fake binary action for source archives;
+optional structured fields only. Local commit only, no release/push/next stage.
+
 Stage 13F authorized 2026-10-29: native destination picker for each interactive
 release download, original safe filename, no-clobber/conflict choice, actual Rust
 file path in UI and exact Explorer reveal. See docs/HUB_DOWNLOAD_DESTINATION.md

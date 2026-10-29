@@ -42,20 +42,63 @@ export function GameArt({
 export function Gallery({
   images,
   title = "Bloodborne",
+  horizontal = false,
 }: {
   images: string[];
   title?: string;
+  horizontal?: boolean;
 }) {
   const [index, setIndex] = useState<number | null>(null);
+  const strip = useRef<HTMLDivElement | null>(null);
   const returnFocus = useRef<HTMLButtonElement | null>(null);
   const change = (n: number) =>
     setIndex((i) =>
       i === null ? null : (i + n + images.length) % images.length,
     );
   return (
-    <section className="gallery-section">
-      <h2>Скриншоты</h2>
-      <div className="screenshot-grid">
+    <section
+      className={`gallery-section${horizontal ? " project-gallery" : ""}`}
+    >
+      <div className="project-gallery-heading">
+        <h2>Скриншоты</h2>
+        {horizontal && (
+          <div>
+            <button
+              className="icon-button"
+              aria-label="Прокрутить скриншоты назад"
+              onClick={() =>
+                strip.current?.scrollBy({
+                  left: -strip.current.clientWidth * 0.8,
+                  behavior: window.matchMedia(
+                    "(prefers-reduced-motion: reduce)",
+                  ).matches
+                    ? "instant"
+                    : "smooth",
+                })
+              }
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <button
+              className="icon-button"
+              aria-label="Прокрутить скриншоты вперёд"
+              onClick={() =>
+                strip.current?.scrollBy({
+                  left: strip.current.clientWidth * 0.8,
+                  behavior: window.matchMedia(
+                    "(prefers-reduced-motion: reduce)",
+                  ).matches
+                    ? "instant"
+                    : "smooth",
+                })
+              }
+            >
+              <ArrowRight size={18} />
+            </button>
+          </div>
+        )}
+      </div>
+      <div className="screenshot-grid" ref={strip}>
         {images.length ? (
           images.map((src, i) => (
             <button

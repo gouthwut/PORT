@@ -43,6 +43,7 @@ export interface V2Build {
   sha256: string | null;
   size: number | null;
   publishedAt: string | null;
+  changelog?: string | null;
 }
 export interface Specs {
   os: string | null;
@@ -179,6 +180,7 @@ export function parseBuilds(v: unknown, projectId: string): V2Build[] {
         sha256,
         size: o.size == null ? null : integer(o.size),
         publishedAt: opt(o.publishedAt),
+        changelog: o.changelog == null ? null : str(o.changelog, 64000),
       };
     },
     1000,
@@ -391,6 +393,12 @@ export function createV2Client(baseUrl: string, fetcher: typeof fetch = fetch) {
       const project = fromV2(summary, games);
       project.media = parseV2Media(p.media);
       project.description = opt(p.description) ?? summary.summary;
+      project.targetPlatforms = summary.targetPlatforms;
+      project.developers = optionalList(
+        p.developers,
+        (v) => (typeof v === "string" ? str(v, 120) : str(obj(v).name, 120)),
+        30,
+      );
       project.officialLinks = [
         ["Проект на GitHub", links.github],
         ["Сайт проекта", links.website],
