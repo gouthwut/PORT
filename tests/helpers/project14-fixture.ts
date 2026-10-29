@@ -2,7 +2,11 @@ import { createHash } from "node:crypto";
 import type { Page } from "@playwright/test";
 
 // Labelled synthetic media and CMS responses. These are not upstream metadata or art.
-export async function project14Fixture(page: Page, sonic = false) {
+export async function project14Fixture(
+  page: Page,
+  sonic = false,
+  wide = false,
+) {
   const origin = "https://port-catalog-cms.port-catalog-cms.workers.dev";
   const name = sonic ? "Sonic Unleashed Recompiled" : "Zelda 64: Recompiled";
   const project = {
@@ -59,10 +63,10 @@ export async function project14Fixture(page: Page, sonic = false) {
   });
   await page.goto("http://127.0.0.1:1420/");
   const base64 = await page.evaluate(
-    ({ name, sonic }) =>
+    ({ name, sonic, wide }) =>
       Array.from({ length: 4 }, (_, i) => {
         const canvas = document.createElement("canvas");
-        canvas.width = 1280;
+        canvas.width = wide ? 1600 : 1280;
         canvas.height = 720;
         const ctx = canvas.getContext("2d")!;
         const gradient = ctx.createLinearGradient(0, 0, 1280, 720);
@@ -78,7 +82,7 @@ export async function project14Fixture(page: Page, sonic = false) {
         ctx.fillText(String(i + 1).padStart(2, "0"), 1100, 620);
         return canvas.toDataURL("image/webp").split(",")[1];
       }),
-    { name, sonic },
+    { name, sonic, wide },
   );
   for (const encoded of base64) {
     const bytes = Buffer.from(encoded, "base64");

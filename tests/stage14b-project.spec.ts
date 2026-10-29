@@ -23,7 +23,10 @@ for (const sonic of [false, true]) {
     await changelog.locator("summary").click();
     await expect(changelog.locator("p")).toBeVisible();
     await changelog.locator("summary").click();
-    await page.getByText("Инструкция", { exact: true }).click();
+    await page
+      .locator("details > summary")
+      .filter({ hasText: /^Инструкция$/ })
+      .click();
     await expect(
       page.getByText("Тестовая инструкция:", { exact: false }),
     ).toBeVisible();

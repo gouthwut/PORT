@@ -220,7 +220,10 @@ test("v2 snapshot follows cursors atomically and retains game search/source filt
   await expect(
     page.getByRole("region", { name: "О проекте", exact: true }),
   ).toContainText("Public description <script>unsafe()</script>");
-  await page.getByText("Инструкция", { exact: true }).click();
+  await page
+    .locator("details > summary")
+    .filter({ hasText: /^Инструкция$/ })
+    .click();
   await expect(
     page.getByRole("region", { name: "Данные проекта v2" }),
   ).toContainText("Read the official guide");

@@ -98,9 +98,6 @@ export function HubLanding({
               aria-pressed={selected === key}
               onClick={() => setPlatform(key)}
             >
-              <span className={`port-platform-symbol port-platform-${key}`}>
-                {platformShort(key)}
-              </span>
               {name}
               <span className="port-platform-count" aria-hidden="true">
                 {projects.filter((p) => p.platforms.includes(key)).length}
@@ -113,7 +110,7 @@ export function HubLanding({
             <div>
               <p className="port-kicker">{t("ПРОЕКТЫ СООБЩЕСТВА")}</p>
               <h2 id="editorial-title">
-                {t("Выбор редакции")}
+                {t("Проекты")}
                 <span className="port-section-dot">/</span>
               </h2>
             </div>

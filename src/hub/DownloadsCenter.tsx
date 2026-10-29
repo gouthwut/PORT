@@ -14,7 +14,13 @@ const labels: Record<string, string> = {
   error: "Ошибка загрузки",
 };
 const bytes = (n: number) => `${(n / 1024 ** 2).toFixed(1)} MiB`;
-export function DownloadsCenter({ state }: { state: DownloadState }) {
+export function DownloadsCenter({
+  state,
+  onCatalog,
+}: {
+  state: DownloadState;
+  onCatalog?: () => void;
+}) {
   const rows = state.history.filter((r) => r.id !== state.status?.id);
   if (
     state.status?.phase &&
@@ -41,7 +47,14 @@ export function DownloadsCenter({ state }: { state: DownloadState }) {
       )}
       {state.error && <p role="alert">{downloadMessage(state.error)}</p>}
       {!rows.length && (
-        <p className="hub-catalog-empty">{t("История загрузок пока пуста")}</p>
+        <div className="downloads-empty">
+          <p>{t("История загрузок пока пуста")}</p>
+          {onCatalog && (
+            <Button variant="secondary" onClick={onCatalog}>
+              {t("Исследовать каталог")}
+            </Button>
+          )}
+        </div>
       )}
       {rows.map((r, i) => (
         <DownloadRow key={r.id || i} row={r} state={state} />

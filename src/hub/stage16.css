@@ -1,0 +1,831 @@
+/* Stage 16: shared launcher density, based on the original approved PORT board. */
+.port-shell .port-sidebar {
+  width: 156px;
+  flex-basis: 156px;
+  padding: 20px 10px 12px;
+  background: linear-gradient(160deg, #172232, #0b101c 55%, #111323);
+}
+.port-sidebar .port-brand {
+  font-size: 21px;
+  padding: 0 3px;
+}
+.port-sidebar .port-brand-mark {
+  width: 24px;
+  height: 26px;
+  margin-right: 7px;
+}
+.port-sidebar .port-nav-caption {
+  margin: 28px 12px 10px;
+}
+.port-sidebar nav {
+  gap: 4px;
+}
+.port-sidebar .port-nav-link {
+  min-height: 40px;
+  height: auto;
+  padding: 10px;
+  gap: 9px;
+  border-radius: 7px;
+  font-size: 12px;
+}
+.port-sidebar .port-sidebar-art {
+  min-height: 0;
+}
+.port-sidebar .port-cartridge {
+  width: 82px;
+  height: 120px;
+}
+.port-sidebar .port-sidebar-coordinate {
+  display: none;
+}
+.port-titlebar-brand {
+  display: none;
+}
+.port-shell .topbar {
+  height: 58px;
+  min-height: 58px;
+  padding: 10px 24px;
+  background: #080e18;
+}
+.port-home-active .topbar {
+  margin-bottom: -58px;
+  background: transparent;
+}
+.port-shell .search-box {
+  height: 36px;
+  min-height: 36px;
+  border-radius: 6px;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+.port-shell main {
+  padding: 12px 24px 32px;
+}
+.port-shell main:has(.hub-project-page) {
+  padding-top: 8px;
+}
+.port-shell .port-hero {
+  min-height: 340px;
+  padding: 76px 28px 44px;
+}
+.port-hero .port-kicker {
+  margin-bottom: 12px;
+}
+.port-hero h1 {
+  font-size: clamp(30px, 3.1vw, 44px);
+  margin-bottom: 12px;
+  color: #fff9ff;
+}
+.port-hero .port-intro {
+  margin-bottom: 18px;
+  color: #e0dfe9;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.port-hero-shade {
+  background:
+    linear-gradient(90deg, #050b13f2, #060a1280 42%, transparent 78%),
+    linear-gradient(0deg, #060b12, transparent 45%);
+}
+.port-cta {
+  min-height: 42px;
+  border-radius: 6px;
+}
+.port-art-credit {
+  bottom: 32px;
+}
+.port-home-body {
+  margin-top: -24px;
+  padding: 0 24px;
+}
+.port-platforms {
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+}
+.port-platforms button {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 6px;
+}
+.port-section-head .port-kicker,
+.port-section-dot {
+  display: none;
+}
+.port-section-head h2 {
+  font-size: 20px;
+}
+.port-order-note {
+  margin: 0 0 10px;
+}
+.port-project-grid {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 200px));
+  gap: 14px;
+}
+.port-project-grid .port-project {
+  border-radius: 8px;
+}
+.port-project-grid .port-project-image {
+  aspect-ratio: 3 / 4;
+}
+.port-project-grid .port-project-caption {
+  inset-inline: 12px;
+  bottom: 14px;
+}
+.port-project-grid .port-project-caption h3 {
+  font-size: 16px;
+  line-height: 1.3;
+}
+.port-project-grid .port-project-caption > span {
+  font-size: 10px;
+}
+.port-project-grid .port-project-meta {
+  min-height: 40px;
+  padding: 10px 12px;
+  font-size: 10px;
+}
+.port-project-grid .port-project-meta > span:last-child {
+  display: none;
+}
+.port-project-open {
+  width: 26px;
+  height: 26px;
+}
+.port-project-platform {
+  font-size: 10px;
+  padding: 4px 6px;
+}
+.port-discovery {
+  margin-top: 24px;
+  gap: 16px;
+}
+.port-shelf {
+  padding: 16px;
+  border-radius: 8px;
+}
+.port-catalog-door {
+  padding: 18px;
+  border-radius: 8px;
+}
+
+/* Filters occupy a narrow rail; the cover grid leads the desktop composition. */
+.hub-catalog .hub-catalog-intro {
+  padding: 0;
+  margin: 0 0 16px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.hub-catalog-intro h1 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: -0.04em;
+}
+.hub-catalog-layout {
+  display: grid;
+  grid-template-columns: 196px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+.hub-catalog-content {
+  min-width: 0;
+}
+.hub-catalog .hub-catalog-tools {
+  padding: 14px;
+  border-radius: 8px;
+  background: linear-gradient(150deg, #192332, #0c1420);
+  box-shadow: none;
+}
+.hub-filter-toggle {
+  display: none;
+}
+.hub-catalog .hub-filter-heading {
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.hub-filter-heading > span {
+  display: none;
+}
+.hub-filter-heading button {
+  padding: 0;
+  min-height: 32px;
+}
+.hub-filter-heading button[aria-pressed="true"] {
+  color: #e0cbff;
+}
+.hub-catalog .hub-filter-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  margin: 0 0 20px;
+}
+.hub-catalog select {
+  min-height: 36px;
+  padding: 8px;
+  border-radius: 5px;
+  font-size: 11px;
+}
+.hub-catalog .hub-build-filter {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+.hub-build-filter > span {
+  grid-column: 1 / -1;
+  margin: 0 0 6px;
+}
+.hub-build-filter button {
+  min-height: 34px;
+  padding: 6px;
+  font-size: 11px;
+}
+.hub-catalog .hub-catalog-search {
+  min-height: 36px;
+  border-radius: 6px;
+  padding: 0 12px;
+}
+.hub-catalog-search input {
+  padding: 9px 0;
+  font-size: 12px;
+}
+.hub-catalog .hub-catalog-results-head {
+  margin: 12px 0 0;
+  gap: 12px;
+}
+.hub-catalog-results-head h2 {
+  font-size: 16px;
+}
+.hub-catalog-results-head label {
+  gap: 8px;
+}
+.hub-catalog .hub-source-status {
+  margin-bottom: 12px;
+}
+.hub-source-status button {
+  min-height: 30px;
+}
+.hub-catalog .hub-catalog-grid {
+  grid-template-columns: repeat(auto-fill, minmax(170px, 220px));
+  gap: 16px;
+}
+.hub-catalog .hub-project-card {
+  border-radius: 8px;
+  box-shadow: none;
+}
+.hub-catalog .hub-project-card .port-project-image {
+  aspect-ratio: 3 / 4;
+}
+.hub-project-card .port-project-open {
+  display: none;
+}
+.hub-catalog .hub-project-copy {
+  gap: 7px;
+  padding: 12px;
+}
+.hub-project-copy > strong {
+  font-size: 16px;
+  line-height: 1.35;
+}
+.hub-project-name {
+  font-size: 11px;
+}
+.hub-catalog .hub-project-card .port-project-meta {
+  padding: 9px 12px;
+  min-height: 36px;
+}
+.hub-project-card .port-project-meta > span:last-child {
+  display: none;
+}
+.project-card-wrapper > .favorite-button {
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 23px;
+}
+.hub-catalog-note {
+  margin-top: 16px;
+}
+
+/* A bounded CMS cover provides project identity without enlarging gameplay frames. */
+.hub-project-page {
+  max-width: 1380px;
+}
+.hub-project-page .back-link {
+  margin-bottom: 12px;
+  min-height: 28px;
+}
+.hub-project-page .project-hero {
+  min-height: 360px;
+  border-radius: 10px;
+  align-items: center;
+  background:
+    radial-gradient(ellipse at 85% 15%, #38476970, transparent 65%), #0d1420;
+}
+.project-hero > .game-art {
+  inset: 0 0 0 auto;
+  width: 40%;
+  height: 100%;
+  max-width: 430px;
+  object-fit: contain;
+  padding: 20px;
+  object-position: center;
+}
+.project-hero-shade {
+  background: linear-gradient(90deg, #0b111deb, #0b111d80 58%, #0b111d10 85%);
+}
+.project-hero-content {
+  padding: 26px;
+  width: 70%;
+}
+.project-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.project-badges span {
+  padding: 4px 7px;
+  border: 1px solid #c3b4ff30;
+  border-radius: 4px;
+  background: #171e2f;
+  color: #e1d9f9;
+  font-size: 10px;
+  line-height: 1.4;
+}
+.hub-project-page h1 {
+  font-size: clamp(28px, 3.4vw, 48px);
+  max-width: 660px;
+  margin: 14px 0;
+  line-height: 1.1;
+}
+.project-title-row {
+  align-items: start;
+  gap: 12px;
+}
+.project-title-row .favorite-button {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  margin-top: 14px;
+}
+.project-summary {
+  font-size: 13px;
+  color: #d9dce7;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.project-download {
+  padding-top: 12px;
+}
+.project-download h2 {
+  margin: 0 0 8px;
+  font-size: 10px;
+}
+.project-download-row {
+  gap: 12px;
+}
+.hub-project-page .project-download-button {
+  min-height: 44px;
+  padding: 12px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  background: linear-gradient(160deg, #ffe69c, #f6c45c);
+  border-color: #ffe4a1;
+  color: #211a0c;
+  box-shadow: 0 4px 18px #fbb4481a;
+}
+.project-release-meta {
+  font-size: 11px;
+  gap: 3px;
+}
+.project-release-meta strong {
+  font-size: 12px;
+}
+.project-download-note {
+  margin-top: 10px;
+  font-size: 11px;
+}
+.project-build-choice {
+  margin-bottom: 10px;
+  font-size: 11px;
+}
+.project-build-choice select {
+  padding: 6px;
+  border-radius: 5px;
+}
+.project-gallery {
+  margin: 14px 0 10px;
+}
+.project-gallery h2 {
+  margin: 0;
+  font-size: 15px;
+}
+.project-gallery .screenshot-grid {
+  gap: 10px;
+  padding-bottom: 8px;
+}
+.project-gallery .screenshot-grid button {
+  flex-basis: clamp(140px, 22%, 250px);
+  border-radius: 6px;
+}
+.project-section-nav {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 0 0 4px;
+  border-bottom: 1px solid var(--port-edge);
+}
+.project-section-nav a {
+  flex-shrink: 0;
+  padding: 12px;
+  color: #d1c9e4;
+  font-size: 12px;
+  text-decoration: none;
+}
+.project-section-nav a:hover,
+.project-section-nav a:focus-visible {
+  background: #a58ae51c;
+  color: white;
+}
+.project-facts {
+  gap: 16px 28px;
+  padding: 18px 0;
+}
+.project-facts dd {
+  font-size: 12px;
+}
+.project-facts dt {
+  margin-bottom: 5px;
+}
+.project-section {
+  padding: 18px 0;
+  font-size: 13px;
+  scroll-margin-top: 12px;
+}
+.project-section summary {
+  font-size: 16px;
+}
+.hub-project-page .project-section h2 {
+  font-size: 17px;
+  margin-bottom: 12px;
+}
+
+.port-shell .page-heading {
+  margin-bottom: 18px;
+}
+.port-shell .page-heading h1 {
+  font-size: 28px;
+}
+.port-shell .settings-layout {
+  display: block;
+  max-width: 860px;
+}
+.port-shell .settings-section {
+  padding: 18px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  background: #101723;
+}
+.port-shell .settings-section h2 {
+  font-size: 17px;
+  margin: 0 0 14px;
+}
+.port-shell .setting-row {
+  padding: 12px 0;
+}
+.port-shell .setting-row:last-child {
+  padding-bottom: 0;
+}
+.port-shell .setting-row h3 {
+  margin: 0;
+  font-size: 13px;
+}
+.port-shell .setting-row p {
+  margin-bottom: 0;
+}
+.downloads-center {
+  max-width: 1000px;
+  margin-inline: 0;
+}
+.downloads-empty {
+  padding: 28px;
+  margin-top: 20px;
+  border: 1px solid var(--port-edge);
+  border-radius: 8px;
+  background: #101723;
+}
+.downloads-empty p {
+  margin: 0 0 16px;
+  color: var(--port-muted);
+  font-size: 14px;
+}
+.download-history-row {
+  margin: 12px 0;
+  padding: 16px 18px;
+  border-radius: 8px;
+  background: #101723;
+}
+.download-history-row h2 {
+  font-size: 17px;
+  margin: 0 0 8px;
+}
+.download-history-row p {
+  font-size: 12px;
+  margin: 8px 0;
+}
+.download-history-row strong {
+  font-size: 12px;
+}
+.download-history-actions {
+  margin-top: 12px;
+}
+.download-history-actions .button {
+  min-height: 34px;
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+@media (max-width: 1050px) {
+  .hub-catalog-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .hub-catalog .hub-catalog-tools {
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+  .hub-filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 8px 12px;
+    border: 1px solid var(--port-edge);
+    border-radius: 5px;
+    background: #151d2d;
+    color: #e1d9f9;
+    font-size: 12px;
+  }
+  .hub-filter-fields {
+    display: none;
+  }
+  .hub-filter-fields[data-open="true"] {
+    display: block;
+    padding: 14px;
+    margin-top: 8px;
+    border: 1px solid var(--port-edge);
+    border-radius: 6px;
+    background: #101723;
+  }
+  .hub-catalog .hub-filter-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .hub-catalog .hub-build-filter {
+    display: flex;
+  }
+  .hub-catalog .hub-catalog-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 210px));
+  }
+}
+@media (max-width: 900px) {
+  .port-shell .port-sidebar {
+    width: 56px;
+    flex-basis: 56px;
+    padding: 16px 6px 10px;
+  }
+  .port-sidebar .port-brand {
+    font-size: 0;
+    padding: 0;
+  }
+  .port-sidebar .port-brand-mark {
+    margin: 0;
+    width: 28px;
+    height: 30px;
+  }
+  .port-sidebar .port-nav-caption {
+    margin: 24px 0 0;
+  }
+  .port-sidebar .port-nav-link {
+    padding: 10px 0;
+  }
+  .port-sidebar .port-cartridge {
+    display: none;
+  }
+  .port-hero-content {
+    padding: 20px;
+  }
+  .port-shell .topbar {
+    padding-inline: 20px;
+  }
+  .port-shell main {
+    padding-inline: 20px;
+  }
+  .project-hero-content {
+    width: 78%;
+    padding: 22px;
+  }
+  .project-hero > .game-art {
+    width: 35%;
+    opacity: 0.7;
+    padding: 12px;
+  }
+  .project-hero-shade {
+    background: linear-gradient(90deg, #0b111df5 25%, #0b111da6 70%, #0b111d30);
+  }
+}
+@media (max-height: 650px) and (min-width: 601px) {
+  .port-shell .port-hero {
+    min-height: 304px;
+    padding-top: 65px;
+    padding-bottom: 38px;
+  }
+  .port-hero h1 {
+    font-size: 30px;
+  }
+  .port-hero .port-kicker {
+    display: none;
+  }
+  .port-hero .port-intro {
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+  .hub-project-page .project-hero {
+    min-height: 320px;
+  }
+  .hub-project-page h1 {
+    font-size: 30px;
+  }
+  .project-summary {
+    -webkit-line-clamp: 2;
+  }
+}
+@media (max-width: 600px) {
+  .port-shell .topbar {
+    padding-inline: 14px;
+  }
+  .port-shell main {
+    padding-inline: 14px;
+  }
+  .port-shell .port-hero {
+    min-height: 370px;
+    padding: 78px 18px 45px;
+  }
+  .port-hero h1 {
+    font-size: clamp(25px, 6vw, 34px);
+  }
+  .port-home-body {
+    padding-inline: 14px;
+  }
+  .port-project-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 180px));
+  }
+  .hub-catalog .hub-catalog-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 210px));
+  }
+  .hub-catalog .hub-filter-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hub-catalog-results-head {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .hub-catalog-results-head label {
+    width: auto;
+    flex-wrap: wrap;
+  }
+  .hub-catalog .hub-catalog-intro {
+    margin-bottom: 12px;
+  }
+  .project-hero-content {
+    width: 100%;
+    padding: 22px 16px;
+  }
+  .project-hero > .game-art {
+    width: 65%;
+    opacity: 0.22;
+  }
+  .hub-project-page .project-hero {
+    min-height: 0;
+  }
+  .hub-project-page h1 {
+    font-size: 28px;
+  }
+  .project-summary {
+    font-size: 12px;
+  }
+  .project-download-row {
+    gap: 10px;
+  }
+  .hub-project-page .project-download-button {
+    width: auto;
+  }
+  .project-release-meta {
+    width: 100%;
+  }
+  .project-information {
+    display: block;
+  }
+  .downloads-empty {
+    padding: 20px;
+  }
+  .port-shell .settings-section {
+    padding: 14px;
+  }
+}
+
+/* Good wide CMS frames stay bounded; small images retain the cover composition. */
+.project-hero-wide > .game-art {
+  width: 65%;
+  max-width: 860px;
+  padding: 0;
+  object-fit: cover;
+  object-position: center;
+}
+.project-hero-wide .project-hero-shade {
+  background:
+    linear-gradient(90deg, #0b111df5 15%, #0b111dd9 40%, #0b111d20 80%),
+    linear-gradient(0deg, #0b111d, transparent 70%);
+}
+.port-hero .port-kicker {
+  display: none;
+}
+.port-shell .port-hero {
+  padding-top: 76px;
+  padding-bottom: 36px;
+}
+.port-hero h1 {
+  font-size: clamp(30px, 2.8vw, 40px);
+}
+.port-project-grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 174px));
+}
+.hub-catalog .hub-catalog-grid {
+  grid-template-columns: repeat(auto-fill, minmax(165px, 200px));
+}
+.port-shell .search-box {
+  width: min(420px, 80%);
+}
+.port-shell .search-box input {
+  text-overflow: ellipsis;
+}
+.port-home-body .port-order-note {
+  margin-bottom: 8px;
+}
+.hub-catalog-content > .hub-catalog-note {
+  margin: 6px 0 10px;
+}
+@media (max-width: 900px) {
+  .project-hero-wide > .game-art {
+    width: 65%;
+    opacity: 0.6;
+  }
+}
+@media (max-width: 600px) {
+  .port-shell .search-box {
+    width: 100%;
+  }
+  .port-shell .port-hero {
+    padding-top: 76px;
+    padding-bottom: 36px;
+  }
+  .port-project-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 174px));
+  }
+  .hub-catalog .hub-catalog-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 200px));
+  }
+  .project-hero-wide > .game-art {
+    width: 100%;
+    opacity: 0.25;
+  }
+}
+
+.hub-project-page .project-gallery {
+  margin: 14px 0 8px;
+}
+.hub-project-page .project-gallery h2 {
+  margin: 0;
+  font-size: 15px;
+}
+.project-gallery .screenshot-grid button {
+  flex-basis: clamp(140px, 20%, 200px);
+}
+.port-shell .button {
+  border-radius: 6px;
+}
+.downloads-empty {
+  max-width: 640px;
+}
+.port-shell.compact .hub-catalog-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 145px), 170px));
+}
+.port-shell.compact .port-project-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 154px));
+}
+.hub-project-page .project-download-button:hover:not(:disabled) {
+  background: linear-gradient(160deg, #fff0b4, #ffd377);
+  box-shadow: 0 4px 20px #fbb44830;
+}

@@ -1,5 +1,15 @@
 # PORT// — instructions for future sessions
 
+Stage 16 authorized 2026-10-29: local visual parity with the original approved
+PORT design pack across Home, catalog, project, sidebar, Downloads and Settings.
+This supersedes earlier screen-styling restrictions only within that visual scope.
+Keep Stage 15 preferences/history/localization, Stage 13F picker/HTTPS/no-clobber
+and Stage 14B notification timing. CMS media stays validated; no invented games,
+ratings, compatibility or installation. See docs/PORT_STAGE16_VISUAL.md and latest
+PROGRESS for before/after evidence and native/live limits. Work only in C:\PORT,
+preserve dirty/legacy work and user data. Local commits only; no CMS/API/neighbor
+changes, push/release/installer or automatic next stage.
+
 Stage 15 authorized 2026-10-29: local Downloads Center/history, favorites/recent
 project IDs, approved-build discovery, conservative archive-version notices and
 Russian/English/Spanish/French catalog-path localization. See docs/HUB_STAGE15.md

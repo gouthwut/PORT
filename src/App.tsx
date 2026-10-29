@@ -295,7 +295,10 @@ export default function App() {
                       />
                     )}
                     {page === "downloads" && (
-                      <DownloadsCenter state={downloads} />
+                      <DownloadsCenter
+                        state={downloads}
+                        onCatalog={() => navigate("catalog")}
+                      />
                     )}
                     {page === "settings" && (
                       <>

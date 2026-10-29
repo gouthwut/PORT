@@ -5,7 +5,11 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowUpRight, Download } from "lucide-react";
 import { GameArt, Gallery } from "../components/BloodborneMedia";
 import { useV2Media } from "./v2-media";
-import { projectTitle, technologyLabels } from "./catalog-model";
+import {
+  projectTitle,
+  technologyLabels,
+  lifecycleLabels,
+} from "./catalog-model";
 import type { CatalogProject } from "./catalog-model";
 import { createV2Client, parseSourceConfig, type V2Detail } from "./api-v2";
 import sourceConfig from "./source-config.json";
@@ -66,6 +70,23 @@ export function V2Project({
   }, [project.id, attempt]);
   const currentProject = data?.project ?? project;
   const media = useV2Media(currentProject.media);
+  const candidate = media.gallery[0] || "";
+  const [wideArt, setWideArt] = useState("");
+  useEffect(() => {
+    if (!candidate) return;
+    let active = true;
+    const image = new Image();
+    image.onload = () => {
+      const ratio = image.naturalWidth / image.naturalHeight;
+      if (active && image.naturalWidth >= 1440 && ratio >= 1.6 && ratio <= 2.5)
+        setWideArt(candidate);
+    };
+    image.src = candidate;
+    return () => {
+      active = false;
+    };
+  }, [candidate]);
+  const panoramic = !!candidate && wideArt === candidate;
   const [linkError, setLinkError] = useState("");
   const title = currentProject.name || projectTitle(currentProject);
   const windows =
@@ -111,25 +132,27 @@ export function V2Project({
         {t(backLabel)}{" "}
       </button>
       <section
-        className="hub-project-overview project-hero"
+        className={`hub-project-overview project-hero ${panoramic ? "project-hero-wide" : ""}`}
         aria-label={t("О проекте")}
       >
         <GameArt
-          src={media.gallery[0] || media.cover}
+          src={panoramic ? candidate : media.cover}
           fallbackLabel={t("Обложка недоступна")}
           label={
-            media.gallery[0] || media.cover
-              ? `${t("Обложка")} ${title}`
-              : t("Обложка недоступна")
+            media.cover ? `${t("Обложка")} ${title}` : t("Обложка недоступна")
           }
         />
         <div className="project-hero-shade" />
         <div className="project-hero-content">
-          <p className="project-eyebrow">
-            {t(technologyLabels[currentProject.kind])}
-            {currentProject.platforms.length > 0 &&
-              ` · ${currentProject.platforms.join(" / ")}`}
-          </p>
+          <div className="project-badges">
+            {currentProject.platforms.map((platform) => (
+              <span key={platform}>{platform}</span>
+            ))}
+            <span>{t(technologyLabels[currentProject.kind])}</span>
+            {currentProject.lifecycle !== "unknown" && (
+              <span>{t(lifecycleLabels[currentProject.lifecycle])}</span>
+            )}
+          </div>
           <div className="project-title-row">
             <h1>{title}</h1>
             <FavoriteButton id={project.id} />
@@ -137,7 +160,11 @@ export function V2Project({
           {currentProject.description && (
             <p className="project-summary">{currentProject.description}</p>
           )}
-          <section className="project-download" aria-label={t("Сборки")}>
+          <section
+            id="project-download"
+            className="project-download"
+            aria-label={t("Сборки")}
+          >
             <h2 className="project-eyebrow">{t("Сборки")}</h2>
             {busy ? (
               <p role="status">{t("Загрузка проекта…")}</p>
@@ -232,7 +259,41 @@ export function V2Project({
           </section>
         </div>
       </section>
-      <dl className="project-facts">
+      {media.gallery.length > 0 && (
+        <Gallery images={media.gallery} title={title} horizontal />
+      )}
+      <nav className="project-section-nav" aria-label={t("О проекте")}>
+        {[
+          ["project-overview", t("О проекте"), true],
+          ["project-download", t("Сборки"), !!build],
+          ["project-install", t("Инструкция"), !!install?.install.steps.length],
+          ["project-requirements", t("Системные требования"), hasSpecs],
+          [
+            "project-issues",
+            t("Известные проблемы"),
+            !!install?.knownIssues.length,
+          ],
+          [
+            "project-changelog",
+            t("Что нового в") + " " + (build?.version ?? ""),
+            !!build?.changelog,
+          ],
+        ]
+          .filter(([, , visible]) => visible)
+          .map(([id, label]) => (
+            <a
+              key={String(id)}
+              href={"#" + id}
+              onClick={() => {
+                const section = document.getElementById(String(id));
+                if (section instanceof HTMLDetailsElement) section.open = true;
+              }}
+            >
+              {label}
+            </a>
+          ))}
+      </nav>
+      <dl id="project-overview" className="project-facts">
         {currentProject.platforms.length > 0 && (
           <div>
             <dt>{t("Оригинальная платформа")}</dt>
@@ -256,9 +317,7 @@ export function V2Project({
           </div>
         )}
       </dl>
-      {media.gallery.length > 0 && (
-        <Gallery images={media.gallery} title={title} horizontal />
-      )}
+
       {currentProject.description &&
         currentProject.description.length > 120 && (
           <details className="project-section">
@@ -267,7 +326,10 @@ export function V2Project({
           </details>
         )}
       {build?.changelog && (
-        <details className="project-section project-changelog">
+        <details
+          id="project-changelog"
+          className="project-section project-changelog"
+        >
           <summary>
             {t("Что нового в")} {build.version}
           </summary>
@@ -279,7 +341,7 @@ export function V2Project({
         aria-label={t("Данные проекта v2")}
       >
         {hasSpecs && (
-          <section className="project-section">
+          <section id="project-requirements" className="project-section">
             <h2>{t("Системные требования")}</h2>
             <div className="project-spec-columns">
               {specs.map(
@@ -344,7 +406,7 @@ export function V2Project({
           </section>
         )}
         {!!install?.install.steps.length && (
-          <details className="project-section">
+          <details id="project-install" className="project-section">
             <summary>{t("Инструкция")}</summary>
             <ol>
               {install.install.steps.map((s, i) => (
@@ -355,7 +417,7 @@ export function V2Project({
           </details>
         )}
         {!!install?.knownIssues.length && (
-          <details className="project-section">
+          <details id="project-issues" className="project-section">
             <summary>{t("Известные проблемы")}</summary>
             <ul>
               {install.knownIssues.map((s, i) => (

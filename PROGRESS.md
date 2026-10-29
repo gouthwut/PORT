@@ -1,5 +1,43 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 16: original-reference visual parity
+
+- Authorized local UI overhaul from 727bf88. Original board/Home/Catalog/Project
+  references found in design/references; сейчас.rar absent. Captured the actual
+  starting browser UI before editing; no invented source screenshots or game art.
+  Report and changed-file inventory: docs/PORT_STAGE16_VISUAL.md.
+- Compact cinematic Home, portrait catalog cards and desktop filter rail/narrow
+  disclosure, bounded CMS project artwork with conservative cover fallback,
+  conditional section anchors, compact sidebar/Downloads/Settings. Shared CTA
+  styling loads after the base theme; enabled project download is amber.
+- Browser before/after: 18 + 18 screenshots at 1280x720, 800x600 and 1920x1080,
+  same recorded real public CMS data and hash-validated images. Catalog first-card
+  Y: 787→284 at 1280, 771→332 at 800. Home Y: 689→479 at 1280, 679→451 at 800.
+  Titles/CTA visible; no horizontal overflow. No fake production catalog entries,
+  ratings, compatibility percentages or empty tabs. Synthetic large-catalog and
+  image-threshold tests are explicitly QA fixtures only.
+- PASS: TypeScript/Vite build (existing >500 kB JS warning), 45 current-path
+  Playwright tests, 9 Rust hub_download regressions, changed-file formatting and
+  whitespace. All four languages down to 320px; browser scale is not OS DPI.
+- Built/launched actual isolated app.port.cms-qa debug app with fresh
+  .local/stage16/app-data and empty installation registry. Native render QA uses
+  recorded public responses in the real WebView, real IPC and SQLite: 1280x720,
+  800x600, enabled CTA, gallery/Escape, maximize/restore to 1920x1032. Evidence
+  .local/evidence/16-visual/native-replay-*. Native screenshots wait for the target
+  page and settled transitions. Zero download starts; no archive/game execution.
+- Local public CMS initially supplied the two real projects/art, then stopped
+  (connection refused on localhost:8787) before native live QA. Asked the owner
+  to restart it; owner confirmed parallel CMS work and explicitly authorized
+  continuing with saved data/fixtures without waiting. No neighbor access or CMS
+  change. Native replay is NOT live
+  HTTPS/transfer proof. Stage 15F picker/Snap/OS-DPI and beta limits remain.
+  Temporary native size permission exists only in ignored QA configuration.
+  QA app and debug listener closed after final screenshots.
+- Production configuration/API/CSP/permissions, downloader guards/notification
+  timing, schema-4 registration, legacy code and owner game/profile/save data
+  unchanged. Prior Cargo/image, InstalledLibrary, stage04d and untracked owner
+  work preserved/excluded. Local commit only; no push/release/installer/next stage.
+
 ## 2026-10-29 — Stage 15F: Windows QA, no confirmed application defect
 
 - From `198671f`; existing dirty work preserved. Actual isolated Tauri debug
