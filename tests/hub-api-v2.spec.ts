@@ -61,7 +61,7 @@ const detail = () => ({
 });
 async function setup(
   page: Page,
-  config: unknown = { version: "v2", baseUrl: origin, fallback: "v1" },
+  config: unknown = { version: "v2", baseUrl: origin, fallback: "none" },
 ) {
   await page.route(/\/src\/hub\/source-config\.json(?:\?.*)?$/, (r) =>
     r.fulfill({
@@ -237,14 +237,15 @@ test("v2 snapshot follows cursors atomically and retains game search/source filt
   ).toBeTruthy();
 });
 
-test("configured v2 failure replaces the whole list with visible v1 fallback and can retry v2", async ({
+test("default v2 failure shows no v1 cards and retries without a fallback", async ({
   page,
 }) => {
   await setup(page);
+  await page.unroute(/\/src\/hub\/source-config\.json(?:\?.*)?$/);
   let failed = true;
   await page.route(`${origin}/v2/projects?*`, (r) =>
     failed
-      ? r.fulfill({ status: 404, json: { error: "not deployed" } })
+      ? r.fulfill({ status: 404, json: { error: "unavailable" } })
       : r.fulfill({
           json: {
             schemaVersion: 2,
@@ -255,48 +256,39 @@ test("configured v2 failure replaces the whole list with visible v1 fallback and
         }),
   );
   await page.goto("/");
-  await page.getByRole("button", { name: "Каталог", exact: true }).click();
-  await expect(page.getByText(/Показан только каталог v1/)).toBeVisible();
-  await expect(page.locator(".hub-project-card")).toHaveCount(
-    fixture.games.length,
-  );
   await expect(
-    page.getByRole("button", { name: /Подробнее: Original Game/ }),
-  ).toHaveCount(0);
-  failed = false;
-  await page
-    .getByRole("button", { name: "Обновить каталог", exact: true })
-    .click();
-  await expect(page.locator(".hub-project-card")).toHaveCount(1);
-  await expect(
-    page.getByRole("button", { name: /Подробнее: Original Game/ }),
+    page.getByText("Каталог не удалось загрузить.", { exact: true }),
   ).toBeVisible();
-  await expect(page.getByText(/Показан только каталог v1/)).toHaveCount(0);
-});
-
-test("fallback none exposes failure; default v1 never requests v2", async ({
-  page,
-}) => {
-  await setup(page, { version: "v2", baseUrl: origin, fallback: "none" });
-  await page.route(`${origin}/v2/projects?*`, (r) => r.abort());
-  await page.goto("/");
+  await expect(page.locator(".port-project")).toHaveCount(0);
   await page.getByRole("button", { name: "Каталог", exact: true }).click();
   await expect(
     page.getByRole("alert").filter({ hasText: "Не удалось загрузить каталог" }),
   ).toBeVisible();
   await expect(page.locator(".hub-project-card")).toHaveCount(0);
-  await page.unroute(/\/src\/hub\/source-config\.json(?:\?.*)?$/);
-  let count = 0;
-  await page.route(`${origin}/v2/**`, (r) => {
-    count++;
-    return r.abort();
-  });
-  await page.reload();
-  await page.getByRole("button", { name: "Каталог", exact: true }).click();
-  await expect(page.locator(".hub-project-card")).toHaveCount(
-    fixture.games.length,
-  );
-  expect(count).toBe(0);
+  failed = false;
+  await page
+    .getByRole("button", { name: "Обновить каталог", exact: true })
+    .click();
+  await expect(page.locator(".hub-project-card")).toHaveCount(1);
+});
+
+test("legacy source configuration cannot reopen old catalog scenarios", async ({
+  page,
+}) => {
+  for (const config of [
+    { version: "v1" },
+    { version: "v2", baseUrl: origin, fallback: "v1" },
+  ]) {
+    await setup(page, config);
+    await page.goto("/");
+    await page.getByRole("button", { name: "Каталог", exact: true }).click();
+    await expect(
+      page
+        .getByRole("alert")
+        .filter({ hasText: "Не удалось загрузить каталог" }),
+    ).toBeVisible();
+    await expect(page.locator(".hub-project-card")).toHaveCount(0);
+  }
 });
 
 test("invalid schemas, unsafe links, foreign identities and cursor loops fail closed", async ({
@@ -605,4 +597,143 @@ test("v2 media accepts only the trusted immutable HTTPS path", async ({
   expect(result.slice(1).every((m) => !m.cover && !m.gallery.length)).toBe(
     true,
   );
+});
+
+test("Stage 13A: Home → catalog → official project/releases preserves filters and has no legacy entry points", async ({
+  page,
+}) => {
+  await setup(page);
+  await page.unroute(/\/src\/hub\/source-config\.json(?:\?.*)?$/);
+  const legacyRequests: string[] = [];
+  page.on("request", (r) => {
+    if (r.url() === endpoint) legacyRequests.push(r.url());
+  });
+  await page.route(`${origin}/v2/projects/port-a`, (r) => {
+    const d = detail();
+    d.builds = [
+      build({ releaseUrl: "https://github.com/owner/project/releases/tag/v1" }),
+    ];
+    return r.fulfill({ json: d });
+  });
+  await page.goto("/");
+  const nav = page.getByRole("navigation", { name: "Основная навигация" });
+  await expect(nav.getByRole("button")).toHaveCount(2);
+  await expect(page.locator(".port-home")).toContainText("Original Game");
+  await expect(page.locator(".port-home")).toContainText("Сборка не указана");
+  await expect(page.locator(".port-home")).not.toContainText("PORT// HUB");
+  await page.getByRole("button", { name: "Исследовать каталог" }).click();
+  await page.getByLabel("Поиск по игре или проекту").fill("Original");
+  await page
+    .getByRole("combobox", { name: "Исходная платформа", exact: true })
+    .selectOption("Xbox 360");
+  await page
+    .getByRole("combobox", { name: "Сортировка", exact: true })
+    .selectOption("name-desc");
+  const card = page.locator(".hub-project-card");
+  await card.focus();
+  await page.keyboard.press("Enter");
+  await expect(
+    page.getByRole("link", { name: "Проект на GitHub" }),
+  ).toHaveAttribute("href", "https://github.com/owner/project");
+  await expect(
+    page.getByRole("link", { name: "Релиз 1.0", exact: true }),
+  ).toHaveAttribute("href", "https://github.com/owner/project/releases/tag/v1");
+  await expect(
+    page.getByText("Owner's original files", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /Установить|Импорт|Скачать|Играть/ }),
+  ).toHaveCount(0);
+  await page.getByRole("button", { name: "Назад в каталог" }).click();
+  await expect(page.getByLabel("Поиск по игре или проекту")).toHaveValue(
+    "Original",
+  );
+  await expect(
+    page.getByRole("combobox", { name: "Исходная платформа", exact: true }),
+  ).toHaveValue("Xbox 360");
+  await expect(
+    page.getByRole("combobox", { name: "Сортировка", exact: true }),
+  ).toHaveValue("name-desc");
+  await page.getByRole("button", { name: "Главная", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Открыть проект Original Game", exact: true })
+    .click();
+  await expect(
+    page.getByRole("link", { name: "Проект на GitHub" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Настройки", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Выбрать папку" })).toHaveCount(
+    0,
+  );
+  await expect(
+    page.getByText("Источник каталога", { exact: true }),
+  ).toHaveCount(0);
+  expect(legacyRequests).toEqual([]);
+});
+
+test("Stage 13A: empty v2 and absent releases stay explicit, compatibility runtimes are excluded", async ({
+  page,
+}) => {
+  await setup(page);
+  let mode = "empty";
+  await page.route(`${origin}/v2/projects?*`, (r) =>
+    r.fulfill({
+      json: {
+        schemaVersion: 2,
+        items:
+          mode === "empty"
+            ? []
+            : [
+                summary(),
+                { ...summary("old-runtime"), kind: "compatibility-runtime" },
+              ],
+        total: mode === "empty" ? 0 : 2,
+        nextCursor: null,
+      },
+    }),
+  );
+  await page.route(`${origin}/v2/projects/port-a`, (r) => {
+    const d = detail();
+    d.builds = [];
+    return r.fulfill({ json: d });
+  });
+  await page.goto("/");
+  await expect(
+    page.getByText("Опубликованные проекты появятся здесь.", { exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Каталог", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Каталог пока пуст" }),
+  ).toBeVisible();
+  mode = "projects";
+  await page.getByRole("button", { name: "Обновить каталог" }).click();
+  await expect(page.locator(".hub-project-card")).toHaveCount(1);
+  await page.locator(".hub-project-card").click();
+  await expect(
+    page.getByText("Одобренные сборки не указаны.", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: /Релиз/ })).toHaveCount(0);
+});
+
+test("Stage 13A: detail failure retries without displaying fabricated releases", async ({
+  page,
+}) => {
+  await setup(page);
+  let failed = true;
+  await page.route(`${origin}/v2/projects/port-a`, (r) =>
+    failed ? r.fulfill({ status: 503 }) : r.fulfill({ json: detail() }),
+  );
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Открыть проект Original Game", exact: true })
+    .click();
+  await expect(page.getByRole("alert")).toContainText(
+    "Не удалось загрузить проект",
+  );
+  await expect(page.getByRole("link", { name: /Релиз/ })).toHaveCount(0);
+  failed = false;
+  await page.getByRole("button", { name: "Повторить", exact: true }).click();
+  await expect(
+    page.getByRole("link", { name: "Проект на GitHub" }),
+  ).toBeVisible();
 });

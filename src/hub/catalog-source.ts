@@ -47,23 +47,23 @@ export async function selectSource(
   }
 }
 
-export function useProjectCatalog(catalog: CatalogState): ProjectCatalogState {
-  const legacy = useV1Projects(catalog);
+export function useProjectCatalog(): ProjectCatalogState {
   const config = useMemo(() => {
     try {
-      return {
-        value: parseSourceConfig(
-          import.meta.env.VITE_HUB_SOURCE_JSON
-            ? JSON.parse(import.meta.env.VITE_HUB_SOURCE_JSON)
-            : sourceConfig,
-        ),
-        error: "",
-      };
+      const value = parseSourceConfig(
+        import.meta.env.VITE_HUB_SOURCE_JSON
+          ? JSON.parse(import.meta.env.VITE_HUB_SOURCE_JSON)
+          : sourceConfig,
+      );
+      // The current UI never substitutes installer-era catalog records.
+      if (value.version !== "v2" || value.fallback !== "none")
+        throw Error("API v2 без fallback обязателен");
+      return { value, error: "" };
     } catch {
       return {
         value: null,
         error:
-          "Неверная конфигурация источника каталога. Проверьте source-config.json / VITE_HUB_SOURCE_JSON.",
+          "Каталог недоступен: требуется источник API v2 без подстановки старого каталога.",
       };
     }
   }, []);
@@ -114,18 +114,10 @@ export function useProjectCatalog(catalog: CatalogState): ProjectCatalogState {
       source: "empty",
       refresh: async () => {},
     };
-  if (config.value?.version === "v1") return legacy;
-  if (result?.version === "v1")
-    return {
-      ...legacy,
-      notice: result.notice,
-      busy: busy || legacy.busy,
-      refresh: async () => {
-        await Promise.all([catalog.refresh(), refreshV2()]);
-      },
-    };
   return {
-    projects: result?.projects ?? [],
+    projects: (result?.projects ?? []).filter(
+      (p) => p.kind !== "compatibility-runtime",
+    ),
     busy,
     error,
     warning: "",

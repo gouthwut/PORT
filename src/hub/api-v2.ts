@@ -395,6 +395,16 @@ export function createV2Client(baseUrl: string, fetcher: typeof fetch = fetch) {
       ]
         .filter(([, u]) => u != null)
         .map(([label, u]) => ({ label: label as string, url: url(u) }));
+      for (const build of builds) {
+        if (
+          build.releaseUrl &&
+          !project.officialLinks.some((l) => l.url === build.releaseUrl)
+        )
+          project.officialLinks.push({
+            label: `Релиз ${build.version}`,
+            url: build.releaseUrl,
+          });
+      }
       project.windows = windows.some((b) => b.availability === "available")
         ? "available"
         : windows.length &&

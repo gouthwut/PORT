@@ -1,42 +1,55 @@
-# Stage 11.3-A — API v2 client
+# API v2 client — Stage 13A
 
-Local implementation, 2026-10-28. Server contracts read from
-`C:\PORT-CMS\src\hub-api.ts` and `hub-model.ts`; no server changes or live
-deployment assumptions. Existing v1 transport, validated cache and installer
-contracts remain in place.
+Current client flow, 2026-10-29. PORT uses the existing validated public v2
+contract. No CMS contract or backend/storage migration is part of Stage 13A.
+Earlier Stage 11.3 implementation notes below remain applicable unless superseded
+by the current source/navigation rules here.
 
-## Explicit configuration
+## Source and navigation
 
-`src/hub/source-config.json` is committed as `{ "version": "v1" }`.
-It makes **no v2 requests**. To opt into v2 for a chosen build, set this file
-or the explicit build/dev environment variable `VITE_HUB_SOURCE_JSON` to:
+`src/hub/source-config.json` now defaults to:
 
 ```json
 {
   "version": "v2",
   "baseUrl": "https://port-catalog-cms.port-catalog-cms.workers.dev",
-  "fallback": "v1"
+  "fallback": "none"
 }
 ```
 
-The environment variable overrides the file; restart the dev server or rebuild
-after changing it. It is not a player setting or a SQLite migration. `baseUrl`
-must be a public HTTPS origin. There is no localhost discovery or local fallback.
-The packaged native CSP permits only the existing production CMS origin for
-v2 fetches; another native origin needs a separately reviewed build policy.
-Browser preview also requires the configured server to allow CORS.
+Home and Catalog share one validated in-memory snapshot. Both open the same v2
+project page. Main navigation has Home and Catalog; Settings/About remain.
+Catalog search, source-platform/technology/lifecycle/build filters, sort and page
+remain in App while opening and returning from a project. Compatibility-runtime
+projects are excluded from the new views; they are not presented as native ports.
+Approved visual composition, hero artwork, CSS and window topbar are retained.
 
-`fallback` is mandatory for v2: `v1` replaces the **entire** list on v2 network,
-HTTP, size or validation failure and displays a persistent explanation. `none`
-shows the v2 error and retains the last complete in-memory v2 snapshot, if any.
-An invalid configuration shows an explicit error. A successful empty v2 response
-remains empty and never activates v1. Refresh retries the configured v2 source.
-Initial v2 loading does not display v1 cards as provisional v2 results.
+`VITE_HUB_SOURCE_JSON` can override configuration for a chosen build, but the
+current UI rejects v1 or `fallback: v1`. Low-level v1 transport/cache/adapters and
+legacy source helpers remain in source for compatibility; they are not mounted
+by App. API errors display Retry, successful empty responses remain empty, and a
+failed refresh may retain only the last complete in-memory v2 snapshot. There is
+no discovery, invented release, automatic download or installation fallback.
 
-Home, library and installation actions continue to use their existing v1/local
-contracts; the selected source applies to Hub catalog/project pages. A v2 project
-never obtains a v1 installation identity, even if its public legacy ID matches.
-Errors on a v2 project page never substitute v1 detail data.
+The native CSP still permits only the existing production CMS origin for v2
+fetches. Browser preview also requires CORS. No live availability is asserted.
+
+Project details display validated official links and explicit approved-build
+`releaseUrl` links, deduplicated by URL. Asset URLs are not exposed as a new
+download action. Native links reuse the existing opener/capability policy;
+external links outside that policy report an opening error. Missing data and
+builds stay explicit. No download manager is implemented.
+
+## Retained legacy scenarios
+
+App no longer connects the old library/download routes, hardcoded Bloodborne
+fallback, PKG/folder/ISO/recipe install dialog, legacy recipe sync, v1 endpoint
+settings or installation-folder selector. Legacy components/services and native
+installer/update/recovery code remain in the repository. SQLite, installations,
+profiles and game files are unchanged. Legacy frontend operation polling and
+shortcut-request consumption are inactive with the old library flow. Backend
+startup/recovery behavior is unchanged; this is not a native migration or native
+validation result. A new native-port library is a separate stage.
 
 ## Transport and presentation
 
@@ -86,12 +99,11 @@ Links require public HTTPS. No download, execution or installation path is added
 
 ## Checks
 
-Targeted Playwright covers adapters, query encoding, cursor assembly, original-game
-search/source-platform filters, missing fields, unsafe URLs, identity/schema/cursor
-rejection, unapproved builds, source fallback/retry/default v1, existing project-page
-state preservation and guarded installation separation. Responses are intercepted
-fixtures, not a real CMS or native test. No visual assertions/screenshots.
-
-One `tsc --noEmit` run found two possibly-undefined reader references; replaced the
-reader assignment with a null-coalescing fail-closed expression. Per the owner's
-one-check limit, TypeScript was not rerun; no final passing tsc result is claimed.
+Stage 13A: `npm run build` passes (one `tsc --noEmit` plus Vite); targeted
+`tests/hub-api-v2.spec.ts` passes 15/15. Coverage includes transport/media validation,
+Home/catalog/project navigation, keyboard entry, preserved search/filter/sort,
+exact repository/release links, default v2 failure/retry, rejected v1/fallback
+configuration, empty/no-build/detail-error states and excluded runtime entries.
+Responses are intercepted fixtures; no live CMS/native/opener test, screenshot,
+Rust build or installer build was run. The old legacy UI suites remain in the
+repository and describe retired entry points; the full suite was not run.

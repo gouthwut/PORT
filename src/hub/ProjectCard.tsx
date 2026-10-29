@@ -6,7 +6,6 @@ import {
   ImageOff,
   MonitorDown,
 } from "lucide-react";
-import type { PublishedGame } from "../services/catalog";
 import type { MediaSet } from "../services/media";
 import {
   projectTitle,
@@ -90,21 +89,20 @@ export function ProjectCard({
 /** Compact catalog entry; availability and compatibility are independent facts. */
 export function CompactProjectCard({
   project,
-  media,
   onOpen,
 }: {
-  project: PublishedGame;
-  media: MediaSet;
+  project: CatalogProject;
   onOpen: () => void;
 }) {
+  const media = useV2Media(project.media);
   const [failedCover, setFailedCover] = useState("");
-  const experimental = project.compatibility.status === "experimental";
-  const available = project.windowsBuild === "available";
+  const experimental = ["alpha", "beta"].includes(project.lifecycle);
+  const available = project.windows === "available";
   return (
     <button
       className="port-compact-project"
       onClick={onOpen}
-      aria-label={`Подборка: ${project.title}`}
+      aria-label={`Подборка: ${projectTitle(project)}`}
     >
       <span className="port-compact-cover">
         {media.cover && failedCover !== media.cover ? (
@@ -120,8 +118,10 @@ export function CompactProjectCard({
         )}
       </span>
       <span className="port-compact-copy">
-        <span className="port-compact-platform">{project.sourceConsole}</span>
-        <strong>{project.title}</strong>
+        <span className="port-compact-platform">
+          {project.platforms.join(" · ") || "Платформа не указана"}
+        </span>
+        <strong>{projectTitle(project)}</strong>
         <span className="port-compact-badges">
           {available && (
             <span className="port-compact-badge">
@@ -135,7 +135,9 @@ export function CompactProjectCard({
           )}
           {!available && (
             <span className="port-compact-badge is-unavailable">
-              Без Windows-сборки
+              {project.windows === "unavailable"
+                ? "Без Windows-сборки"
+                : "Сборка не указана"}
             </span>
           )}
         </span>

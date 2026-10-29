@@ -1,1 +1,5 @@
-{ "version": "v1" }
+{
+  "version": "v2",
+  "baseUrl": "https://port-catalog-cms.port-catalog-cms.workers.dev",
+  "fallback": "none"
+}

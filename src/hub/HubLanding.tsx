@@ -9,52 +9,47 @@ import {
   ImageOff,
   RotateCw,
 } from "lucide-react";
-import type { CatalogState, PublishedGame } from "../services/catalog";
-import type { MediaSet } from "../services/media";
+import type { ProjectCatalogState } from "./catalog-source";
+import {
+  projectTitle,
+  technologyLabels,
+  type CatalogProject,
+} from "./catalog-model";
+import { useV2Media } from "./v2-media";
 import { CompactProjectCard } from "./ProjectCard";
-const typeLabel = {
-  "native-port": "Нативный порт",
-  recompilation: "Рекомпиляция",
-  "compatibility-runtime": "Среда совместимости",
-};
 const platformShort = (platform: string) =>
   platform.replace("PlayStation ", "PS");
 import hero from "./assets/hub-hero.webp";
 
 export function HubLanding({
   catalog,
-  media,
   onOpen,
   onCatalog,
-  activity,
 }: {
-  catalog: CatalogState;
-  media: (game: PublishedGame) => MediaSet;
-  onOpen: (project: PublishedGame) => void;
+  catalog: ProjectCatalogState;
+  onOpen: (project: CatalogProject) => void;
   onCatalog: () => void;
-  activity?: ReactNode;
 }) {
   const [platform, setPlatform] = useState("");
   // Only published CMS records belong on Home, including in development.
-  const projects = catalog.snapshot.catalog.games;
+  const projects = catalog.projects;
   const platforms = [
     ...new Map(
-      projects.map((p) => [p.sourceConsole, p.sourceConsole]),
+      projects.flatMap((p) =>
+        p.platforms.map((platform) => [platform, platform] as const),
+      ),
     ).entries(),
   ];
   const selected = platforms.some(([key]) => key === platform) ? platform : "";
   const filtered = projects.filter(
-    (p) => !selected || p.sourceConsole === selected,
+    (p) => !selected || p.platforms.includes(selected),
   );
   const visible = filtered.slice(0, 6);
-  const builds = filtered
-    .filter((p) => p.windowsBuild === "available")
-    .slice(0, 3);
+  const builds = filtered.filter((p) => p.windows === "available").slice(0, 3);
   const experimental = filtered
     .filter(
       (p) =>
-        p.compatibility.status === "experimental" &&
-        p.windowsBuild !== "available",
+        ["alpha", "beta"].includes(p.lifecycle) && p.windows !== "available",
     )
     .slice(0, 3);
   return (
@@ -65,7 +60,7 @@ export function HubLanding({
         <div className="port-hero-copy">
           <p className="port-kicker">
             <span />
-            PORT// HUB <i /> CONSOLE TO PC
+            PORT// <i /> CONSOLE TO PC
           </p>
           <h1 id="hub-title">
             Консольные
@@ -104,16 +99,11 @@ export function HubLanding({
               </span>
               {name}
               <span className="port-platform-count" aria-hidden="true">
-                {projects.filter((p) => p.sourceConsole === key).length}
+                {projects.filter((p) => p.platforms.includes(key)).length}
               </span>
             </button>
           ))}
         </nav>
-        {activity && (
-          <section className="port-home-activity" aria-label="Текущая операция">
-            {activity}
-          </section>
-        )}
         <section className="port-editorial" aria-labelledby="editorial-title">
           <header className="port-section-head">
             <div>
@@ -132,7 +122,7 @@ export function HubLanding({
               ? ` · ${platforms.find(([key]) => key === selected)?.[1]}`
               : ""}
           </p>
-          {(catalog.error || catalog.snapshot.warning) && (
+          {(catalog.error || catalog.warning) && (
             <div className="port-catalog-notice" role="status">
               <span>
                 {projects.length
@@ -158,12 +148,7 @@ export function HubLanding({
           ) : visible.length ? (
             <div className="port-project-grid">
               {visible.map((p) => (
-                <HomeProject
-                  key={p.id}
-                  project={p}
-                  media={media(p)}
-                  onOpen={() => onOpen(p)}
-                />
+                <HomeProject key={p.id} project={p} onOpen={() => onOpen(p)} />
               ))}
             </div>
           ) : (
@@ -182,7 +167,6 @@ export function HubLanding({
                   title="Сборки для Windows"
                   icon={<MonitorDown size={20} />}
                   projects={builds}
-                  media={media}
                   onOpen={onOpen}
                   description="Требования и условия запуска — в проекте."
                 />
@@ -190,9 +174,8 @@ export function HubLanding({
                   title="Экспериментальные проекты"
                   icon={<FlaskConical size={20} />}
                   projects={experimental}
-                  media={media}
                   onOpen={onOpen}
-                  description="Без доступной Windows-сборки. Ограничения — в проекте."
+                  description="Альфа- и бета-проекты. Сведения о сборках — в проекте."
                 />
               </div>
             )}
@@ -223,28 +206,27 @@ export function HubLanding({
 
 function HomeProject({
   project: p,
-  media,
   onOpen,
 }: {
-  project: PublishedGame;
-  media: MediaSet;
+  project: CatalogProject;
   onOpen: () => void;
 }) {
-  const [failed, setFailed] = useState(false);
+  const media = useV2Media(p.media);
+  const [failed, setFailed] = useState("");
   return (
     <button
       className="port-project"
       onClick={onOpen}
-      aria-label={`Открыть проект ${p.title}`}
+      aria-label={`Открыть проект ${projectTitle(p)}`}
     >
       <div className="port-project-image">
-        {media.cover && !failed ? (
+        {media.cover && failed !== media.cover ? (
           <img
             src={media.cover}
             alt=""
             loading="lazy"
             decoding="async"
-            onError={() => setFailed(true)}
+            onError={() => setFailed(media.cover)}
           />
         ) : (
           <div className="port-image-missing">
@@ -253,24 +235,26 @@ function HomeProject({
           </div>
         )}
         <span className="port-project-platform">
-          {platformShort(p.sourceConsole)}
+          {p.platforms.map(platformShort).join(" · ") || "Платформа не указана"}
         </span>
         <span className="port-project-open">
           <ArrowUpRight size={18} />
         </span>
         <div className="port-project-caption">
           <span
-            className={`port-project-status ${p.windowsBuild === "available" ? "has-build" : ""}`}
+            className={`port-project-status ${p.windows === "available" ? "has-build" : ""}`}
           >
-            {p.windowsBuild === "available"
+            {p.windows === "available"
               ? "Windows-сборка"
-              : "Без Windows-сборки"}
+              : p.windows === "unavailable"
+                ? "Без Windows-сборки"
+                : "Сборка не указана"}
           </span>
-          <h3>{p.title}</h3>
+          <h3>{projectTitle(p)}</h3>
         </div>
       </div>
       <div className="port-project-meta">
-        <span>{typeLabel[p.implementation]}</span>
+        <span>{technologyLabels[p.kind]}</span>
         <span>
           О проекте <ArrowRight size={13} />
         </span>
@@ -285,14 +269,12 @@ function ProjectShelf({
   projects,
   onOpen,
   description,
-  media,
 }: {
   title: string;
   icon: ReactNode;
-  projects: PublishedGame[];
-  onOpen: (project: PublishedGame) => void;
+  projects: CatalogProject[];
+  onOpen: (project: CatalogProject) => void;
   description: string;
-  media: (project: PublishedGame) => MediaSet;
 }) {
   if (!projects.length) return null;
   return (
@@ -307,11 +289,7 @@ function ProjectShelf({
       <ul>
         {projects.map((p) => (
           <li key={p.id}>
-            <CompactProjectCard
-              project={p}
-              media={media(p)}
-              onOpen={() => onOpen(p)}
-            />
+            <CompactProjectCard project={p} onOpen={() => onOpen(p)} />
           </li>
         ))}
       </ul>

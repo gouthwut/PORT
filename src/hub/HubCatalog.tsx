@@ -73,7 +73,7 @@ export function HubCatalog({
     <div className="hub-catalog">
       <header className="hub-catalog-intro">
         <div>
-          <p className="port-kicker">PORT// HUB / ПРОЕКТЫ</p>
+          <p className="port-kicker">PORT// / ПРОЕКТЫ</p>
           <h1>
             Каталог<span>.</span>
           </h1>
@@ -136,11 +136,13 @@ export function HubCatalog({
               onChange={(e) => change({ kind: e.target.value })}
             >
               <option value="">Все технологии</option>
-              {Object.entries(technologyLabels).map(([key, label]) => (
-                <option key={key} value={key}>
-                  {label}
-                </option>
-              ))}
+              {Object.entries(technologyLabels)
+                .filter(([key]) => key !== "compatibility-runtime")
+                .map(([key, label]) => (
+                  <option key={key} value={key}>
+                    {label}
+                  </option>
+                ))}
             </select>
           </label>
           <label>

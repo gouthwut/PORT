@@ -1,20 +1,9 @@
-import {
-  ArrowDownToLine,
-  CircleHelp,
-  Compass,
-  Home,
-  Library,
-  Settings,
-  Gamepad2,
-} from "lucide-react";
+import { CircleHelp, Compass, Home, Settings, Gamepad2 } from "lucide-react";
 
-export type HubPage =
-  "home" | "catalog" | "details" | "library" | "downloads" | "settings";
+export type HubPage = "home" | "catalog" | "details" | "settings";
 const links = [
   { id: "home", label: "Главная", icon: Home },
   { id: "catalog", label: "Каталог", icon: Compass },
-  { id: "library", label: "Библиотека", icon: Library },
-  { id: "downloads", label: "Загрузки", icon: ArrowDownToLine },
 ] as const;
 
 export function HubSidebar({
@@ -90,7 +79,6 @@ export function HubSidebar({
         >
           <CircleHelp size={18} />
           <span>О PORT</span>
-          <small>HUB</small>
         </button>
       </div>
     </aside>

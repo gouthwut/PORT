@@ -1,5 +1,19 @@
 # PORT// — instructions for future sessions
 
+Stage 13A authorized 2026-10-29: client UI now uses CMS API v2 for Home,
+catalog and project detail, with no v1 fallback. Product name is PORT. Preserve
+approved Home/catalog/hero/window styling. Main navigation contains Home and
+Catalog; Settings/About remain. Legacy library/download/PKG/folder/ISO/recipe
+installation screens and v1 endpoint controls are disconnected from App, not
+removed from their component/service/backend files. Compatibility-runtime
+projects are excluded from the new catalog. Keep all native installer code,
+SQLite migrations/registrations, profiles, game files and existing dirty work.
+Official project/release links are read-only; no download manager yet. Work only
+in C:\PORT; do not access CMS/content neighbors, change CMS contracts, publish,
+push, build a production installer or begin the next stage. Use economical
+frontend build/targeted tests; legacy UI suites describe retired entry points.
+See latest PROGRESS and docs/HUB_API_V2_CLIENT.md.
+
 Stage 11.1-C Lite authorized 2026-10-28: local basic project page from catalog,
 using existing components and validated v1 presentation adapter. Cover, title,
 description, source platforms, port technology and existing official project
