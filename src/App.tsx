@@ -22,6 +22,8 @@ import { appVersion, useUpdater } from "./services/updater";
 
 import { useProjectCatalog } from "./hub/catalog-source";
 import { V2Project } from "./hub/V2Project";
+import { usePreferences } from "./hub/preferences";
+import { CompactProjectCard } from "./hub/ProjectCard";
 import { useDownload } from "./hub/downloads";
 import { DownloadsCenter } from "./hub/DownloadsCenter";
 import { DownloadPanel } from "./hub/DownloadPanel";
@@ -39,6 +41,7 @@ type Page = "home" | "catalog" | "details" | "downloads" | "settings";
 export default function App() {
   const systemReducedMotion = useReducedMotion();
   const updater = useUpdater();
+  const preferences = usePreferences();
   const downloads = useDownload();
   const projectCatalog = useProjectCatalog();
   const [selectedV2, setSelectedV2] = useState<CatalogProject | null>(null);
@@ -123,6 +126,7 @@ export default function App() {
     setPage(next);
   }
   function openProject(project: CatalogProject) {
+    preferences.visit(project.id);
     setSelectedV2(project);
     navigate("details");
   }
@@ -185,6 +189,11 @@ export default function App() {
                 Нет подключения к интернету.
               </div>
             )}
+            {preferences.error && (
+              <div role="alert" className="offline-banner">
+                {preferences.error}
+              </div>
+            )}
             {storageError && (
               <div role="alert" className="offline-banner">
                 Не удалось прочитать настройки. Проверьте локальные данные или
@@ -212,6 +221,31 @@ export default function App() {
                         }}
                       />
                     )}
+                    {page === "home" &&
+                      preferences.recent.some((id) =>
+                        projectCatalog.projects.some((p) => p.id === id),
+                      ) && (
+                        <section className="recent-projects">
+                          <h2>Недавно просмотренные</h2>
+                          <div className="hub-catalog-grid">
+                            {preferences.recent
+                              .map((id) =>
+                                projectCatalog.projects.find(
+                                  (p) => p.id === id,
+                                ),
+                              )
+                              .filter((p): p is CatalogProject => !!p)
+                              .slice(0, 6)
+                              .map((p) => (
+                                <CompactProjectCard
+                                  key={p.id}
+                                  project={p}
+                                  onOpen={() => openProject(p)}
+                                />
+                              ))}
+                          </div>
+                        </section>
+                      )}
                     {page === "catalog" && (
                       <HubCatalog
                         catalog={projectCatalog}

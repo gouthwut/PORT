@@ -1,3 +1,4 @@
+import { FavoriteButton } from "./preferences";
 import { useV2Media } from "./v2-media";
 import { useState } from "react";
 import {
@@ -32,57 +33,60 @@ export function ProjectCard({
     unknown: "Сборка не указана",
   }[project.windows];
   return (
-    <button
-      className="port-project hub-project-card"
-      onClick={onOpen}
-      aria-label={`Подробнее: ${title}${project.name && project.name !== title ? ` · ${project.name}` : ""}`}
-    >
-      <span className="port-project-image">
-        {media.cover && failed !== media.cover ? (
-          <img
-            src={media.cover}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            onError={() => setFailed(media.cover)}
-          />
-        ) : (
-          <span className="port-image-missing">
-            <ImageOff size={28} aria-hidden="true" />
-            <span>Обложка недоступна</span>
+    <div className="project-card-wrapper">
+      <FavoriteButton id={project.id} />
+      <button
+        className="port-project hub-project-card"
+        onClick={onOpen}
+        aria-label={`Подробнее: ${title}${project.name && project.name !== title ? ` · ${project.name}` : ""}`}
+      >
+        <span className="port-project-image">
+          {media.cover && failed !== media.cover ? (
+            <img
+              src={media.cover}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              onError={() => setFailed(media.cover)}
+            />
+          ) : (
+            <span className="port-image-missing">
+              <ImageOff size={28} aria-hidden="true" />
+              <span>Обложка недоступна</span>
+            </span>
+          )}
+          <span className="port-project-platform">
+            {project.platforms.join(" · ") || "Платформа не указана"}
           </span>
-        )}
-        <span className="port-project-platform">
-          {project.platforms.join(" · ") || "Платформа не указана"}
+          <span className="port-project-open">
+            <ArrowUpRight size={18} aria-hidden="true" />
+          </span>
         </span>
-        <span className="port-project-open">
-          <ArrowUpRight size={18} aria-hidden="true" />
+        <span className="hub-project-copy">
+          <span
+            className={`hub-build-status ${project.windows === "available" ? "has-build" : ""}`}
+            title={
+              project.buildEvidence === "editorial-v1"
+                ? "Наличие сборки по данным каталога. Не является проверкой совместимости."
+                : undefined
+            }
+          >
+            <span />
+            {build}
+          </span>
+          <strong>{title}</strong>
+          {project.name && project.name !== title && (
+            <span className="hub-project-name">{project.name}</span>
+          )}
         </span>
-      </span>
-      <span className="hub-project-copy">
-        <span
-          className={`hub-build-status ${project.windows === "available" ? "has-build" : ""}`}
-          title={
-            project.buildEvidence === "editorial-v1"
-              ? "Наличие сборки по данным каталога. Не является проверкой совместимости."
-              : undefined
-          }
-        >
-          <span />
-          {build}
+        <span className="port-project-meta">
+          <span>{technologyLabels[project.kind]}</span>
+          <span>
+            О проекте <ArrowUpRight size={14} aria-hidden="true" />
+          </span>
         </span>
-        <strong>{title}</strong>
-        {project.name && project.name !== title && (
-          <span className="hub-project-name">{project.name}</span>
-        )}
-      </span>
-      <span className="port-project-meta">
-        <span>{technologyLabels[project.kind]}</span>
-        <span>
-          О проекте <ArrowUpRight size={14} aria-hidden="true" />
-        </span>
-      </span>
-    </button>
+      </button>
+    </div>
   );
 }
 

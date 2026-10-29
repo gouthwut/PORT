@@ -1,3 +1,4 @@
+import { FavoriteButton } from "./preferences";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowUpRight, Download } from "lucide-react";
 import { GameArt, Gallery } from "../components/BloodborneMedia";
@@ -120,7 +121,10 @@ export function V2Project({
             {currentProject.platforms.length > 0 &&
               ` · ${currentProject.platforms.join(" / ")}`}
           </p>
-          <h1>{title}</h1>
+          <div className="project-title-row">
+            <h1>{title}</h1>
+            <FavoriteButton id={project.id} />
+          </div>
           {currentProject.description && (
             <p className="project-summary">{currentProject.description}</p>
           )}

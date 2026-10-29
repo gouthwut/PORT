@@ -124,7 +124,9 @@ export function selectProjects(
   const matches = projects.filter(
     (p) =>
       (!term ||
-        normalize([projectTitle(p), p.name].join(" ")).includes(term)) &&
+        normalize(
+          [projectTitle(p), p.name, ...p.games.map((g) => g.title)].join(" "),
+        ).includes(term)) &&
       (!query.platform || p.platforms.includes(query.platform)) &&
       (!query.kind || p.kind === query.kind) &&
       (!query.lifecycle || p.lifecycle === query.lifecycle) &&

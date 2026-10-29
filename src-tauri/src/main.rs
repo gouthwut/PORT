@@ -4,6 +4,7 @@ mod adapters;
 mod catalog;
 mod download;
 mod hub_download;
+mod hub_preferences;
 mod install;
 mod local_cms_qa;
 mod media;
@@ -181,6 +182,7 @@ fn main() {
             init(&conn)?;
             catalog::init(&conn)?;
             hub_download::init(&conn)?;
+            hub_preferences::init(&conn)?;
             install::recipe::init(&conn)?;
             if let Err(error) = install::recover(&conn) {
                 app.state::<install::Installer>().recovery_error(&error);
@@ -220,6 +222,8 @@ fn main() {
             download::download_status,
             download::start_download,
             download::control_download,
+            hub_preferences::load_hub_preferences,
+            hub_preferences::save_hub_preferences,
             hub_download::hub_download_history,
             hub_download::remove_hub_download,
             hub_download::hub_download_status,

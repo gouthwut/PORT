@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CatalogState } from "../services/catalog";
+import { downloadUnavailable } from "./downloads";
 import { fromV1, type CatalogProject } from "./catalog-model";
 import sourceConfig from "./source-config.json";
 import {
@@ -88,6 +89,39 @@ export function useProjectCatalog(): ProjectCatalogState {
         loadV2Catalog(createV2Client(c.baseUrl)),
       );
       if (current === generation.current) setResult(next);
+      if (next.version === "v2") {
+        const client = createV2Client(c.baseUrl);
+        let index = 0;
+        const enriched = [...next.projects];
+        await Promise.all(
+          Array.from({ length: Math.min(4, enriched.length) }, async () => {
+            for (;;) {
+              const i = index++;
+              if (i >= enriched.length || current !== generation.current) break;
+              try {
+                const builds = await client.builds(
+                  enriched[i].id,
+                  "windows",
+                  "all",
+                );
+                enriched[i] = {
+                  ...enriched[i],
+                  windows: builds.some((b) => !downloadUnavailable(b))
+                    ? "available"
+                    : builds.some((b) => b.availability === "unknown")
+                      ? "unknown"
+                      : "unavailable",
+                  buildEvidence: "approved-v2",
+                };
+              } catch {
+                /* A missing build response cannot prove file availability. */
+              }
+            }
+          }),
+        );
+        if (current === generation.current)
+          setResult({ ...next, projects: enriched });
+      }
     } catch (e) {
       if (current === generation.current) setError(String(e));
     } finally {
@@ -99,7 +133,10 @@ export function useProjectCatalog(): ProjectCatalogState {
   }, [config]);
   useEffect(() => {
     void refreshV2();
+    const reconnect = () => void refreshV2();
+    window.addEventListener("online", reconnect);
     return () => {
+      window.removeEventListener("online", reconnect);
       generation.current++;
       lock.current = false;
     };

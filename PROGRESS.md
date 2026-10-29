@@ -3,6 +3,8 @@
 ## 2026-10-29 — Stage 15 (in progress)
 
 - 15A: native SQLite download history, interruption recovery, native record-based reveal/removal; Downloads navigation and real progress/retry actions. One active operation, picker and no-clobber/HTTPS guards preserved. Active downloads prevent window close with an explanation; forced termination is marked interrupted on restart.
+- 15A browser regression: 8/8 pass after extending the expected IPC display-name metadata.
+- 15B: native/local-preview favorites and 12 recent project IDs; card/detail actions and catalog favorites filter. Bounded four-worker approved-build discovery supplies real Windows availability; source/unknown rows never infer availability from target platforms. Original-game search, combined filters and reset retained. Native preference validation passes; new persistence/discovery browser scenarios running.
 - Checks: frontend build / TypeScript and 8 native downloader tests pass (including SQLite reopen and record deletion without file deletion). Browser downloader regression in progress. Existing dirty Cargo/image, library, stage04d and untracked work preserved; no push/release/CMS mutation.
 
 

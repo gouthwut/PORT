@@ -438,3 +438,51 @@
   transition: none;
   transform: none;
 }
+
+.project-card-wrapper {
+  position: relative;
+  min-width: 0;
+}
+.project-card-wrapper > .hub-project-card {
+  width: 100%;
+  height: 100%;
+}
+.favorite-button {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  background: #242031;
+  border: 1px solid #655581;
+  border-radius: 12px;
+  color: #d5c5ff;
+  font-size: 27px;
+  cursor: pointer;
+}
+.favorite-button[aria-pressed="true"] {
+  color: #cfb2ff;
+  background: #45335d;
+}
+.project-card-wrapper > .favorite-button {
+  position: absolute;
+  z-index: 2;
+  right: 12px;
+  top: 54px;
+}
+.project-title-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.project-title-row h1 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.recent-projects {
+  padding: 24px 32px;
+}
+button:focus-visible {
+  outline: 2px solid #c4a6ff;
+  outline-offset: 3px;
+}

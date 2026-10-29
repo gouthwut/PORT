@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useRef } from "react";
+import { useDeferredValue, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -11,6 +11,7 @@ import {
 import { developerMode } from "../services/catalog";
 import type { MediaSet } from "../services/media";
 import { native } from "../services/settings";
+import { usePreferences } from "./preferences";
 import { ProjectCard } from "./ProjectCard";
 import {
   defaultCatalogQuery,
@@ -36,7 +37,11 @@ export function HubCatalog({
   media: (project: CatalogProject) => MediaSet;
   onOpen: (project: CatalogProject) => void;
 }) {
-  const projects = catalog.projects;
+  const preferences = usePreferences();
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const projects = favoritesOnly
+    ? catalog.projects.filter((p) => preferences.favorites.includes(p.id))
+    : catalog.projects;
   const deferredSearch = useDeferredValue(query.search);
   const result = useMemo(
     () => selectProjects(projects, { ...query, search: deferredSearch }),
@@ -49,15 +54,20 @@ export function HubCatalog({
   const resultsRef = useRef<HTMLHeadingElement>(null);
   const change = (patch: Partial<CatalogQuery>) =>
     onQuery({ ...query, ...patch, page: 1 });
-  const reset = () => onQuery({ ...defaultCatalogQuery });
-  const active = !!(
-    query.search ||
-    query.platform ||
-    query.kind ||
-    query.lifecycle ||
-    query.windows ||
-    query.sort !== "catalog"
-  );
+  const reset = () => {
+    setFavoritesOnly(false);
+    onQuery({ ...defaultCatalogQuery });
+  };
+  const active =
+    favoritesOnly ||
+    !!(
+      query.search ||
+      query.platform ||
+      query.kind ||
+      query.lifecycle ||
+      query.windows ||
+      query.sort !== "catalog"
+    );
   const error = !!catalog.error;
   const paging = (page: number) => {
     onQuery({ ...query, page });
@@ -92,6 +102,15 @@ export function HubCatalog({
       </header>
       <section className="hub-catalog-tools" aria-label="Фильтры каталога">
         <div className="hub-filter-heading">
+          <button
+            aria-pressed={favoritesOnly}
+            onClick={() => {
+              setFavoritesOnly((v) => !v);
+              onQuery({ ...query, page: 1 });
+            }}
+          >
+            Избранное
+          </button>
           <span>
             <SlidersHorizontal size={16} aria-hidden="true" /> Найти проект
           </span>
@@ -290,6 +309,11 @@ export function HubCatalog({
                   ? "Попробуй другое название или сбрось фильтры."
                   : "Опубликованные проекты появятся здесь."}
               </p>
+              {active && (
+                <button className="text-link" onClick={reset}>
+                  Сбросить фильтры
+                </button>
+              )}
             </div>
           )
         )}
