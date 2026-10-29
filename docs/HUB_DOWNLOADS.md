@@ -1,8 +1,9 @@
 # Stage 13B — official release-file downloads
 
-Stage 13E adds an isolated local CMS QA configuration; see
-[HUB_LOCAL_CMS_QA.md](HUB_LOCAL_CMS_QA.md). Live native local catalog/TLS passed;
-the real ZIP transfer remains blocked by `availability: unknown`.
+Stage 13F adds a native destination picker and exact file reveal in Explorer;
+see [HUB_DOWNLOAD_DESTINATION.md](HUB_DOWNLOAD_DESTINATION.md) for current
+behavior, live successful QA download/hash evidence and manual dialog checks.
+Stage 13E's earlier `availability: unknown` result below is historical.
 
 One active download, Windows app only. Project build rows reuse the existing
 button component. A compact bottom-right panel survives navigation and shows
@@ -32,20 +33,23 @@ errors. No cookies or authorization tokens are supplied.
 Filenames use a bounded ASCII leaf without percent escapes, separators, device
 names, hidden names, alternate streams or trailing dots. Unsupported names disable
 the action explicitly; Content-Disposition cannot choose a path. Existing shared
-symlink/reparse checks protect the destination path. Downloads go into a fresh
-`Downloads/PORT/release-<random>/` folder, never an installation or caller path.
+symlink/reparse checks protect the destination path. Interactive downloads ask
+for a folder, initially `Downloads/PORT`, and save the original safe filename
+there. Existing names offer another folder or cancellation, never overwrite.
+Explicit automated QA alone uses a fresh isolated `release-<random>/` folder.
 
 The payload is streamed into a `.part` file. CMS size and HTTP Content-Length must
 agree when both exist; byte count and optional CMS SHA-256 are checked at EOF.
 Without either a size or digest the operation fails. Nonempty payloads are capped
 at 32 GiB, flushed to disk and persisted with a final no-clobber rename. Existing
 files are never replaced. Cancellation, network failure and verification failure
-drop the temporary file/directory. Forced termination can leave a visibly named
-`.part` in its temporary folder; it is never reported as completed or resumed.
+drop only this operation's temporary file. User-selected directories and their
+contents are retained. Forced termination can leave a visibly named `.part`;
+it is never reported as completed or resumed.
 Without CMS SHA-256, matching size verifies transfer completion, not authenticity
 of the contents. There is no compatibility certification or automatic execution.
 
-## Current live limitation
+## Historical Stage 13B live limitation
 
 On 2026-10-29, anonymous production `/v2/projects` and the native `/builds` request
 returned HTTP 401 (the project-list response said that sign-in is required).

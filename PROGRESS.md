@@ -1,5 +1,56 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 13F: download destination and exact file reveal
+
+- Owner authorized work only in C:\PORT from integration b1664518. Read AGENTS,
+  PROGRESS and downloader/QA contracts. Used Ponytail and Computer Use; no
+  subagents. Preserved pre-existing Cargo/image, InstalledLibrary, stage04d and
+  untracked work outside this task's staged files. No CMS/neighbor access or
+  mutation, catalog/hero/titlebar redesign, legacy backend change, production
+  release/installer, push, archive execution/extraction or next stage.
+- Every interactive transfer now uses the installed Tauri 2 native folder
+  picker, after native CMS approval/availability validation and before any asset
+  request. Default normal destination is Windows Downloads/PORT; QA starts inside
+  its isolated workspace downloads. No new persisted setting. Cancelling restores
+  the previous status without a false error. Existing original asset names offer
+  a native choice of another folder or cancellation. Rust serializes the actual
+  full canonical file path; the panel displays it unchanged. Explorer uses the
+  existing opener plugin to reveal that exact file, with explicit missing-file
+  failure and no Documents fallback.
+- Selected folders receive the safe original filename directly. Unique .part,
+  streaming, size/SHA-256 verification, public pinned HTTPS/redirect checks and
+  no-clobber commit remain. Cleanup owns only the operation's temporary file;
+  user-selected directories/files are never recursively removed. Tests cover
+  existing ZIP preservation, commit collision, bad hash/truncation and cancelled
+  partial cleanup with an unrelated user file retained.
+- QA default also asks for a folder. Explicit launcher -NoDownloadDialog sets a
+  process-only flag honored solely by the existing feature/debug/exact QA identity
+  guard. Automated mode retains fixed isolated release-* destinations. IPC still
+  accepts only project/build IDs, never destination or remote URL.
+- Checks PASS: TypeScript; 4 targeted mocked browser tests; Rust suite 82 pass /
+  8 existing opt-in ignored; final feature-enabled downloader tests 7/7; Rust fmt,
+  changed-file Prettier and whitespace check. Initial browser attempt reused the
+  active local CMS Vite server and timed out; fresh standard-source server passed.
+  Native debug QA built/relaunched, no installer/release build.
+- Actual live no-dialog QA transfer PASS: approved available Zelda v1.2.2,
+  28,940,501 bytes, independently hashed SHA-256
+  d02b95f1cf5e4d44d6587fa6136c6db521f61aa41ba8700c05f91bea8b0a26d0.
+  Saved under .local/cms-qa/downloads/release-dUqYDQ. Earlier owner ZIP in
+  release-cWFHsK retains its expected digest. Native folder-open IPC PASS;
+  Windows Explorer accessibility independently showed correct directory
+  breadcrumbs, original ZIP and one item selected. Ignored native result JSON /
+  WebView screenshot: .local/evidence/13f.
+- Interactive picker was observed in Windows accessibility and Rust selecting
+  status with zero payload bytes. Computer Use could not activate/interact with
+  the PORT window (geometry unavailable / activation failed); captures sometimes
+  showed unrelated foreground content. No false interactive acceptance claim:
+  native select/cancel/conflict, normal Downloads/PORT default and successful
+  transfer into a manually selected Unicode/spaced directory remain MANUAL.
+  Picker starting path was canonicalized after noticing mixed separators in QA.
+  QA app and its debug listener were stopped after checks. See
+  docs/HUB_DOWNLOAD_DESTINATION.md for exact reproduction and manual checklist.
+
+
 ## 2026-10-29 — Stage 13E: isolated local CMS v2 integration
 
 - Owner authorized local integration/first download E2E only in C:\PORT, no CMS

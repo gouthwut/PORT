@@ -1,5 +1,13 @@
 # Stage 13E — local CMS v2 QA
 
+Stage 13F update: the owner's subsequent positive E2E and a new independent
+no-dialog QA download now pass with the expected size/SHA-256. Interactive QA
+asks for a destination by default; use `scripts/start-cms-qa.ps1
+-NoDownloadDialog` only for isolated automation. See
+[HUB_DOWNLOAD_DESTINATION.md](HUB_DOWNLOAD_DESTINATION.md) for current behavior,
+Explorer evidence and remaining manual picker checks. The Stage 13E blocked
+results below are historical.
+
 2026-10-29. Local integration works in the real Tauri debug app. The live ZIP
 transfer is **blocked**, because the public build reports `availability: unknown`.
 Nothing was downloaded, extracted or executed. CMS files and production were
@@ -18,9 +26,9 @@ The script supplies the existing `VITE_HUB_SOURCE_JSON` override with
 `src-tauri/tauri.cms-qa.conf.json` selects `app.port.cms-qa`, the optional
 `local-cms-qa` Cargo feature, and app directories entirely under
 `C:\PORT\.local\cms-qa\app-data` (including WebView storage). Native release
-downloads in this identity use `C:\PORT\.local\cms-qa\downloads\release-*`.
-The generic project-page Downloads/PORT hint still describes production storage;
-QA deliberately overrides that destination. No production/user SQLite is opened.
+downloads in this identity use a native picker by default, initially pointing at
+`C:\PORT\.local\cms-qa\downloads`. Explicit `-NoDownloadDialog` automation uses
+its isolated `release-*` children. No production/user SQLite is opened.
 
 Frontend localhost access is dev-only and goes through a dedicated native IPC
 transport. Native access independently requires the feature, debug assertions and

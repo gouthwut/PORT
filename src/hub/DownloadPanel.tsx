@@ -21,6 +21,7 @@ export function DownloadPanel({ state }: { state: DownloadState }) {
               : "Загрузка файла"}
       </strong>
       {s?.name && <p className="download-name">{s.name}</p>}
+      {s?.path && <p aria-label="Путь сохранения">{s.path}</p>}
       {s?.phase === "downloading" && (
         <>
           <progress
@@ -39,7 +40,7 @@ export function DownloadPanel({ state }: { state: DownloadState }) {
       )}
       <p role="status">{s?.message}</p>
       {state.error && <p role="alert">{state.error}</p>}
-      {state.busy && (
+      {state.busy && s?.phase !== "selecting" && (
         <Button variant="secondary" onClick={() => void state.cancel()}>
           Отменить загрузку
         </Button>

@@ -11,6 +11,7 @@ use std::{
     time::{Duration, Instant},
 };
 use tauri::Manager;
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use tokio::sync::Notify;
 
 const CMS: &str = "https://port-catalog-cms.port-catalog-cms.workers.dev";
@@ -25,8 +26,7 @@ pub struct Status {
     total: Option<u64>,
     speed: u64,
     message: String,
-    #[serde(skip)]
-    folder: Option<PathBuf>,
+    path: Option<PathBuf>,
 }
 #[derive(Default)]
 struct Inner {
@@ -36,7 +36,7 @@ struct Inner {
 #[derive(Default)]
 pub struct Downloads(Arc<Inner>);
 fn active(s: &Status) -> bool {
-    matches!(s.phase.as_str(), "checking" | "downloading")
+    matches!(s.phase.as_str(), "selecting" | "checking" | "downloading")
 }
 fn edit(s: &Inner, f: impl FnOnce(&mut Status)) {
     f(&mut s.status.lock().unwrap());
@@ -256,6 +256,7 @@ fn verify(completed: u64, total: Option<u64>, hash: Option<&str>, actual: &str) 
     Ok(())
 }
 async fn transfer(s: &Inner, a: Asset, root: PathBuf) -> Result<PathBuf> {
+    ensure_absent(&root.join(&a.name))?;
     let r = response(a.url.clone()).await?;
     save_response(s, a, root, r).await
 }
@@ -279,17 +280,19 @@ async fn save_response(
     crate::download::safe_existing(&root)?;
     std::fs::create_dir_all(&root).map_err(|_| "Не удалось создать папку загрузки")?;
     crate::download::safe_existing(&root)?;
-    let dir = tempfile::Builder::new()
-        .prefix("release-")
-        .tempdir_in(&root)
-        .map_err(|_| "Не удалось создать папку файла")?;
+    let root = root
+        .canonicalize()
+        .map_err(|_| "Папка загрузки недоступна")?;
+    let destination = root.join(&a.name);
+    ensure_absent(&destination)?;
     let mut file = tempfile::Builder::new()
         .prefix("download-")
         .suffix(".part")
-        .tempfile_in(dir.path())
+        .tempfile_in(&root)
         .map_err(|_| "Не удалось создать временный файл")?;
     edit(s, |s| {
         s.name = a.name.clone();
+        s.path = Some(destination.clone());
         s.total = total;
         s.phase = "downloading".into();
         s.message = "Скачивание официального файла…".into();
@@ -323,10 +326,71 @@ async fn save_response(
     file.as_file()
         .sync_all()
         .map_err(|_| "Не удалось сохранить файл")?;
-    crate::download::safe_existing(dir.path())?;
-    file.persist_noclobber(dir.path().join(a.name))
+    crate::download::safe_existing(&root)?;
+    file.persist_noclobber(&destination)
         .map_err(|_| "Не удалось завершить сохранение файла")?;
-    Ok(dir.keep())
+    Ok(destination)
+}
+fn ensure_absent(path: &std::path::Path) -> Result<()> {
+    match std::fs::symlink_metadata(path) {
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Ok(_) => Err("Файл уже существует. Выберите другую папку и повторите скачивание.".into()),
+        Err(_) => Err("Не удалось проверить файл назначения".into()),
+    }
+}
+
+async fn destination(
+    app: tauri::AppHandle,
+    s: &Inner,
+    a: &Asset,
+    qa: bool,
+) -> Result<Option<PathBuf>> {
+    if qa
+        && std::env::var_os("PORT_QA_DOWNLOAD_NO_DIALOG").as_deref()
+            == Some(std::ffi::OsStr::new("1"))
+    {
+        let root = crate::local_cms_qa::root().join("downloads");
+        crate::download::safe_existing(&root)?;
+        std::fs::create_dir_all(&root).map_err(|_| "Не удалось создать QA папку")?;
+        let dir = tempfile::Builder::new()
+            .prefix("release-")
+            .tempdir_in(root)
+            .map_err(|_| "Не удалось создать QA папку файла")?;
+        return Ok(Some(dir.keep()));
+    }
+    edit(s, |s| {
+        s.phase = "selecting".into();
+        s.message = "Выберите папку для сохранения файла".into();
+    });
+    let name = a.name.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let default = if qa { crate::local_cms_qa::root().join("downloads") } else {
+            app.path().download_dir().map_err(|_| "Папка загрузок недоступна")?.join("PORT")
+        };
+        // Only create our default folder; selected folders and their contents are never removed.
+        crate::download::safe_existing(&default)?;
+        std::fs::create_dir_all(&default).map_err(|_| "Не удалось создать папку Загрузки/PORT")?;
+        let default = default.canonicalize().map_err(|_| "Папка загрузок недоступна")?;
+        loop {
+            let mut dialog = app.dialog().file().set_title("PORT — выберите папку загрузки").set_directory(&default);
+            if let Some(window) = app.get_webview_window("main") { dialog = dialog.set_parent(&window); }
+            let Some(folder) = dialog.blocking_pick_folder() else { return Ok(None) };
+            let root = folder.into_path().map_err(|_| "Некорректная папка загрузки")?;
+            crate::download::safe_existing(&root)?;
+            if !root.is_absolute() || !root.is_dir() { return Err("Папка загрузки недоступна".into()); }
+            match ensure_absent(&root.join(&name)) {
+                Ok(()) => return Ok(Some(root)),
+                Err(_) if root.join(&name).exists() => {
+                    let mut message = app.dialog().message(format!("{name} уже существует. Существующий файл будет сохранён. Выберите другую папку или отмените загрузку."))
+                        .title("PORT — файл уже существует")
+                        .buttons(MessageDialogButtons::OkCancelCustom("Выбрать другую папку".into(), "Отмена".into()));
+                    if let Some(window) = app.get_webview_window("main") { message = message.parent(&window); }
+                    if !message.blocking_show() { return Ok(None); }
+                }
+                Err(e) => return Err(e),
+            }
+        }
+    }).await.map_err(|_| "Ошибка диалога выбора папки")?
 }
 #[tauri::command]
 pub fn hub_download_status(state: tauri::State<Downloads>) -> Status {
@@ -343,19 +407,12 @@ pub fn start_hub_download(
         return Err("Некорректная сборка".into());
     }
     let qa = crate::local_cms_qa::enabled(&app.config().identifier);
-    let root = if qa {
-        crate::local_cms_qa::root().join("downloads")
-    } else {
-        app.path()
-            .download_dir()
-            .map_err(|_| "Папка загрузок недоступна")?
-            .join("PORT")
-    };
     let s = state.0.clone();
     let mut status = s.status.lock().unwrap();
     if active(&status) {
         return Err("Сначала завершите или отмените текущую загрузку".into());
     }
+    let previous = status.clone();
     let cancel = Arc::new(Notify::new());
     *s.cancel.lock().unwrap() = cancel.clone();
     *status = Status {
@@ -365,7 +422,7 @@ pub fn start_hub_download(
     };
     drop(status);
     tauri::async_runtime::spawn(async move {
-        let work = async {
+        let fetch = async {
             let url = format!("{CMS}/v2/projects/{project_id}/builds?channel=all");
             let body = tauri::async_runtime::spawn_blocking(move || {
                 if qa {
@@ -382,23 +439,39 @@ pub fn start_hub_download(
             .await
             .map_err(|_| "Ошибка запроса CMS")?
             .map_err(|_| "Не удалось подтвердить сборку в публичном API CMS. Проверьте доступность каталога и повторите попытку.")?;
-            let asset = approved(&body, &project_id, &build_id)?;
-            transfer(&s, asset, root).await
+            approved(&body, &project_id, &build_id)
         };
-        let result = tokio::select! {
-            biased;
-            _ = cancel.notified() => Err("Загрузка отменена".to_string()),
-            r = work => r,
-        };
+        let result: Result<Option<PathBuf>> = async {
+            let asset = tokio::select! {
+                biased;
+                _ = cancel.notified() => return Err("Загрузка отменена".into()),
+                r = fetch => r?,
+            };
+            let Some(root) = destination(app, &s, &asset, qa).await? else {
+                return Ok(None);
+            };
+            edit(&s, |s| {
+                s.phase = "checking".into();
+                s.message = "Подключение к серверу файла…".into();
+            });
+            tokio::select! {
+                biased;
+                _ = cancel.notified() => Err("Загрузка отменена".into()),
+                r = transfer(&s, asset, root) => r.map(Some),
+            }
+        }
+        .await;
         edit(&s, |s| {
             s.speed = 0;
             match result {
-                Ok(folder) => {
+                Ok(Some(path)) => {
                     s.phase = "completed".into();
                     s.message = "Файл сохранён. Запуск выполняется вручную.".into();
-                    s.folder = Some(folder);
+                    s.path = Some(path);
                 }
+                Ok(None) => *s = previous,
                 Err(e) => {
+                    s.path = None;
                     s.phase = if e == "Загрузка отменена" {
                         "cancelled"
                     } else {
@@ -414,7 +487,10 @@ pub fn start_hub_download(
 }
 #[tauri::command]
 pub fn cancel_hub_download(state: tauri::State<Downloads>) {
-    if active(&state.0.status.lock().unwrap()) {
+    if matches!(
+        state.0.status.lock().unwrap().phase.as_str(),
+        "checking" | "downloading"
+    ) {
         state.0.cancel.lock().unwrap().notify_one();
     }
 }
@@ -422,19 +498,16 @@ pub fn cancel_hub_download(state: tauri::State<Downloads>) {
 pub fn open_hub_download_folder(state: tauri::State<Downloads>) -> Result<()> {
     let status = state.0.status.lock().unwrap();
     let path = status
-        .folder
+        .path
         .as_ref()
         .filter(|_| status.phase == "completed")
         .ok_or("Нет завершённой загрузки")?;
     crate::download::safe_existing(path)?;
-    #[cfg(windows)]
-    std::process::Command::new(
-        PathBuf::from(std::env::var_os("SystemRoot").ok_or("Нет системной папки")?)
-            .join("explorer.exe"),
-    )
-    .arg(path)
-    .spawn()
-    .map_err(|_| "Не удалось открыть папку")?;
+    if !path.is_file() {
+        return Err("Скачанный файл больше не найден".into());
+    }
+    tauri_plugin_opener::reveal_item_in_dir(path)
+        .map_err(|_| "Не удалось показать файл в Проводнике")?;
     Ok(())
 }
 
@@ -482,7 +555,7 @@ mod tests {
         let root = tempfile::tempdir().unwrap();
         let state = Inner::default();
         let hash = format!("{:x}", Sha256::digest(b"abc"));
-        let folder = save_response(
+        let path = save_response(
             &state,
             fixture_asset(Some(hash)),
             root.path().to_path_buf(),
@@ -490,8 +563,9 @@ mod tests {
         )
         .await
         .unwrap();
-        assert_eq!(std::fs::read(folder.join("a.zip")).unwrap(), b"abc");
-        assert_eq!(std::fs::read_dir(&folder).unwrap().count(), 1);
+        assert_eq!(std::fs::read(&path).unwrap(), b"abc");
+        assert_eq!(path, root.path().canonicalize().unwrap().join("a.zip"));
+        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 1);
         assert_eq!(state.status.lock().unwrap().completed, 3);
     }
     #[tokio::test]
@@ -512,6 +586,8 @@ mod tests {
     #[tokio::test]
     async fn cancelling_pending_stream_removes_partial_file() {
         let root = tempfile::tempdir().unwrap();
+        let existing = root.path().join("user.zip");
+        std::fs::write(&existing, b"keep user file").unwrap();
         let state = Inner::default();
         let r = fixture_response(100, true).await;
         let result = tokio::time::timeout(
@@ -521,7 +597,45 @@ mod tests {
         .await;
         assert!(result.is_err());
         assert!(state.status.lock().unwrap().completed > 0);
-        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 0);
+        assert_eq!(std::fs::read(&existing).unwrap(), b"keep user file");
+        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 1);
+    }
+    #[tokio::test]
+    async fn existing_user_files_are_never_overwritten_or_cleaned_up() {
+        let root = tempfile::tempdir().unwrap();
+        let target = root.path().join("a.zip");
+        std::fs::write(&target, b"existing user ZIP").unwrap();
+        assert!(save_response(
+            &Inner::default(),
+            fixture_asset(None),
+            root.path().to_path_buf(),
+            fixture_response(3, false).await
+        )
+        .await
+        .is_err());
+        assert_eq!(std::fs::read(&target).unwrap(), b"existing user ZIP");
+        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 1);
+        let mut asset = fixture_asset(Some("0".repeat(64)));
+        asset.name = "other.zip".into();
+        assert!(save_response(
+            &Inner::default(),
+            asset,
+            root.path().to_path_buf(),
+            fixture_response(3, false).await
+        )
+        .await
+        .is_err());
+        assert_eq!(std::fs::read(&target).unwrap(), b"existing user ZIP");
+        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 1);
+        // A file created after preflight must still win at the commit boundary.
+        let mut partial = tempfile::Builder::new()
+            .suffix(".part")
+            .tempfile_in(root.path())
+            .unwrap();
+        partial.write_all(b"new bytes").unwrap();
+        assert!(partial.persist_noclobber(&target).is_err());
+        assert_eq!(std::fs::read(&target).unwrap(), b"existing user ZIP");
+        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 1);
     }
     #[test]
     fn release_urls_and_windows_names() {

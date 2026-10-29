@@ -1,5 +1,13 @@
 # PORT// — instructions for future sessions
 
+Stage 13F authorized 2026-10-29: native destination picker for each interactive
+release download, original safe filename, no-clobber/conflict choice, actual Rust
+file path in UI and exact Explorer reveal. See docs/HUB_DOWNLOAD_DESTINATION.md
+and latest PROGRESS for checks and remaining manual dialog acceptance. QA skips
+the picker only with explicit -NoDownloadDialog and the existing dedicated debug
+identity/feature; normal PORT must always ask. Preserve CMS/catalog/hero/titlebar,
+legacy backend and existing files. Local commit only; no release/push/next stage.
+
 Stage 13E authorized 2026-10-29: isolated local CMS HTTPS QA only within C:\PORT.
 See docs/HUB_LOCAL_CMS_QA.md and latest PROGRESS. Dedicated debug app.port.cms-qa,
 optional local-cms-qa feature and per-client local certificate trust; production

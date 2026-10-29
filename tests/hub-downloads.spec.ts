@@ -137,8 +137,12 @@ test("single native-shaped download: progress survives navigation, cancellation 
       total: 1048576,
       speed: 0,
       message: "Файл сохранён",
+      path: "C:\\PORT\\.local\\13f выбранная папка\\build.zip",
     };
   });
+  await expect(panel.getByLabel("Путь сохранения")).toHaveText(
+    "C:\\PORT\\.local\\13f выбранная папка\\build.zip",
+  );
   await panel.getByRole("button", { name: "Открыть папку" }).click();
   expect(
     await page.evaluate(() =>
@@ -196,4 +200,45 @@ test("browser preview never starts a native download", async ({ page }) => {
   await expect(
     page.getByText("Скачивание доступно в приложении PORT для Windows"),
   ).toBeVisible();
+});
+
+test("folder selection locks new downloads and cancelling the dialog leaves no error", async ({
+  page,
+}) => {
+  await setup(page);
+  const panel = page.getByRole("complementary", { name: "Загрузка файла" });
+  await page.evaluate(() => {
+    (window as unknown as { qaStatus: unknown }).qaStatus = {
+      phase: "selecting",
+      name: "",
+      completed: 0,
+      total: null,
+      speed: 0,
+      message: "Выберите папку для сохранения файла",
+      path: null,
+    };
+  });
+  await expect(panel).toContainText("Выберите папку");
+  await expect(
+    page.getByRole("button", { name: "Скачать файл", exact: true }),
+  ).toBeDisabled();
+  await expect(
+    panel.getByRole("button", { name: "Отменить загрузку" }),
+  ).toHaveCount(0);
+  await page.evaluate(() => {
+    (window as unknown as { qaStatus: unknown }).qaStatus = {
+      phase: "",
+      name: "",
+      completed: 0,
+      total: null,
+      speed: 0,
+      message: "",
+      path: null,
+    };
+  });
+  await expect(panel).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Скачать файл", exact: true }),
+  ).toBeEnabled();
+  await expect(page.getByRole("alert")).toHaveCount(0);
 });

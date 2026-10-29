@@ -41,6 +41,7 @@ export interface DownloadStatus {
   total: number | null;
   speed: number;
   message: string;
+  path: string | null;
 }
 export function useDownload() {
   const [status, setStatus] = useState<DownloadStatus | null>(null);
@@ -67,7 +68,10 @@ export function useDownload() {
     };
   }, []);
   const busy =
-    starting || status?.phase === "checking" || status?.phase === "downloading";
+    starting ||
+    status?.phase === "selecting" ||
+    status?.phase === "checking" ||
+    status?.phase === "downloading";
   async function action(command: string) {
     setError("");
     try {
