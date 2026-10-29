@@ -1,5 +1,11 @@
 # PORT// — instructions for future sessions
 
+Stage 17A.1 authorized 2026-10-29: owner selected A / Premiere as the final design
+direction. One local Home-only Liquid Glass sample is complete beside Stage 17A:
+premiere-liquid.html/css, 1280x720 screenshot and PREMIERE-LIQUID.md tokens.
+See docs/PORT_STAGE17A1_LIQUID.md. No main React/Tauri implementation authorized;
+stop here until a separate request. Existing nine prototypes and dirty work preserved.
+
 Stage 17A authorized 2026-10-29: project-local design toolchain setup and three
 standalone UI concepts (Home/catalog/project), no main React/Tauri changes.
 See docs/PORT_STAGE17A_DESIGN.md and .local/design-exploration/17a/REPORT.md.

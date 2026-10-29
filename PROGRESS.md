@@ -1,5 +1,22 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 17A.1: Premiere Liquid Glass Home sample
+
+- Owner selected A / Premiere as final direction. One finished local HTML/CSS Home
+  sample only, reusing Stage 17A renderer/assets/fonts; original nine layouts intact.
+- Local sidebar/search/artwork glass, specular edges, layered shadows, violet/ice
+  accents, restrained hover. Bounded backdrop-filter, opaque fallback and reduced
+  motion; no new dependencies, services or full-screen filter.
+- Outputs in ignored .local/design-exploration/17a/: premiere-liquid.html/css,
+  screenshots/premiere-liquid-1280x720.png, fallback screenshot, PREMIERE-LIQUID.md
+  tokens and premiere-liquid-checks.json. See docs/PORT_STAGE17A1_LIQUID.md.
+- Chromium checks: 1280x720 cards fully visible, images decoded, no horizontal
+  overflow/page errors; filter, keyboard focus, reduced motion, forced fallback
+  pass. 800x600 no horizontal overflow. Browser screenshots visually reviewed;
+  no native WebView2/GPU performance claim or application build/test needed.
+- Existing dirty work preserved; React/Tauri/Rust/CMS/API/user data unchanged.
+  No push/release/deploy. Stopped; actual integration requires a separate request.
+
 ## 2026-10-29 — Stage 17A: design toolchain and three local concepts
 
 - Authorized separate design exploration from Stage 16 (4282407); existing dirty
