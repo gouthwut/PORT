@@ -1,5 +1,40 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 15F: Windows QA, no confirmed application defect
+
+- From `198671f`; existing dirty work preserved. Actual isolated Tauri debug
+  identity `app.port.cms-qa`, fresh `.local/stage15f/app-data`; no dialog bypass.
+  No application source change was justified. Report: docs/HUB_STAGE15F_QA.md.
+- Actual Windows input: Cyrillic/spaced/Unicode destination
+  `Загрузки PORT — 日本語 é Ω`; official Zelda ZIP completed, 28,940,501 bytes,
+  SHA-256 d02b95f1cf5e4d44d6587fa6136c6db521f61aa41ba8700c05f91bea8b0a26d0.
+  Explorer selected exactly that ZIP. Same-folder retry showed the real existing
+  file warning; choosing another folder and cancelling preserved the ZIP/hash.
+  Double-click titlebar maximized the native window.
+- Automated real-native checks, distinct from desktop interaction: 800x600 and
+  1280x720 main screens/About, Back/Escape, maximize/restore/minimize, failure/retry
+  and duplicate guard. Normal close/new process retained French, favorites,
+  recents and all four then-existing history rows. Final transfer used the real
+  picker (owner selected `cancel test` after input failed); native automation
+  cancelled after 49,152 received bytes, leaving no ZIP/partial and showing a
+  cancelled row with Retry enabled. No archive executed or extracted.
+- PASS: 25 targeted Playwright tests and 9 Rust hub_download regression tests.
+  QA debug compilation and actual executable launch passed. No full clean build,
+  production installer or new gameplay claim. Evidence: .local/evidence/15f/.
+- Limits: desktop activation initially failed, later returned invalid window
+  geometry and `foreground window did not report a process id` after reselection.
+  Drag/Snap remain unaccepted; no app bug inferred from tool failure. Actual OS
+  DPI 125/150% not tested; unchanged 100% session only. Browser simulated scale
+  checks passed but are not Windows DPI evidence. QA app/debug listener closed;
+  test archives/data retained.
+- Evidence audit rejected four stale Computer Use URL saves; no accepted local
+  picker image is claimed. Explorer and native WebView files were independently
+  inspected. Final evidence-only picker input failed again; the QA process was
+  stopped before transfer, leaving a recoverable test journal.
+- One local documentation commit only. No CMS/production API/neighbor changes,
+  legacy/PKG/downloader changes, normal app-data operations, push/release/installer
+  or next stage. Stage 15 beta gates remain subject to these limits.
+
 ## 2026-10-29 — Stage 15: client upgrade implemented; public beta gated
 
 - 15A–D local commits: Downloads Center and durable native history (7a601f7),
