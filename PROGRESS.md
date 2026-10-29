@@ -1,15 +1,51 @@
 # PORT// progress
 
-## 2026-10-29 — Stage 15 (in progress)
+## 2026-10-29 — Stage 15: client upgrade implemented; public beta gated
 
-- 15A: native SQLite download history, interruption recovery, native record-based reveal/removal; Downloads navigation and real progress/retry actions. One active operation, picker and no-clobber/HTTPS guards preserved. Active downloads prevent window close with an explanation; forced termination is marked interrupted on restart.
-- 15D: four-language catalog path, settings language persisted through existing native settings (old records default ru); local translation dictionary, no external translation API. Window/dialog/gallery labels included; CMS prose/names/files retained. Escape returns to originating view; wrapping/focus and notification details link added. Explicit repeat required for an existing completed file; launcher updater reserves the Hub downloader before handoff.
-- Native debug app.port.cms-qa in fresh C:\PORT\.local\stage15 storage: actual official Zelda ZIP 28,940,501 bytes and SHA-256 d02b95f1cf5e4d44d6587fa6136c6db521f61aa41ba8700c05f91bea8b0a26d0 PASS. Cancellation removes owned partial/final, retry starts anew, duplicate rejected, record-based reveal and independent Explorer selected-file evidence PASS. Cold restart retains history/favorites/recents/fr language; removing history leaves archive hash intact. Explicit QA-only picker bypass used for transfer.
-- 15C: stored native CMS version/architecture/channel; stable Windows version choice ordered only for comparable numeric versions. Update notice requires every matching successful download to be provably older; unknown tags, other architectures, prereleases and already downloaded versions do not trigger it. 3/3 Stage 15 browser scenarios and 8/8 downloader Rust tests pass.
-- 15A browser regression: 8/8 pass after extending the expected IPC display-name metadata.
-- 15B: native/local-preview favorites and 12 recent project IDs; card/detail actions and catalog favorites filter. Bounded four-worker approved-build discovery supplies real Windows availability; source/unknown rows never infer availability from target platforms. Original-game search, combined filters and reset retained. Native preference validation passes; new persistence/discovery browser scenarios running.
-- Checks: frontend build / TypeScript and 8 native downloader tests pass (including SQLite reopen and record deletion without file deletion). Browser downloader regression in progress. Existing dirty Cargo/image, library, stage04d and untracked work preserved; no push/release/CMS mutation.
-
+- 15A–D local commits: Downloads Center and durable native history (7a601f7),
+  favorites/recent IDs and approved-build discovery (9dd867a), conservative
+  release updates (c8bf95e), four languages and UX (fb92db1). Final 15E commit
+  adds regression coverage, close/updater/history-write fixes and the report
+  [HUB_STAGE15.md](docs/HUB_STAGE15.md). No next stage, push, installer or release.
+- New native tables are separate from schema-4 installation authority. Retained
+  Stage 13F HTTPS/picker/hash/temporary/no-clobber/reveal guards and Stage 14B
+  seven-second notification behavior. History removal never deletes files;
+  unfinished jobs become interrupted. Failed history writes are visible and
+  terminal state is published after persistence, preventing a new-start race.
+- PASS: npm ci (0 reported vulnerabilities), TypeScript/frontend build (existing
+  > 500 kB warning), **42 current-path Playwright tests**, Rust **85 pass / 8 opt-in
+  > ignored**, Clippy all targets with warnings denied, Rust fmt, changed-file
+  > formatting and whitespace. Browser layouts: 1440/1024/800/480/320, all four
+  > languages; simulated device scale is not Windows OS DPI. Retired v1/installer
+  > UI suites were not treated as current navigation acceptance. No fresh owner
+  > Bloodborne gameplay claim; native legacy regression tests pass.
+- Actual fresh app.port.cms-qa debug storage only: official Zelda v1.2.2 ZIP
+  **28,940,501 bytes**, independently hashed SHA-256
+  d02b95f1cf5e4d44d6587fa6136c6db521f61aa41ba8700c05f91bea8b0a26d0.
+  Cancel cleanup, retry from zero, missing-build failure/retry, duplicate block,
+  history-ID reveal and independent Explorer selected-file evidence pass.
+  Repeated final transfer after history fixes also passes. Real cold restart
+  retains history/favorites/recents/French; reveal works from persisted record;
+  clearing that record preserves file/hash. Explicit QA-only dialog bypass for
+  transfers; never used by normal PORT.
+- Real picker observed without bypass: localized French PORT title and QA default,
+  zero payload before selection. Close prevented while selecting; forced QA exit
+  recovered as interrupted. Computer Use reads accessibility but activation fails
+  twice (`failed to activate captured window`): manual select/cancel/conflict and
+  Unicode/spaced destination acceptance remain open. Current local-CMS Sonic
+  cover + four screenshots and Windows v1.0.3 pass. Actual **800x600 native** French
+  CTA remains visible without overflow. Screenshots/JSON under .local/evidence/15;
+  QA app/debug listener stopped after checks. Test archives/evidence retained.
+- Public production /v2/projects?limit=1 returns **401, Требуется вход**; no auth,
+  TLS, CSP, API or CMS changes/bypass. Public beta needs anonymous API availability,
+  pending Windows picker/Snap/OS-DPI acceptance and a separately authorized clean
+  packaging/artwork/notices/version/release pass. Updater production key/feed is
+  still unconfigured if auto-update is intended. Legacy screens are not fully
+  localized; no partial resume/autorun/automatic game updates. In-session offline
+  data survives; cold offline catalog is explicitly unavailable. Full limits in
+  HUB_STAGE15.md. Existing Cargo/image, InstalledLibrary, stage04d and untracked
+  owner work preserved and excluded from these commits. No production app-data,
+  game/runtime/profile/save or neighboring repository files were operated on.
 
 ## 2026-10-29 — Stage 14B: project redesign and download notification polish
 

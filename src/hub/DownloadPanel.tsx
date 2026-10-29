@@ -1,4 +1,4 @@
-import { t } from "./i18n";
+import { t, downloadMessage } from "./i18n";
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, X } from "lucide-react";
 import type { DownloadState } from "./downloads";
@@ -44,6 +44,7 @@ export function DownloadPanel({
   useEffect(() => {
     if (
       s?.phase !== "completed" ||
+      s.historyError ||
       state.busy ||
       state.error ||
       hovered ||
@@ -64,6 +65,7 @@ export function DownloadPanel({
   }, [
     identity,
     s?.phase,
+    s?.historyError,
     state.busy,
     state.error,
     hovered,
@@ -135,10 +137,11 @@ export function DownloadPanel({
             </>
           )}
           {s?.phase !== "completed" && (
-            <p role="status">{s?.message && t(s.message)}</p>
+            <p role="status">{s?.message && downloadMessage(s.message)}</p>
           )}
-          {state.error && <p role="alert">{t(state.error)}</p>}
-          {state.busy && s?.phase !== "selecting" && (
+          {s?.historyError && <p role="alert">{downloadMessage(s.message)}</p>}
+          {state.error && <p role="alert">{downloadMessage(state.error)}</p>}
+          {state.busy && s && ["checking", "downloading"].includes(s.phase) && (
             <Button variant="secondary" onClick={() => void state.cancel()}>
               {t("Отменить загрузку")}{" "}
             </Button>

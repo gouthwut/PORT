@@ -18,10 +18,12 @@ import { Button } from "../components/ui";
 export function V2Project({
   project,
   onBack,
+  backLabel = "Назад в каталог",
   downloads,
 }: {
   project: CatalogProject;
   onBack: () => void;
+  backLabel?: string;
   downloads: DownloadState;
 }) {
   const [data, setData] = useState<V2Detail | null>(null);
@@ -106,7 +108,7 @@ export function V2Project({
     <article className="hub-project-page">
       <button className="back-link" onClick={onBack}>
         <ArrowLeft size={16} aria-hidden="true" />
-        {t("Назад в каталог")}{" "}
+        {t(backLabel)}{" "}
       </button>
       <section
         className="hub-project-overview project-hero"
@@ -393,7 +395,10 @@ export function V2Project({
                     : undefined
                 }
               >
-                {t(link.label)} <ArrowUpRight size={15} aria-hidden="true" />
+                {link.label.startsWith("Релиз ")
+                  ? `${t("Релиз")} ${link.label.slice(6)}`
+                  : t(link.label)}{" "}
+                <ArrowUpRight size={15} aria-hidden="true" />
               </a>
             ))}
           </div>

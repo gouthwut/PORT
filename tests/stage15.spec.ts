@@ -1,5 +1,6 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page, type Route } from "@playwright/test";
 import translations from "../src/hub/translations.json" with { type: "json" };
+import { readFile } from "node:fs/promises";
 const origin = "https://port-catalog-cms.port-catalog-cms.workers.dev";
 async function fixture(page: Page) {
   const projects = [
@@ -79,6 +80,7 @@ async function fixture(page: Page) {
   await page.goto("/");
   await page.getByRole("button", { name: "Каталог", exact: true }).click();
   await expect(page.locator(".hub-project-card")).toHaveCount(3);
+  return { projects };
 }
 test("favorites and recent IDs survive reload and resolve current catalog names", async ({
   page,
@@ -237,4 +239,177 @@ test("each translated entry covers all three additional languages", async () => 
     expect(row).toHaveLength(3);
     expect(row.every((text) => text.trim().length > 0)).toBe(true);
   }
+  for (const file of [
+    "App.tsx",
+    "hub/HubCatalog.tsx",
+    "hub/HubLanding.tsx",
+    "hub/HubSidebar.tsx",
+    "hub/ProjectCard.tsx",
+    "hub/V2Project.tsx",
+    "hub/DownloadsCenter.tsx",
+    "hub/DownloadPanel.tsx",
+    "hub/preferences.tsx",
+    "components/TitleBar.tsx",
+    "components/BloodborneMedia.tsx",
+    "components/LauncherUpdates.tsx",
+    "components/ui.tsx",
+  ]) {
+    const source = await readFile(`src/${file}`, "utf8");
+    for (const match of source.matchAll(/\bt\(\s*("(?:[^"\\]|\\.)*")/gu))
+      expect(
+        Object.hasOwn(translations, JSON.parse(match[1])),
+        `${file}: ${match[1]}`,
+      ).toBe(true);
+  }
+});
+
+test("catalog retains loaded projects offline and reconnects without legacy fallback", async ({
+  page,
+  context,
+}) => {
+  await fixture(page);
+  const unavailable = (route: Route) => route.abort("internetdisconnected");
+  await page.route(`${origin}/v2/**`, unavailable);
+  await context.setOffline(true);
+  await expect(page.locator(".offline-banner")).toContainText(
+    "Нет подключения",
+  );
+  await page
+    .getByRole("button", { name: "Обновить каталог", exact: true })
+    .click();
+  await expect(page.locator(".hub-catalog-error")).toContainText(
+    "Последние данные сохранены",
+  );
+  await expect(page.locator(".hub-project-card")).toHaveCount(3);
+  await page.unroute(`${origin}/v2/**`, unavailable);
+  await context.setOffline(false);
+  await expect(page.locator(".hub-catalog-error")).toHaveCount(0);
+  await expect(page.locator(".hub-project-card")).toHaveCount(3);
+});
+
+test("renamed, unpublished and republished favorites keep stable IDs", async ({
+  page,
+}) => {
+  const { projects } = await fixture(page);
+  const original = { ...projects[0] };
+  await page
+    .locator(".project-card-wrapper")
+    .first()
+    .getByRole("button", { name: "В избранное", exact: true })
+    .click();
+  projects[0].name = "Renamed Zelda project";
+  await page
+    .getByRole("button", { name: "Обновить каталог", exact: true })
+    .click();
+  await expect(
+    page
+      .locator(".hub-project-card")
+      .filter({ hasText: "Renamed Zelda project" }),
+  ).toHaveCount(1);
+  projects.splice(0, 1);
+  await expect(
+    page.getByRole("button", { name: "Обновить каталог", exact: true }),
+  ).toBeEnabled();
+  await page
+    .getByRole("button", { name: "Обновить каталог", exact: true })
+    .click();
+  await expect(page.locator(".hub-project-card")).toHaveCount(2);
+  await page.getByRole("button", { name: "Избранное", exact: true }).click();
+  await expect(page.locator(".hub-project-card")).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", {
+      name: "В избранном нет проектов текущего каталога",
+    }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () =>
+        JSON.parse(localStorage.getItem("port.hub.preferences.v1")!).favorites,
+    ),
+  ).toEqual([original.id]);
+  projects.unshift({ ...original, name: "Republished Zelda project" });
+  await expect(
+    page.getByRole("button", { name: "Обновить каталог", exact: true }),
+  ).toBeEnabled();
+  await page
+    .getByRole("button", { name: "Обновить каталог", exact: true })
+    .click();
+  await expect(page.locator(".hub-project-card")).toHaveCount(1);
+  await expect(page.locator(".hub-project-card")).toContainText(
+    "Republished Zelda project",
+  );
+});
+
+test("project update notice requires a provably older downloaded version", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const w = window as any;
+    w.isTauri = true;
+    w.qa15Version = "1.0.0";
+    w.__TAURI_INTERNALS__ = {
+      async invoke(command: string) {
+        if (command === "load_settings")
+          return {
+            theme: "dark",
+            language: "ru",
+            installDir: "",
+            reducedMotion: true,
+            compactCards: false,
+          };
+        if (command === "load_hub_preferences")
+          return { favorites: [], recent: [] };
+        if (command === "hub_download_status")
+          return {
+            phase: "",
+            name: "",
+            completed: 0,
+            total: null,
+            speed: 0,
+            message: "",
+            path: null,
+          };
+        if (command === "hub_download_history")
+          return [
+            {
+              id: "old",
+              projectId: "zelda",
+              buildId: "old-build",
+              phase: "completed",
+              version: localStorage.getItem("qa15.version") || w.qa15Version,
+              arch: "x64",
+              channel: "stable",
+              name: "old.zip",
+              path: "C:\\PORT\\old.zip",
+              completed: 100,
+              total: 100,
+              speed: 0,
+              message: "",
+            },
+          ];
+        return null;
+      },
+    };
+  });
+  await fixture(page);
+  await page
+    .locator(".hub-project-card")
+    .filter({ hasText: "Zelda64Recomp" })
+    .click();
+  await expect(page.locator(".project-update-note")).toContainText(
+    "Доступна новая версия",
+  );
+  await page.evaluate(() =>
+    localStorage.setItem("qa15.version", "release-ambiguous"),
+  );
+  await page.reload();
+  await page.getByRole("button", { name: "Каталог", exact: true }).click();
+  await page
+    .locator(".hub-project-card")
+    .filter({ hasText: "Zelda64Recomp" })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Скачать для Windows", exact: true }),
+  ).toBeEnabled();
+  await expect(page.locator(".project-update-note")).toHaveCount(0);
 });

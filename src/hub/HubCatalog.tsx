@@ -309,14 +309,20 @@ export function HubCatalog({
             <div className="hub-catalog-empty">
               <Search size={32} aria-hidden="true" />
               <h3>
-                {projects.length || active
-                  ? t("Ничего не найдено")
-                  : t("Каталог пока пуст")}
+                {favoritesOnly && !projects.length
+                  ? t("В избранном нет проектов текущего каталога")
+                  : projects.length || active
+                    ? t("Ничего не найдено")
+                    : t("Каталог пока пуст")}
               </h3>
               <p>
-                {projects.length
-                  ? t("Попробуй другое название или сбрось фильтры.")
-                  : t("Опубликованные проекты появятся здесь.")}
+                {favoritesOnly && !projects.length
+                  ? t(
+                      "Добавьте проект кнопкой со звездой. Скрытые проекты останутся в сохранённых данных.",
+                    )
+                  : projects.length
+                    ? t("Попробуй другое название или сбрось фильтры.")
+                    : t("Опубликованные проекты появятся здесь.")}
               </p>
               {active && (
                 <button className="text-link" onClick={reset}>

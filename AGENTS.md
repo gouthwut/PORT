@@ -1,5 +1,17 @@
 # PORT// — instructions for future sessions
 
+Stage 15 authorized 2026-10-29: local Downloads Center/history, favorites/recent
+project IDs, approved-build discovery, conservative archive-version notices and
+Russian/English/Spanish/French catalog-path localization. See docs/HUB_STAGE15.md
+and latest PROGRESS for actual checks and public beta blockers. Keep one active
+native download, Stage 13F picker/HTTPS/no-clobber guards and Stage 14B notification
+timing. SQLite hub_downloads/hub_preferences are separate from schema-4 game
+registration; clearing history never deletes archives. No partial resume, fake
+installation, automatic archive execution/install or background update downloads.
+Preserve disconnected legacy engines/data and existing dirty work. Production
+API v2 returned anonymous HTTP 401 in final QA; do not bypass authentication or
+edit CMS neighbors. Local commits only; no push/release/installer/next stage.
+
 Stage 14B authorized 2026-10-29: project-only storefront redesign and download
 notification polish. See docs/HUB_PROJECT_REDESIGN.md and latest PROGRESS. Keep
 Home/catalog/titlebar and Stage 13F native guards. Success notification hides

@@ -36,6 +36,7 @@ export function downloadUnavailable(b: V2Build): string | null {
 }
 export interface DownloadStatus {
   id?: string;
+  historyError?: boolean;
   projectId?: string;
   buildId?: string;
   version?: string;
@@ -133,10 +134,15 @@ export function useDownload() {
     open: (id?: string) =>
       action("open_hub_download_folder", id ? { id } : undefined),
     async remove(id: string) {
-      await action("remove_hub_download", { id });
-      setHistory(
-        (await invoke<DownloadStatus[]>("hub_download_history")) ?? [],
-      );
+      setError("");
+      try {
+        await invoke("remove_hub_download", { id });
+        setHistory(
+          (await invoke<DownloadStatus[]>("hub_download_history")) ?? [],
+        );
+      } catch {
+        setError("Не удалось очистить запись. Повторите попытку.");
+      }
     },
     async retry(row: DownloadStatus) {
       if (!row.projectId || !row.buildId || busy || lock.current) return;

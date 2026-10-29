@@ -1122,5 +1122,36 @@
     "Ce fichier a déjà été téléchargé. Ouvrez Téléchargements."
   ],
   "МиБ": ["MiB", "MiB", "Mio"],
-  "ГиБ": ["GiB", "GiB", "Gio"]
+  "ГиБ": ["GiB", "GiB", "Gio"],
+  "Назад на главную": [
+    "Back to Home",
+    "Volver al inicio",
+    "Retour à l’accueil"
+  ],
+  "В избранном нет проектов текущего каталога": [
+    "No favorites in the current catalog",
+    "No hay favoritos en el catálogo actual",
+    "Aucun favori dans le catalogue actuel"
+  ],
+  "Добавьте проект кнопкой со звездой. Скрытые проекты останутся в сохранённых данных.": [
+    "Use the star to add a project. Hidden projects stay in your saved data.",
+    "Usa la estrella para añadir un proyecto. Los proyectos ocultos se conservarán en los datos guardados.",
+    "Ajoutez un projet avec l’étoile. Les projets masqués restent dans vos données enregistrées."
+  ],
+  "Релиз": ["Release", "Versión", "Version"],
+  "Доступно в приложении Windows": [
+    "Available in the Windows app",
+    "Disponible en la aplicación para Windows",
+    "Disponible dans l’application Windows"
+  ],
+  "Не удалось очистить запись. Повторите попытку.": [
+    "Could not remove the record. Try again.",
+    "No se pudo quitar el registro. Inténtalo de nuevo.",
+    "Impossible de retirer l’entrée. Réessayez."
+  ],
+  "Дождитесь завершения обновления PORT": [
+    "Wait for the PORT update to finish",
+    "Espera a que termine la actualización de PORT",
+    "Attendez la fin de la mise à jour PORT"
+  ]
 }

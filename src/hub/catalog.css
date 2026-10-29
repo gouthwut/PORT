@@ -515,3 +515,8 @@ button:focus-visible {
   display: block;
   margin: 10px 0;
 }
+
+.port-shell .settings-toast {
+  top: 132px;
+  bottom: auto;
+}

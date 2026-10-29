@@ -286,6 +286,11 @@ export default function App() {
                         key={selectedV2.id}
                         project={selectedV2}
                         downloads={downloads}
+                        backLabel={
+                          returnPage === "home"
+                            ? "Назад на главную"
+                            : "Назад в каталог"
+                        }
                         onBack={() => navigate(returnPage)}
                       />
                     )}
@@ -479,7 +484,7 @@ export default function App() {
           <AnimatePresence>
             {toast && (
               <motion.div
-                className="toast"
+                className="toast settings-toast"
                 role="status"
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}

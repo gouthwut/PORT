@@ -167,6 +167,12 @@ for (const scale of [1.25, 1.5]) {
         await page.setViewportSize(viewport);
         const bar = page.getByRole("banner", { name: "Окно PORT" });
         await expect(bar).toHaveCSS("height", "40px");
+        await expect
+          .poll(async () => {
+            const bounds = await page.locator(".app-shell").boundingBox();
+            return bounds!.y + bounds!.height;
+          })
+          .toBe(viewport.height);
         const shell = await page.locator(".app-shell").boundingBox();
         expect(shell!.y).toBe(40);
         expect(shell!.y + shell!.height).toBe(viewport.height);

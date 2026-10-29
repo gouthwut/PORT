@@ -33,7 +33,7 @@ export function TitleBar({ onError }: { onError: (message: string) => void }) {
       if (action === "toggleMaximize")
         setMaximized(await appWindow.isMaximized());
     } catch {
-      onError(t("Не удалось выполнить действие с окном. Повторите попытку."));
+      onError("Не удалось выполнить действие с окном. Повторите попытку.");
     }
   }
 
@@ -61,7 +61,11 @@ export function TitleBar({ onError }: { onError: (message: string) => void }) {
             type="button"
             className={action === "close" ? "port-window-close" : undefined}
             aria-label={t(label)}
-            title={native ? label : `${label} — доступно в приложении Windows`}
+            title={
+              native
+                ? label
+                : `${t(label)} — ${t("Доступно в приложении Windows")}`
+            }
             disabled={!native}
             onClick={() => void control(action)}
           >

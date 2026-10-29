@@ -1,4 +1,4 @@
-import { t } from "./i18n";
+import { t, downloadMessage } from "./i18n";
 import type { DownloadState, DownloadStatus } from "./downloads";
 import { Button } from "../components/ui";
 import "./downloads.css";
@@ -39,7 +39,7 @@ export function DownloadsCenter({ state }: { state: DownloadState }) {
           )}{" "}
         </p>
       )}
-      {state.error && <p role="alert">{t(state.error)}</p>}
+      {state.error && <p role="alert">{downloadMessage(state.error)}</p>}
       {!rows.length && (
         <p className="hub-catalog-empty">{t("История загрузок пока пуста")}</p>
       )}
@@ -92,13 +92,13 @@ function DownloadRow({
         </>
       )}
       {r.message &&
-        r.phase !== "completed" &&
-        r.message !== labels[r.phase] && <p>{t(r.message)}</p>}
+        (r.phase !== "completed" || r.historyError) &&
+        r.message !== labels[r.phase] && <p>{downloadMessage(r.message)}</p>}
       {r.phase === "completed" && r.path && (
         <p className="download-path">{r.path}</p>
       )}
       <div className="download-history-actions">
-        {active && r.phase !== "selecting" && (
+        {["checking", "downloading"].includes(r.phase) && (
           <Button variant="secondary" onClick={() => void state.cancel()}>
             {t("Отменить загрузку")}{" "}
           </Button>

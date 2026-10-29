@@ -7,7 +7,10 @@ use std::{
     io::Write,
     net::ToSocketAddrs,
     path::PathBuf,
-    sync::{Arc, Mutex},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc, Mutex,
+    },
     time::{Duration, Instant},
 };
 use tauri::Manager;
@@ -34,6 +37,8 @@ pub struct Status {
     arch: String,
     #[serde(default)]
     channel: String,
+    #[serde(default)]
+    history_error: bool,
     phase: String,
     name: String,
     completed: u64,
@@ -46,16 +51,24 @@ pub struct Status {
 struct Inner {
     status: Mutex<Status>,
     cancel: Mutex<Arc<Notify>>,
+    updating: AtomicBool,
 }
 #[derive(Default)]
 pub struct Downloads(Arc<Inner>);
+pub struct UpdateReservation(Arc<Inner>);
+impl Drop for UpdateReservation {
+    fn drop(&mut self) {
+        self.0.updating.store(false, Ordering::Release);
+    }
+}
 impl Downloads {
-    pub fn reserve_for_update(&self) -> Result<std::sync::MutexGuard<'_, Status>> {
+    pub fn reserve_for_update(&self) -> Result<UpdateReservation> {
         let status = self.0.status.lock().map_err(|_| "Загрузки недоступны")?;
-        if active(&status) {
+        if active(&status) || self.0.updating.swap(true, Ordering::AcqRel) {
             return Err("Сначала завершите или отмените текущую загрузку".into());
         }
-        Ok(status)
+        // Window close must be able to read status during the official updater handoff.
+        Ok(UpdateReservation(self.0.clone()))
     }
 }
 fn active(s: &Status) -> bool {
@@ -468,6 +481,9 @@ pub fn start_hub_download(
     let qa = crate::local_cms_qa::enabled(&app.config().identifier);
     let s = state.0.clone();
     let mut status = s.status.lock().unwrap();
+    if s.updating.load(Ordering::Acquire) {
+        return Err("Дождитесь завершения обновления PORT".into());
+    }
     if active(&status) {
         return Err("Сначала завершите или отмените текущую загрузку".into());
     }
@@ -559,7 +575,10 @@ pub fn start_hub_download(
             }
         }
         .await;
-        edit(&s, |s| {
+        // Publish terminal state only after its history write; another start cannot replace it.
+        let mut final_status = s.status.lock().unwrap();
+        {
+            let s = &mut *final_status;
             s.speed = 0;
             match result {
                 Ok(Some(path)) => {
@@ -583,11 +602,15 @@ pub fn start_hub_download(
                     s.message = e;
                 }
             }
-        });
-        if persist(&app, &s.status.lock().unwrap()).is_err() {
-            edit(&s, |s| {
-                s.message = "Не удалось сохранить историю. Файл на диске не удалён.".into()
-            });
+        }
+        if persist(&app, &final_status).is_err() {
+            final_status.history_error = true;
+            final_status.message = if final_status.phase == "completed" {
+                "Не удалось сохранить историю. Файл на диске не удалён."
+            } else {
+                "Не удалось сохранить историю загрузок"
+            }
+            .into();
         }
     });
     Ok(())
@@ -664,7 +687,10 @@ pub fn open_hub_download_folder(
     state: tauri::State<Downloads>,
     db: tauri::State<crate::Database>,
 ) -> Result<()> {
-    let status = if let Some(id) = id {
+    let current = state.0.status.lock().unwrap().clone();
+    let status = if id.as_deref() == Some(current.id.as_str()) && current.phase == "completed" {
+        current
+    } else if let Some(id) = id {
         history(&*db.0.lock().map_err(|_| "История недоступна")?)
             .map_err(|_| "История недоступна")?
             .into_iter()
@@ -699,6 +725,19 @@ pub fn prevent_close(window: &tauri::Window, event: &tauri::WindowEvent) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn updater_reservation_keeps_window_status_readable_and_releases_on_error() {
+        let state = Downloads::default();
+        let reservation = state.reserve_for_update().unwrap();
+        assert!(state.0.updating.load(Ordering::Acquire));
+        assert!(state.0.status.try_lock().is_ok());
+        assert!(state.reserve_for_update().is_err());
+        drop(reservation);
+        assert!(!state.0.updating.load(Ordering::Acquire));
+        state.0.status.lock().unwrap().phase = "downloading".into();
+        assert!(state.reserve_for_update().is_err());
+        assert!(!state.0.updating.load(Ordering::Acquire));
+    }
     #[test]
     fn history_restart_and_removal_preserve_downloaded_file() {
         let root = tempfile::tempdir().unwrap();
