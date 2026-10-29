@@ -65,6 +65,10 @@ fn allowed(path: &str) -> bool {
         })
 }
 pub fn fetch(identifier: &str, path: &str) -> Result<Vec<u8>, String> {
+    #[cfg(feature = "download-e2e-qa")]
+    if identifier == crate::download_e2e_qa::ID && allowed(path) {
+        return crate::download_e2e_qa::fetch(path);
+    }
     if !enabled(identifier) || !allowed(path) {
         return Err(
             "Local CMS QA requires the dedicated debug identity and an allowed read-only path"

@@ -3,6 +3,8 @@
 mod adapters;
 mod catalog;
 mod download;
+#[cfg(feature = "download-e2e-qa")]
+mod download_e2e_qa;
 mod hub_download;
 mod hub_preferences;
 mod install;
@@ -148,6 +150,8 @@ fn main() {
         return;
     }
     let context = tauri::generate_context!();
+    #[cfg(feature = "download-e2e-qa")]
+    download_e2e_qa::assert_isolated(&context.config().identifier);
     assert!(
         !cfg!(feature = "local-cms-qa") || local_cms_qa::enabled(&context.config().identifier),
         "local-cms-qa requires the dedicated debug app.port.cms-qa identity"

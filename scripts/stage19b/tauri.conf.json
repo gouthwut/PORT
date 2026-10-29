@@ -1,0 +1,9 @@
+{
+  "identifier": "app.port.stage19b-qa",
+  "productName": "PORT Stage19B QA",
+  "build": {
+    "features": ["download-e2e-qa"],
+    "beforeBuildCommand": "npx tsc --noEmit && npx vite build --config scripts/stage19b/vite.config.ts"
+  },
+  "app": { "appDirectoriesOverride": "C:\\PORT\\.local\\stage19b\\app-data" }
+}

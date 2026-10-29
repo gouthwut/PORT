@@ -229,6 +229,7 @@ fn approved(body: &[u8], project: &str, build: &str) -> Result<Asset> {
         hash,
     })
 }
+#[cfg_attr(feature = "download-e2e-qa", allow(dead_code))]
 async fn response(mut url: Url) -> Result<reqwest::Response> {
     for hop in 0..=5 {
         if !trusted(&url) {
@@ -306,6 +307,9 @@ fn verify(completed: u64, total: Option<u64>, hash: Option<&str>, actual: &str) 
 }
 async fn transfer(s: &Inner, a: Asset, root: PathBuf) -> Result<PathBuf> {
     ensure_absent(&root.join(&a.name))?;
+    #[cfg(feature = "download-e2e-qa")]
+    let r = crate::download_e2e_qa::response(&a.url).await?;
+    #[cfg(not(feature = "download-e2e-qa"))]
     let r = response(a.url.clone()).await?;
     save_response(s, a, root, r).await
 }
@@ -434,7 +438,7 @@ async fn destination(
     });
     let name = a.name.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let default = if qa { crate::local_cms_qa::root().join("downloads") } else {
+        let default = if cfg!(feature = "download-e2e-qa") { PathBuf::from("C:/PORT/.local/stage19b/downloads") } else if qa { crate::local_cms_qa::root().join("downloads") } else {
             app.path().download_dir().map_err(|_| "Папка загрузок недоступна")?.join("PORT")
         };
         // Only create our default folder; selected folders and their contents are never removed.
@@ -532,6 +536,10 @@ pub fn start_hub_download(
         let fetch = async {
             let url = format!("{CMS}/v2/projects/{project_id}/builds?channel=all");
             let body = tauri::async_runtime::spawn_blocking(move || {
+                #[cfg(feature = "download-e2e-qa")]
+                return crate::download_e2e_qa::fetch(&format!("{}?channel=all", Url::parse(&url).map_err(|e| e.to_string())?.path()));
+                #[cfg(not(feature = "download-e2e-qa"))]
+                {
                 if qa {
                     let path = Url::parse(&url).map_err(|e| e.to_string())?;
                     return crate::local_cms_qa::fetch(crate::local_cms_qa::ID, &format!("{}?channel=all", path.path()));
@@ -542,6 +550,7 @@ pub fn start_hub_download(
                     Instant::now() + Duration::from_secs(15),
                     "application/json",
                 )
+                }
             })
             .await
             .map_err(|_| "Ошибка запроса CMS")?
@@ -915,6 +924,14 @@ mod tests {
             "a:exe",
             "a.zip?x=1",
             "a.zip#x",
+            "../escape.zip",
+            "%2e%2e%2fescape.zip",
+            "a\\escape.zip",
+            "a<bad>.zip",
+            "a|bad.zip",
+            "a*bad.zip",
+            "LPT9.zip",
+            "COM1.zip",
         ] {
             assert!(asset_url(&format!("{base}{name}")).is_err(), "{name}");
         }
@@ -937,6 +954,40 @@ mod tests {
         assert!(verify(2, Some(3), None, "").is_err());
         assert!(verify(0, None, None, "").is_err());
         assert!(verify(3, Some(3), Some("abc"), "def").is_err());
+    }
+    #[tokio::test]
+    async fn unicode_and_long_destination_paths() {
+        let temp = tempfile::Builder::new()
+            .prefix("port-19b-")
+            .tempdir()
+            .unwrap();
+        let mut root = temp.path().join("Кириллица с пробелами");
+        for _ in 0..9 {
+            root = root.join("long-directory-component");
+        }
+        std::fs::create_dir_all(&root).unwrap();
+        assert!(root.as_os_str().len() > 260);
+        let path = save_response(
+            &Inner::default(),
+            fixture_asset(None),
+            root.clone(),
+            fixture_response(3, false).await,
+        )
+        .await
+        .unwrap();
+        assert_eq!(std::fs::read(path).unwrap(), b"abc");
+        assert_eq!(std::fs::read_dir(root).unwrap().count(), 1);
+    }
+    #[cfg(not(feature = "download-e2e-qa"))]
+    #[tokio::test]
+    async fn production_transport_rejects_loopback_http_before_connecting() {
+        let error = response(Url::parse("http://127.0.0.1:19219/fixture.zip").unwrap())
+            .await
+            .unwrap_err();
+        assert_eq!(error, "Запрещённый адрес перенаправления");
+        assert!(!trusted(
+            &Url::parse("https://localhost:19219/fixture.zip").unwrap()
+        ));
     }
     #[test]
     fn cms_approval_is_authority() {

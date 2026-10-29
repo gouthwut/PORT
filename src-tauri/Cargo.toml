@@ -6,6 +6,7 @@ license = "MIT"
 edition = "2021"
 
 [features]
+download-e2e-qa = []
 local-cms-qa = ["reqwest/native-tls"]
 
 [build-dependencies]

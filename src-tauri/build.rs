@@ -1,4 +1,9 @@
 fn main() {
+    assert!(
+        std::env::var("PORT_BETA_BUILD").as_deref() != Ok("1")
+            || std::env::var_os("CARGO_FEATURE_DOWNLOAD_E2E_QA").is_none(),
+        "production beta builds must not include download-e2e-qa"
+    );
     println!("cargo:rerun-if-env-changed=PORT_UPDATER_CHANNEL_FILE");
     let channel = std::env::var("PORT_UPDATER_CHANNEL_FILE")
         .unwrap_or_else(|_| "updater-channel.json".into());

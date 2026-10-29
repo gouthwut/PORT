@@ -43,7 +43,7 @@ export function V2Project({
     void Promise.resolve()
       .then(async () => {
         const config = parseSourceConfig(
-          import.meta.env.VITE_HUB_SOURCE_JSON
+          import.meta.env.DEV && import.meta.env.VITE_HUB_SOURCE_JSON
             ? JSON.parse(import.meta.env.VITE_HUB_SOURCE_JSON)
             : sourceConfig,
         );

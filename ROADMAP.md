@@ -1,5 +1,16 @@
 # Roadmap
 
+## Stage 19B — isolated Windows download acceptance completed
+
+Completed 2026-10-30: real installed QA ZIP/picker/Cyrillic path/Explorer,
+cancellation, network-drop/retry, wrong SHA-256 rejection, partial cleanup and
+durable history. Ordinary production EXE excludes the opt-in HTTP fixture
+transport; beta compilation rejects its feature. Release dev API override is
+guarded on both catalog and detail. See [Stage 19B report](docs/PORT_STAGE19B_DOWNLOAD_E2E.md).
+This closes local download reliability acceptance. Live production delivery,
+rights/notices, signing/channel and clean-machine beta gates remain separate.
+No publication or automatic next stage.
+
 ## Stage 19A — local Windows installer acceptance
 
 Authorized 2026-10-29. Standard local NSIS candidate built; isolated release

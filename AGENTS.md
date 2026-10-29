@@ -1,5 +1,15 @@
 # PORT// — instructions for future sessions
 
+Stage 19B completed 2026-10-30: isolated installed Windows download E2E, including
+picker/Cyrillic path/Explorer, cancellation, connection drop/retry, bad SHA-256,
+partial cleanup and durable history. See docs/PORT_STAGE19B_DOWNLOAD_E2E.md and
+.local/evidence/stage19b/INDEX.md. Fictional loopback transport requires the explicit
+download-e2e-qa feature and app.port.stage19b-qa; beta builds reject that feature
+at compile time, ordinary release binary excludes its code. Project detail now
+also ignores dev API override in release. Local commit only; preserve prior dirty
+work/user data. No CMS, production API, design, push/release or automatic next stage.
+Public beta still has the separately documented Stage 19A distribution gates.
+
 Stage 19A authorized 2026-10-29: local Windows NSIS installer and public-beta
 readiness acceptance. Build with scripts/build-windows-beta.ps1: fixed production
 v2, reviewed frontend allowlist, no optional local PKG worker, unsigned/unconfigured
