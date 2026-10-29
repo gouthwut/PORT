@@ -55,6 +55,7 @@ async function setup(page: Page, builds: unknown[] = [build], native = true) {
           if (command === "hub_download_status") return { ...w.qaStatus };
           if (command === "start_hub_download")
             w.qaStatus = {
+              projectId: "port-a",
               phase: "downloading",
               name: "build.zip",
               completed: 524288,
@@ -113,6 +114,9 @@ test("single native-shaped download: progress survives navigation, cancellation 
   );
   await expect(panel).toContainText("50%");
   await expect(panel).toContainText("0.3 МиБ/с");
+  await expect(page.locator(".project-download-status")).toContainText(
+    "Скачивание официального файла",
+  );
   await expect(
     page.getByRole("button", { name: "Скачать для Windows", exact: true }),
   ).toBeDisabled();

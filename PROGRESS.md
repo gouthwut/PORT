@@ -1,14 +1,48 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 18B: UI repair, existing Gemini theme preserved
+
+- Repaired Sonic cinematic hero selection/positioning, compact cover fallback for
+  Zelda's current 4:3 gallery, violet primary download CTA and project-scoped status.
+  Gallery/viewer remain directly after hero. Wider bounded catalog cards, adaptive
+  two-project grid, compact Home and aligned search/content gutters. Removed the
+  decorative sidebar cartridge; improved secondary text contrast.
+- Found and fixed Stage 18 reduced-motion transform reset breaking dialog centering
+  at 800×600. Explicit solid fallback and gallery/keyboard behavior verified.
+- Traced misleading versions/features to test-only stage18-fixture.ts, not the
+  production source. Removed unsupported fixture claims and labelled synthetic QA
+  metadata/screenshots. No runtime hardcoded version fix or production fixture import.
+- Live local CMS API v2 via actual Rust HTTPS QA transport returns Sonic v1.0.3 and
+  Zelda v1.2.2; UI matches. Production anonymous /v2/projects still HTTP 401; no
+  authentication bypass or CMS neighbor access. Defaults stay fixed API v2/no fallback.
+- Browser: 18 before + 18 after screenshots from the same saved real local CMS
+  responses/assets; all six screens at 800×600, 1280×720, 1600×900, no horizontal
+  overflow. Home first-card Y≈541 at 1280×720 and ≈495 at 800×600.
+- Actual Tauri debug app.port.cms-qa built/launched with fresh isolated storage
+  .local/stage18b/app-data. Live local API, all six screens at all three sizes,
+  enabled CTA, gallery/Escape, maximize/restore, no WEB PREVIEW, solid fallback and
+  reduced-motion About bounds pass. No JS errors; no archive transfer/game started.
+- PASS: TypeScript/frontend build, 54 targeted Playwright tests (API v2, download
+  guards/timing, Stage 14B/15/16/18/18B, titlebar), 9 Rust hub_download regressions.
+  Added regression for project-scoped download status. Formatting/diff checks pass.
+  Earlier failing stale geometry/image-count assertions were updated; actual compact
+  Home and reduced-motion dialog failures were fixed. Vite >500 kB JS warning remains.
+- Report: docs/PORT_STAGE18B_UI_REPAIR.md. Before/after and native screenshots,
+  API verification and geometry: .local/evidence/stage18b/INDEX.md. Native visual
+  acceptance does not repeat real picker/no-clobber/transfer or OS DPI/GPU testing.
+- Rust downloader, schema 4, CMS/API contracts, Stage 15 functions, user/legacy data
+  and pre-existing dirty files preserved. Own changes only in a local commit;
+  no push/deploy/release/installer. QA app/debug listener closed after checks.
+
 ## 2026-10-29 — Stage 18: Premium Launcher UI & Liquid Glass Implementation
 
 - Owner authorized transition of Stage 17A Direction A / Premiere Compact into the
   main React launcher UI, with Apple-inspired Liquid Glass material system.
 - Master styling implemented in `src/hub/stage18-liquid.css`, loaded after Stage 16.
   Optical material principles: multi-layer specular borders (`inset 0 1px 1px
-  rgba(255,255,255,0.42)`, `inset 0 -1px 1px rgba(0,0,0,0.40)`), surface sheen sweep
+rgba(255,255,255,0.42)`, `inset 0 -1px 1px rgba(0,0,0,0.40)`), surface sheen sweep
   (`125deg` reflection gradient), high-chroma saturation boost (`blur(12px)
-  saturate(155%) brightness(103%)`), volumetric depth, and dynamic violet/ice hover.
+saturate(155%) brightness(103%)`), volumetric depth, and dynamic violet/ice hover.
 - Complete fallback architecture: `@supports not (backdrop-filter)` provides solid
   high-contrast tinted panels; `@media (prefers-reduced-motion)` suppresses sweeps.
 - Home screen redesigned: floating glass sidebar (`.port-sidebar`), capsule search

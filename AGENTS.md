@@ -1,5 +1,16 @@
 # PORT// — instructions for future sessions
 
+Stage 18B authorized 2026-10-29: repair the existing Stage 18 composition while
+preserving Gemini Liquid Glass. Sonic uses a suitable validated CMS gallery frame;
+projects without wide artwork use a compact cover row. Wider responsive catalog,
+compact Home, contrast and reduced-motion dialog positioning repaired. See
+docs/PORT_STAGE18B_UI_REPAIR.md and .local/evidence/stage18b/INDEX.md. Native QA uses
+fresh app.port.cms-qa storage under .local/stage18b/app-data and live local API v2;
+production /v2/projects still returns anonymous 401. Stage 18 screenshot metadata
+was synthetic test-only and is now explicitly labelled QA. Keep downloader gates,
+Stage 15 functionality, schema 4 and all user/legacy data. Local commit only;
+no push/deploy/release or automatic next stage.
+
 Stage 18 authorized 2026-10-29: implement Direction A / Premiere Compact and
 Apple-inspired Liquid Glass across desktop launcher React UI. Main styling
 implemented in src/hub/stage18-liquid.css with multi-elevation specular highlights,

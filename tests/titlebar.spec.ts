@@ -18,7 +18,8 @@ test("browser controls are explicit; shell and dialog fit below the title bar", 
     expect(bounds?.y).toBe(40);
     expect(bounds!.y + bounds!.height).toBe(viewport.height);
     const sidebar = await page.locator(".port-sidebar").boundingBox();
-    expect(sidebar!.y + sidebar!.height).toBe(viewport.height);
+    expect(sidebar!.y).toBe(52);
+    expect(sidebar!.y + sidebar!.height).toBe(viewport.height - 12);
     await page.getByRole("button", { name: "О PORT" }).click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();

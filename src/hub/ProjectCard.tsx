@@ -27,6 +27,8 @@ export function ProjectCard({
   const v2Media = useV2Media(project.legacy ? undefined : suppliedMedia);
   const media = project.legacy ? suppliedMedia : v2Media;
   const [failed, setFailed] = useState("");
+  const [failedFrame, setFailedFrame] = useState("");
+  const frame = media.gallery[0];
   const title = projectTitle(project);
   const build = {
     available: t("Windows-сборка"),
@@ -41,8 +43,30 @@ export function ProjectCard({
         onClick={onOpen}
         aria-label={`${t("Подробнее:")} ${title}${project.name && project.name !== title ? ` · ${project.name}` : ""}`}
       >
-        <span className="port-project-image">
-          {media.cover && failed !== media.cover ? (
+        <span
+          className="port-project-image"
+          data-has-frame={!!frame && failedFrame !== frame}
+        >
+          {(!frame || failedFrame === frame) &&
+            media.cover &&
+            failed !== media.cover && (
+              <img
+                className="catalog-cover-backdrop"
+                src={media.cover}
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+            )}
+          {frame && failedFrame !== frame ? (
+            <img
+              src={frame}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              onError={() => setFailedFrame(frame)}
+            />
+          ) : media.cover && failed !== media.cover ? (
             <img
               src={media.cover}
               alt=""
@@ -56,6 +80,19 @@ export function ProjectCard({
               <span>{t("Обложка недоступна")}</span>
             </span>
           )}
+          {frame &&
+            failedFrame !== frame &&
+            media.cover &&
+            failed !== media.cover && (
+              <img
+                className="catalog-inset-cover"
+                src={media.cover}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                onError={() => setFailed(media.cover)}
+              />
+            )}
           <span className="port-project-platform">
             {project.platforms.join(" · ") || t("Платформа не указана")}
           </span>

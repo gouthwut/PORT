@@ -1,4 +1,4 @@
-import { t } from "./i18n";
+import { t, downloadMessage } from "./i18n";
 import { compareVersions, newerDownload } from "./releases";
 import { FavoriteButton } from "./preferences";
 import { useEffect, useState } from "react";
@@ -70,23 +70,36 @@ export function V2Project({
   }, [project.id, attempt]);
   const currentProject = data?.project ?? project;
   const media = useV2Media(currentProject.media);
-  const candidate = media.gallery[0] || "";
   const [wideArt, setWideArt] = useState("");
   useEffect(() => {
-    if (!candidate) return;
     let active = true;
-    const image = new Image();
-    image.onload = () => {
-      const ratio = image.naturalWidth / image.naturalHeight;
-      if (active && image.naturalWidth >= 1440 && ratio >= 1.6 && ratio <= 2.5)
-        setWideArt(candidate);
-    };
-    image.src = candidate;
+    setWideArt("");
+    // CMS frames need enough pixels for the artwork area, not a full 1440px screen.
+    void Promise.all(
+      media.gallery.map(
+        (src) =>
+          new Promise<string>((resolve) => {
+            const image = new Image();
+            image.onload = () => {
+              const ratio = image.naturalWidth / image.naturalHeight;
+              resolve(
+                image.naturalWidth >= 640 && ratio >= 1.5 && ratio <= 2.6
+                  ? src
+                  : "",
+              );
+            };
+            image.onerror = () => resolve("");
+            image.src = src;
+          }),
+      ),
+    ).then((images) => {
+      if (active) setWideArt(images.find(Boolean) ?? "");
+    });
     return () => {
       active = false;
     };
-  }, [candidate]);
-  const panoramic = !!candidate && wideArt === candidate;
+  }, [media.gallery]);
+  const panoramic = !!wideArt && media.gallery.includes(wideArt);
   const [linkError, setLinkError] = useState("");
   const title = currentProject.name || projectTitle(currentProject);
   const windows =
@@ -136,13 +149,22 @@ export function V2Project({
         aria-label={t("О проекте")}
       >
         <GameArt
-          src={panoramic ? candidate : media.cover}
+          src={panoramic ? wideArt : media.cover}
           fallbackLabel={t("Обложка недоступна")}
           label={
-            media.cover ? `${t("Обложка")} ${title}` : t("Обложка недоступна")
+            panoramic
+              ? `${t("Скриншоты")} · ${title}`
+              : media.cover
+                ? `${t("Обложка")} ${title}`
+                : t("Обложка недоступна")
           }
         />
         <div className="project-hero-shade" />
+        {panoramic && media.cover && (
+          <div className="project-hero-cover">
+            <GameArt src={media.cover} label={`${t("Обложка")} ${title}`} />
+          </div>
+        )}
         <div className="project-hero-content">
           <div className="project-badges">
             {currentProject.platforms.map((platform) => (
@@ -248,6 +270,12 @@ export function V2Project({
                           "Выберите папку сохранения. Установка и запуск — вручную.",
                         ))}
                 </p>
+                {downloads.status?.projectId === project.id &&
+                  downloads.status.message && (
+                    <p className="project-download-status" role="status">
+                      {downloadMessage(downloads.status.message)}
+                    </p>
+                  )}
               </>
             ) : (
               <p className="project-unavailable">

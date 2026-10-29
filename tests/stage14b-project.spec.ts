@@ -9,7 +9,7 @@ for (const sonic of [false, true]) {
     await expect(
       page.getByRole("heading", { name, exact: true }),
     ).toBeVisible();
-    await expect(page.locator(".project-hero img")).toBeVisible();
+    await expect(page.locator(".project-hero > img")).toBeVisible();
     await expect(page.locator(".project-facts")).toContainText("QA-команда");
     await expect(page.locator(".project-facts")).toContainText(
       "Windows · Linux",

@@ -17,8 +17,8 @@ for (const [width, height] of [
     });
     const action = await download.boundingBox();
     expect(action!.y + action!.height).toBeLessThanOrEqual(height);
-    // The 1280px fixture is intentionally too small for the wide background.
-    await expect(page.locator(".project-hero-wide")).toHaveCount(0);
+    // Stage 18B accepts suitable 1280px CMS frames for the artwork area.
+    await expect(page.locator(".project-hero-wide")).toHaveCount(1);
     await expect(
       page.locator('.project-section-nav a[href="#project-issues"]'),
     ).toHaveCount(0);
@@ -36,7 +36,7 @@ for (const [width, height] of [
     const card = page.locator(".hub-project-card");
     const rect = await card.boundingBox();
     expect(rect!.y).toBeLessThan(height - 100);
-    expect(rect!.width).toBeLessThanOrEqual(220);
+    expect(rect!.width).toBeLessThanOrEqual(520);
     if (width === 800) {
       const toggle = page.getByRole("button", {
         name: "Фильтры каталога",
@@ -74,7 +74,9 @@ test("Stage 16: sufficiently wide CMS image stays bounded", async ({
   await project14Fixture(page, false, true);
   await expect(page.locator(".project-hero-wide")).toHaveCount(1);
   const image = page.locator(".project-hero > img");
-  expect((await image.boundingBox())!.width).toBeLessThanOrEqual(860);
+  expect((await image.boundingBox())!.width).toBeLessThanOrEqual(
+    (await page.locator(".project-hero").boundingBox())!.width,
+  );
   expect(await image.evaluate((el: HTMLImageElement) => el.naturalWidth)).toBe(
     1600,
   );
@@ -106,7 +108,7 @@ test("Stage 16: large catalog uses dense columns and bounded covers", async ({
   ).toBeGreaterThanOrEqual(4);
   expect(
     (await page.locator(".hub-project-card").first().boundingBox())!.width,
-  ).toBeLessThanOrEqual(220);
+  ).toBeLessThanOrEqual(520);
   await page.getByRole("button", { name: "Далее", exact: true }).click();
   await expect(page.locator(".hub-project-card")).toHaveCount(16);
 });

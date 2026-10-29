@@ -14,8 +14,8 @@
   /* Typography Colors (High Contrast & WCAG AAA compliance) */
   --lg-text: #f5f6fc;
   --lg-text-secondary: #c0c6dc;
-  --lg-muted: #8e97b2;
-  --lg-subtle: #626a84;
+  --lg-muted: #a6aec6;
+  --lg-subtle: #9ba5c0;
 
   /* Luminous Color Accents */
   --lg-violet: #c7b5ff;
@@ -36,18 +36,45 @@
      - Selective backdrop blur + color saturation (vivid artwork underneath)
      ------------------------------------------------------------------------ */
   --lg-glass-fill:
-    radial-gradient(120% 90% at 18% 0%, rgba(220, 235, 255, 0.12) 0%, transparent 60%),
-    linear-gradient(145deg, rgba(26, 32, 52, 0.45) 0%, rgba(12, 16, 28, 0.62) 65%, rgba(20, 25, 42, 0.5) 100%),
+    radial-gradient(
+      120% 90% at 18% 0%,
+      rgba(220, 235, 255, 0.12) 0%,
+      transparent 60%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(26, 32, 52, 0.45) 0%,
+      rgba(12, 16, 28, 0.62) 65%,
+      rgba(20, 25, 42, 0.5) 100%
+    ),
     rgba(14, 18, 30, 0.42);
 
   --lg-glass-fill-raised:
-    radial-gradient(110% 80% at 20% 0%, rgba(225, 238, 255, 0.16) 0%, transparent 65%),
-    linear-gradient(145deg, rgba(30, 38, 62, 0.55) 0%, rgba(15, 20, 36, 0.72) 65%, rgba(25, 32, 54, 0.6) 100%),
+    radial-gradient(
+      110% 80% at 20% 0%,
+      rgba(225, 238, 255, 0.16) 0%,
+      transparent 65%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(30, 38, 62, 0.55) 0%,
+      rgba(15, 20, 36, 0.72) 65%,
+      rgba(25, 32, 54, 0.6) 100%
+    ),
     rgba(17, 22, 38, 0.55);
 
   --lg-glass-fill-dense:
-    radial-gradient(110% 80% at 20% 0%, rgba(225, 238, 255, 0.14) 0%, transparent 65%),
-    linear-gradient(145deg, rgba(24, 30, 48, 0.75) 0%, rgba(12, 16, 28, 0.88) 65%, rgba(20, 25, 42, 0.82) 100%),
+    radial-gradient(
+      110% 80% at 20% 0%,
+      rgba(225, 238, 255, 0.14) 0%,
+      transparent 65%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(24, 30, 48, 0.75) 0%,
+      rgba(12, 16, 28, 0.88) 65%,
+      rgba(20, 25, 42, 0.82) 100%
+    ),
     #101422;
 
   --lg-glass-edge: rgba(215, 232, 255, 0.2);
@@ -103,9 +130,21 @@ body {
 
 .port-shell {
   background:
-    radial-gradient(ellipse 480px 480px at 4% 18%, rgba(135, 105, 245, 0.12), transparent 70%),
-    radial-gradient(ellipse 440px 440px at 94% 12%, rgba(56, 128, 204, 0.1), transparent 70%),
-    radial-gradient(ellipse 520px 480px at 70% 90%, rgba(120, 80, 220, 0.08), transparent 70%),
+    radial-gradient(
+      ellipse 480px 480px at 4% 18%,
+      rgba(135, 105, 245, 0.12),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 440px 440px at 94% 12%,
+      rgba(56, 128, 204, 0.1),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 520px 480px at 70% 90%,
+      rgba(120, 80, 220, 0.08),
+      transparent 70%
+    ),
     linear-gradient(155deg, #10121c 0%, #090a10 65%, #07080d 100%);
   position: relative;
   isolation: isolate;
@@ -181,10 +220,16 @@ body {
   height: 28px;
   border-radius: 9px;
   background:
-    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.4), transparent 60%),
+    radial-gradient(
+      circle at 30% 20%,
+      rgba(255, 255, 255, 0.4),
+      transparent 60%
+    ),
     linear-gradient(135deg, rgba(199, 181, 255, 0.35), rgba(70, 50, 140, 0.5));
   border: 1px solid rgba(220, 210, 255, 0.3);
-  box-shadow: 0 2px 8px rgba(140, 100, 250, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 2px 8px rgba(140, 100, 250, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
   display: grid;
   place-items: center;
   color: var(--lg-violet);
@@ -236,8 +281,16 @@ body {
 
 .port-sidebar .port-nav-link[aria-current="page"] {
   background:
-    radial-gradient(ellipse at 15% 0%, rgba(230, 240, 255, 0.25), transparent 70%),
-    linear-gradient(135deg, rgba(160, 130, 250, 0.28) 0%, rgba(90, 65, 180, 0.2) 100%),
+    radial-gradient(
+      ellipse at 15% 0%,
+      rgba(230, 240, 255, 0.25),
+      transparent 70%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(160, 130, 250, 0.28) 0%,
+      rgba(90, 65, 180, 0.2) 100%
+    ),
     rgba(25, 30, 52, 0.4);
   border-color: var(--lg-glass-edge-active);
   color: #ffffff;
@@ -259,7 +312,9 @@ body {
 .port-sidebar .port-nav-link svg {
   flex-shrink: 0;
   opacity: 0.85;
-  transition: opacity var(--lg-transition), transform var(--lg-transition);
+  transition:
+    opacity var(--lg-transition),
+    transform var(--lg-transition);
 }
 
 .port-sidebar .port-nav-link:hover svg,
@@ -281,7 +336,11 @@ body {
   height: 114px;
   border-radius: 12px;
   background:
-    radial-gradient(circle at 40% 15%, rgba(220, 235, 255, 0.18), transparent 60%),
+    radial-gradient(
+      circle at 40% 15%,
+      rgba(220, 235, 255, 0.18),
+      transparent 60%
+    ),
     linear-gradient(145deg, rgba(35, 30, 55, 0.4), rgba(16, 18, 30, 0.65)),
     rgba(18, 22, 38, 0.5);
   border: 1px solid rgba(200, 190, 255, 0.18);
@@ -289,7 +348,7 @@ body {
     0 10px 24px -6px rgba(0, 0, 0, 0.5),
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.35),
     inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-  display: flex;
+  display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -298,13 +357,17 @@ body {
   position: relative;
   overflow: hidden;
   transform: rotate(-3deg);
-  transition: transform var(--lg-transition), border-color var(--lg-transition);
+  transition:
+    transform var(--lg-transition),
+    border-color var(--lg-transition);
 }
 
 .port-sidebar .port-cartridge:hover {
   transform: rotate(0deg) translateY(-2px);
   border-color: rgba(220, 210, 255, 0.35);
-  box-shadow: 0 14px 30px -6px rgba(140, 100, 240, 0.25), inset 0 1px 1px 0 rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 14px 30px -6px rgba(140, 100, 240, 0.25),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 .port-sidebar .port-cartridge b {
@@ -352,9 +415,9 @@ body {
 }
 
 .port-shell .topbar {
-  height: 64px;
-  min-height: 64px;
-  padding: 12px 28px;
+  height: 56px;
+  min-height: 56px;
+  padding: 8px 28px;
   background: transparent;
   display: flex;
   align-items: center;
@@ -363,7 +426,7 @@ body {
 }
 
 .port-home-active .topbar {
-  margin-bottom: -64px;
+  margin-bottom: 0;
   z-index: 5;
 }
 
@@ -479,6 +542,10 @@ body {
   max-width: 100%;
 }
 
+.port-shell.port-home-active main {
+  padding: 12px 28px 36px;
+}
+
 .port-home {
   max-width: 1440px;
   min-width: 0;
@@ -488,7 +555,7 @@ body {
 /* Hero Section: Panoramic Artwork with Liquid Glass Content Plate */
 .port-shell .port-hero {
   position: relative;
-  min-height: 320px;
+  min-height: 280px;
   border-radius: 20px;
   overflow: hidden;
   border: 1px solid rgba(215, 230, 255, 0.16);
@@ -499,7 +566,7 @@ body {
   align-items: center;
   padding: 0;
   isolation: isolate;
-  margin-bottom: 22px;
+  margin-bottom: 16px;
 }
 
 .port-hero-art {
@@ -517,7 +584,13 @@ body {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(8, 10, 18, 0.88) 0%, rgba(9, 12, 22, 0.6) 42%, rgba(10, 14, 26, 0.12) 75%, transparent 100%),
+    linear-gradient(
+      90deg,
+      rgba(8, 10, 18, 0.88) 0%,
+      rgba(9, 12, 22, 0.6) 42%,
+      rgba(10, 14, 26, 0.12) 75%,
+      transparent 100%
+    ),
     linear-gradient(0deg, rgba(8, 10, 18, 0.7) 0%, transparent 50%);
   z-index: -1;
   pointer-events: none;
@@ -525,8 +598,8 @@ body {
 
 /* The Hero Content Glass Plate */
 .port-hero-copy {
-  margin: 54px 24px 22px;
-  padding: 22px 28px;
+  margin: 24px;
+  padding: 20px 24px;
   max-width: 440px;
   border-radius: var(--lg-radius-card);
   background: var(--lg-glass-fill);
@@ -617,7 +690,11 @@ body {
   font-weight: 700;
   color: #1a1232;
   background:
-    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(255, 255, 255, 0.9), transparent 70%),
+    radial-gradient(
+      ellipse 70% 50% at 50% 0%,
+      rgba(255, 255, 255, 0.9),
+      transparent 70%
+    ),
     linear-gradient(135deg, #ddd4ff 0%, #bba7fa 55%, #c8e2ff 100%);
   border: 1px solid rgba(255, 255, 255, 0.7);
   box-shadow:
@@ -671,7 +748,7 @@ body {
 .port-platforms {
   display: flex;
   gap: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   padding-bottom: 4px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -709,8 +786,16 @@ body {
 
 .port-platforms button[aria-pressed="true"] {
   background:
-    radial-gradient(ellipse at 25% 0%, rgba(220, 240, 255, 0.3), transparent 70%),
-    linear-gradient(135deg, rgba(160, 130, 250, 0.35) 0%, rgba(85, 60, 175, 0.25) 100%),
+    radial-gradient(
+      ellipse at 25% 0%,
+      rgba(220, 240, 255, 0.3),
+      transparent 70%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(160, 130, 250, 0.35) 0%,
+      rgba(85, 60, 175, 0.25) 100%
+    ),
     rgba(24, 28, 48, 0.6);
   border-color: var(--lg-glass-edge-active);
   color: #ffffff;
@@ -794,7 +879,10 @@ body {
   text-align: left;
   padding: 0;
   cursor: pointer;
-  transition: transform var(--lg-transition), border-color var(--lg-transition), box-shadow var(--lg-transition);
+  transition:
+    transform var(--lg-transition),
+    border-color var(--lg-transition),
+    box-shadow var(--lg-transition);
 }
 
 .port-project-grid .port-project:hover {
@@ -828,7 +916,12 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(0deg, rgba(14, 18, 30, 0.85) 0%, rgba(14, 18, 30, 0.2) 60%, transparent 100%);
+  background: linear-gradient(
+    0deg,
+    rgba(14, 18, 30, 0.85) 0%,
+    rgba(14, 18, 30, 0.2) 60%,
+    transparent 100%
+  );
   pointer-events: none;
 }
 
@@ -865,7 +958,9 @@ body {
   color: var(--lg-text);
   background: var(--lg-glass-fill-dense);
   border: 1px solid rgba(255, 255, 255, 0.22);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
   backdrop-filter: var(--lg-glass-blur-card);
 }
 
@@ -903,8 +998,16 @@ body {
   border-top: 1px solid rgba(220, 235, 255, 0.25);
   border-radius: 14px 14px 0 0;
   background:
-    radial-gradient(ellipse 90% 60% at 20% 0%, rgba(220, 235, 255, 0.14), transparent 60%),
-    linear-gradient(135deg, rgba(22, 28, 48, 0.72) 0%, rgba(12, 16, 28, 0.88) 100%),
+    radial-gradient(
+      ellipse 90% 60% at 20% 0%,
+      rgba(220, 235, 255, 0.14),
+      transparent 60%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(22, 28, 48, 0.72) 0%,
+      rgba(12, 16, 28, 0.88) 100%
+    ),
     rgba(14, 18, 32, 0.65);
   backdrop-filter: var(--lg-glass-blur-card);
   box-shadow:
@@ -1090,7 +1193,11 @@ body {
   padding: 22px 28px;
   border-radius: var(--lg-radius-card);
   background:
-    radial-gradient(circle at 10% 50%, rgba(199, 181, 255, 0.15), transparent 50%),
+    radial-gradient(
+      circle at 10% 50%,
+      rgba(199, 181, 255, 0.15),
+      transparent 50%
+    ),
     var(--lg-glass-fill);
   border: 1px solid var(--lg-glass-edge);
   box-shadow: var(--lg-glass-shadow);
@@ -1114,10 +1221,16 @@ body {
   height: 48px;
   border-radius: 14px;
   background:
-    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.35), transparent 60%),
+    radial-gradient(
+      circle at 30% 20%,
+      rgba(255, 255, 255, 0.35),
+      transparent 60%
+    ),
     linear-gradient(135deg, rgba(199, 181, 255, 0.4), rgba(80, 55, 160, 0.6));
   border: 1px solid rgba(220, 210, 255, 0.35);
-  box-shadow: 0 4px 14px rgba(140, 100, 240, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 4px 14px rgba(140, 100, 240, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
   display: grid;
   place-items: center;
   color: #ffffff;
@@ -1185,7 +1298,7 @@ body {
 .hub-catalog-layout {
   display: grid;
   grid-template-columns: 210px minmax(0, 1fr);
-  gap: 24px;
+  gap: 20px;
   align-items: start;
 }
 
@@ -1207,7 +1320,7 @@ body {
 
 .hub-filter-heading button {
   min-height: 34px;
-  padding: 6px 14px;
+  padding: 6px 10px;
   border-radius: var(--lg-radius-pill);
   font-size: 11.5px;
   font-weight: 600;
@@ -1352,12 +1465,18 @@ body {
 /* Catalog Grid & Dense Gaming Cards */
 .hub-catalog .hub-catalog-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 220px));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 18px;
+}
+
+.hub-catalog-grid:has(> .project-card-wrapper:nth-child(2):last-child) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 1040px;
 }
 
 .project-card-wrapper {
   position: relative;
+  min-width: 0;
 }
 
 .project-card-wrapper > .favorite-button {
@@ -1404,8 +1523,13 @@ body {
   text-align: left;
   padding: 0;
   width: 100%;
+  height: 100%;
+  max-width: 520px;
   cursor: pointer;
-  transition: transform var(--lg-transition), border-color var(--lg-transition), box-shadow var(--lg-transition);
+  transition:
+    transform var(--lg-transition),
+    border-color var(--lg-transition),
+    box-shadow var(--lg-transition);
 }
 
 .hub-catalog .hub-project-card:hover {
@@ -1416,7 +1540,9 @@ body {
 
 .hub-catalog .hub-project-card .port-project-image {
   position: relative;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  max-height: 260px;
   overflow: hidden;
   background: #0f1320;
 }
@@ -1428,6 +1554,36 @@ body {
   transition: transform 380ms var(--lg-ease);
 }
 
+.hub-catalog .hub-project-card .port-project-image .catalog-inset-cover {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  width: 25%;
+  height: 72%;
+  object-fit: contain;
+  border-radius: 6px;
+  filter: drop-shadow(0 8px 12px #000a);
+  z-index: 1;
+}
+
+.hub-catalog
+  .port-project-image[data-has-frame="false"]
+  > img:not(.catalog-cover-backdrop) {
+  position: relative;
+  object-fit: contain;
+  padding: 14px;
+  z-index: 1;
+  filter: drop-shadow(0 8px 12px #000a);
+}
+
+.hub-catalog .hub-project-card .port-project-image .catalog-cover-backdrop {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  filter: blur(14px);
+  object-fit: cover;
+}
+
 .hub-catalog .hub-project-card:hover .port-project-image img {
   transform: scale(1.04);
 }
@@ -1436,7 +1592,12 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(0deg, rgba(14, 18, 30, 0.85) 0%, rgba(14, 18, 30, 0.1) 60%, transparent 100%);
+  background: linear-gradient(
+    0deg,
+    rgba(14, 18, 30, 0.85) 0%,
+    rgba(14, 18, 30, 0.1) 60%,
+    transparent 100%
+  );
   pointer-events: none;
 }
 
@@ -1531,7 +1692,7 @@ body {
 /* Cinema Hero Container */
 .hub-project-page .project-hero {
   position: relative;
-  min-height: 360px;
+  min-height: 300px;
   border-radius: var(--lg-radius-panel);
   overflow: hidden;
   border: 1px solid rgba(215, 230, 255, 0.2);
@@ -1541,31 +1702,42 @@ body {
   display: flex;
   align-items: center;
   background:
-    radial-gradient(ellipse at 80% 20%, rgba(95, 75, 180, 0.25), transparent 60%),
+    radial-gradient(
+      ellipse at 80% 20%,
+      rgba(95, 75, 180, 0.25),
+      transparent 60%
+    ),
     #0c101c;
   isolation: isolate;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
 .project-hero > .game-art {
   position: absolute;
-  right: 28px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: auto;
-  max-width: 320px;
-  max-height: 300px;
+  inset: 24px 24px 24px auto;
+  transform: none;
+  width: 24%;
+  height: calc(100% - 48px);
+  max-width: 220px;
+  max-height: none;
+  padding: 0;
   object-fit: contain;
   border-radius: 12px;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.75);
-  z-index: 1;
+  z-index: -2;
 }
 
 .project-hero-shade {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(9, 12, 22, 0.94) 0%, rgba(10, 14, 26, 0.78) 50%, rgba(12, 16, 30, 0.2) 80%, transparent 100%),
+    linear-gradient(
+      90deg,
+      rgba(9, 12, 22, 0.94) 0%,
+      rgba(10, 14, 26, 0.78) 50%,
+      rgba(12, 16, 30, 0.2) 80%,
+      transparent 100%
+    ),
     linear-gradient(0deg, rgba(9, 12, 22, 0.8) 0%, transparent 50%);
   z-index: 0;
   pointer-events: none;
@@ -1574,9 +1746,9 @@ body {
 /* Wide Panoramic CMS Frame */
 .project-hero-wide > .game-art {
   position: absolute;
-  inset: 0 0 0 auto;
-  width: 65%;
-  max-width: 860px;
+  inset: 0;
+  width: 100%;
+  max-width: none;
   height: 100%;
   max-height: none;
   border-radius: 0;
@@ -1588,17 +1760,74 @@ body {
 
 .project-hero-wide .project-hero-shade {
   background:
-    linear-gradient(90deg, rgba(8, 10, 18, 0.96) 0%, rgba(9, 12, 22, 0.82) 45%, rgba(10, 14, 26, 0.25) 82%, transparent 100%),
+    linear-gradient(
+      90deg,
+      rgba(8, 10, 18, 0.96) 0%,
+      rgba(9, 12, 22, 0.86) 38%,
+      rgba(10, 14, 26, 0.15) 78%,
+      transparent 100%
+    ),
     linear-gradient(0deg, rgba(8, 10, 18, 0.85) 0%, transparent 60%);
 }
 
 /* Hero Control Plate */
 .project-hero-content {
-  padding: 32px 36px;
-  width: 66%;
-  max-width: 680px;
+  padding: 26px 30px;
+  width: 76%;
+  max-width: 760px;
   position: relative;
   z-index: 2;
+}
+
+.project-hero-wide .project-hero-content {
+  width: 70%;
+}
+
+.project-hero-cover {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  width: clamp(80px, 10vw, 140px);
+  height: 156px;
+  padding: 6px;
+  border: 1px solid var(--lg-glass-edge-bright);
+  border-radius: 10px;
+  background: var(--lg-glass-fill);
+  box-shadow: var(--lg-glass-shadow);
+  backdrop-filter: var(--lg-glass-blur-card);
+}
+
+.project-hero-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 5px;
+}
+
+/* Without a wide CMS frame, let the content and cover determine a compact row. */
+.hub-project-page .project-hero:not(.project-hero-wide) {
+  min-height: 0;
+  padding: 22px 26px;
+  gap: 28px;
+}
+
+.project-hero:not(.project-hero-wide) > .game-art {
+  position: static;
+  order: 2;
+  flex: 0 0 160px;
+  width: 160px;
+  height: 230px;
+  opacity: 1;
+  padding: 0;
+  z-index: 1;
+}
+
+.project-hero:not(.project-hero-wide) .project-hero-content {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  max-width: none;
+  padding: 0;
 }
 
 .project-badges {
@@ -1613,7 +1842,9 @@ body {
   border-radius: var(--lg-radius-pill);
   background: var(--lg-glass-fill-dense);
   border: 1px solid rgba(220, 210, 255, 0.25);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
   backdrop-filter: var(--lg-glass-blur-card);
   color: var(--lg-violet-light);
   font-size: 10.5px;
@@ -1630,7 +1861,7 @@ body {
 .hub-project-page h1 {
   font-family: var(--font-display, "Manrope", sans-serif);
   font-weight: 800;
-  font-size: clamp(30px, 3.2vw, 44px);
+  font-size: clamp(28px, 2.8vw, 40px);
   line-height: 1.12;
   letter-spacing: -0.04em;
   color: #ffffff;
@@ -1673,14 +1904,14 @@ body {
   font-size: 13px;
   line-height: 1.6;
   color: var(--lg-text-secondary);
-  margin-bottom: 20px;
+  margin-bottom: 14px;
   max-width: 580px;
 }
 
 .project-download {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .project-download h2 {
@@ -1700,20 +1931,19 @@ body {
 
 /* Luminous Amber/Violet Liquid Glass Download Button */
 .hub-project-page .project-download-button {
-  min-height: 44px;
+  min-height: 48px;
   padding: 12px 24px;
   border-radius: var(--lg-radius-control);
   font-size: 13.5px;
   font-weight: 700;
-  color: #211504;
+  color: #ffffff;
   background:
-    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(255, 255, 255, 0.95), transparent 70%),
-    linear-gradient(135deg, #fde68a 0%, #f59e0b 60%, #fbbf24 100%);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+    radial-gradient(ellipse at 50% 0%, #ffffff24, transparent 65%),
+    linear-gradient(135deg, #8050ce, #6132b0);
+  border: 1px solid #d2b6ff99;
   box-shadow:
-    0 10px 28px -4px rgba(245, 158, 11, 0.45),
-    inset 0 1px 1px 0 #ffffff,
-    inset 0 -2px 3px 0 rgba(140, 70, 0, 0.4);
+    0 8px 24px -4px var(--lg-violet-glow),
+    inset 0 1px 1px #ffffff66;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -1724,9 +1954,8 @@ body {
 .hub-project-page .project-download-button:hover:not(:disabled) {
   transform: translateY(-1.5px);
   box-shadow:
-    0 14px 34px -4px rgba(245, 158, 11, 0.6),
-    inset 0 1px 2px 0 #ffffff,
-    inset 0 -2px 3px 0 rgba(140, 70, 0, 0.35);
+    0 12px 32px -4px var(--lg-violet-glow),
+    inset 0 1px 2px #ffffff99;
 }
 
 .hub-project-page .project-download-button:disabled {
@@ -1755,9 +1984,15 @@ body {
   color: var(--lg-subtle);
 }
 
+.project-download-status {
+  margin: 0;
+  color: var(--lg-text-secondary);
+  font-size: 12px;
+}
+
 /* Screenshot Gallery */
 .project-gallery {
-  margin: 28px 0;
+  margin: 18px 0;
 }
 
 .project-gallery h2 {
@@ -1999,7 +2234,9 @@ body {
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.5);
   backdrop-filter: var(--lg-glass-blur);
   z-index: 99;
-  transition: opacity var(--lg-transition), transform var(--lg-transition);
+  transition:
+    opacity var(--lg-transition),
+    transform var(--lg-transition);
 }
 
 .port-download-panel.is-closing {
@@ -2108,6 +2345,7 @@ dialog {
   .hub-catalog .hub-catalog-tools,
   .hub-catalog .hub-project-card,
   .hub-project-page .project-hero,
+  .project-hero-cover,
   .project-facts,
   .project-section,
   .download-history-row,
@@ -2117,20 +2355,22 @@ dialog {
   }
 }
 
-.no-backdrop :is(
-  .port-sidebar,
-  .search-box,
-  .port-hero-copy,
-  .port-platforms button,
-  .port-project,
-  .hub-catalog-tools,
-  .hub-project-card,
-  .project-hero,
-  .project-facts,
-  .project-section,
-  .download-history-row,
-  .settings-section
-) {
+.no-backdrop
+  :is(
+    .port-sidebar,
+    .search-box,
+    .port-hero-copy,
+    .port-platforms button,
+    .port-project,
+    .hub-catalog-tools,
+    .hub-project-card,
+    .project-hero,
+    .project-hero-cover,
+    .project-facts,
+    .project-section,
+    .download-history-row,
+    .settings-section
+  ) {
   backdrop-filter: none !important;
   background-color: #141828 !important;
 }
@@ -2142,7 +2382,6 @@ dialog {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
-    transform: none !important;
     scroll-behavior: auto !important;
   }
   .port-project-image img,
@@ -2160,6 +2399,9 @@ dialog {
 }
 
 @media (max-width: 900px) {
+  .port-shell.port-home-active main {
+    padding-inline: 20px;
+  }
   .port-shell .port-sidebar {
     width: 60px;
     flex-basis: 60px;
@@ -2191,11 +2433,97 @@ dialog {
   .port-discovery {
     grid-template-columns: 1fr;
   }
-  .project-hero-content {
-    width: 100%;
-    padding: 24px;
+}
+
+/* Stage 18B: preserve artwork on compact windows; only the extra cover yields. */
+@media (max-width: 1050px) {
+  .hub-catalog .hub-catalog-tools {
+    padding: 10px 12px;
   }
-  .project-hero > .game-art {
+}
+
+@media (max-width: 900px) {
+  .project-hero-wide .project-hero-content {
+    width: 100%;
+    max-width: 600px;
+    padding: 22px;
+  }
+  .project-hero-wide > .game-art {
+    display: block;
+    opacity: 1;
+    padding: 0;
+    width: 100%;
+  }
+  .project-hero-cover {
     display: none;
+  }
+  .project-hero-wide .project-hero-shade {
+    background: linear-gradient(90deg, #080a12ed 15%, #090c16d9 55%, #090c1660);
+  }
+}
+
+@media (max-height: 750px) {
+  .port-shell .port-hero {
+    min-height: 250px;
+    padding: 0;
+  }
+  .port-hero-copy {
+    margin: 16px;
+    padding: 16px 20px;
+  }
+  .port-hero h1 {
+    font-size: 28px;
+  }
+  .port-hero .port-intro {
+    margin-bottom: 12px;
+  }
+  .port-hero .port-kicker {
+    margin-bottom: 6px;
+  }
+  .hub-project-page .project-hero {
+    min-height: 300px;
+  }
+  .project-hero-content {
+    padding: 22px 26px;
+  }
+}
+
+@media (max-height: 650px) {
+  .port-hero .port-kicker {
+    display: none;
+  }
+  .port-hero h1 {
+    font-size: 26px;
+  }
+  .port-shell .port-hero {
+    min-height: 230px;
+  }
+  .port-hero-copy {
+    margin: 12px;
+    padding: 14px 18px;
+  }
+}
+
+@media (max-width: 600px) {
+  .hub-catalog .hub-catalog-grid,
+  .hub-catalog-grid:has(> .project-card-wrapper:nth-child(2):last-child) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hub-project-page .project-hero-content {
+    width: 100%;
+    padding: 18px;
+  }
+  .project-hero:not(.project-hero-wide) > .game-art {
+    display: none;
+  }
+  .hub-project-page h1 {
+    font-size: 28px;
+  }
+  .project-download-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .project-release-meta {
+    min-width: 0;
   }
 }

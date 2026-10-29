@@ -449,13 +449,14 @@ test("v2 media loads verified CMS covers/screenshots and reuses the memory cache
   await page.reload();
   await page.getByRole("button", { name: "Каталог", exact: true }).click();
   const card = page.locator(".hub-project-card");
-  await expect(card.locator("img")).toHaveAttribute(
-    "src",
-    /^data:image\/webp;base64,/,
-  );
+  await expect(
+    card.locator("img:not(.catalog-cover-backdrop)"),
+  ).toHaveAttribute("src", /^data:image\/webp;base64,/);
   await expect
     .poll(() =>
-      card.locator("img").evaluate((img: HTMLImageElement) => img.naturalWidth),
+      card
+        .locator("img:not(.catalog-cover-backdrop)")
+        .evaluate((img: HTMLImageElement) => img.naturalWidth),
     )
     .toBe(16);
   await card.click();
@@ -472,7 +473,7 @@ test("v2 media loads verified CMS covers/screenshots and reuses the memory cache
   );
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Назад в каталог" }).click();
-  await expect(card.locator("img")).toBeVisible();
+  await expect(card.locator("img:not(.catalog-cover-backdrop)")).toBeVisible();
   expect(downloads).toBe(1);
 });
 

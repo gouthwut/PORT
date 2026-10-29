@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 
+// Synthetic responses for UI tests only. Never imported by src/ or used as live CMS evidence.
 export const origin = "https://port-catalog-cms.port-catalog-cms.workers.dev";
 
 function loadAsset(name: string): Buffer {
@@ -49,7 +50,7 @@ export async function stage18Fixture(page: Page) {
     summary:
       "Неофициальная ПК-рекомпиляция Sonic Unleashed, основанная на версии для Xbox 360. Для запуска требуются собственные игровые файлы.",
     description:
-      "Sonic Unleashed Recompiled — это проект статической рекомпиляции культового платформера с открытыми исходниками для современных ПК. Поддержка 60 FPS, ультра-широких мониторов и нативного разрешения.",
+      "Синтетическая QA-фикстура Sonic для проверки композиции. Версии, размеры и требования ниже — тестовые данные.",
     gameIds: ["sonic-unleashed"],
     kind: "recompilation",
     lifecycle: "active",
@@ -69,22 +70,6 @@ export async function stage18Fixture(page: Page) {
         urlFor("sonic-s3"),
       ],
     },
-    requirements: {
-      minimum: {
-        os: "Windows 10 / 11 64-bit",
-        processor: "Intel Core i5-4460 / AMD FX-6300",
-        memory: "8 ГБ ОЗУ",
-        graphics: "DirectX 12 / Vulkan совместимая видеокарта",
-      },
-    },
-    install: {
-      steps: [
-        "Скачайте официальный релиз UnleashedRecomp для Windows.",
-        "Распакуйте архив в отдельную папку.",
-        "Предоставьте файл default.xex и игровые данные Title Update 3 из вашей легальной копии игры для Xbox 360.",
-        "Запустите SonicUnleashed.exe.",
-      ],
-    },
   };
 
   const zeldaProject = {
@@ -93,7 +78,7 @@ export async function stage18Fixture(page: Page) {
     summary:
       "Static recompilation of Majora's Mask (and soon Ocarina of Time) for PC (Windows/Linux/Mac)",
     description:
-      "Zelda 64 Recompiled переносит легендарные приключения Линка в Эру Термина на ПК с нативной поддержкой современных GPU, высокой частоты кадров, гироскопического прицеливания и модов.",
+      "Синтетическая QA-фикстура Zelda для проверки композиции. Версии, размеры и требования ниже — тестовые данные.",
     gameIds: ["zelda-majoras-mask"],
     kind: "recompilation",
     lifecycle: "active",
@@ -113,22 +98,6 @@ export async function stage18Fixture(page: Page) {
         urlFor("zelda-s3"),
       ],
     },
-    requirements: {
-      minimum: {
-        os: "Windows 10 / 11 64-bit",
-        processor: "Любой современный 64-битный процессор",
-        memory: "4 ГБ ОЗУ",
-        graphics: "OpenGL 3.3 / Vulkan",
-      },
-    },
-    install: {
-      steps: [
-        "Скачайте официальный архив Zelda64Recomp.",
-        "Распакуйте в удобное место.",
-        "Подготовьте собственный ROM The Legend of Zelda: Majora's Mask (US 1.0).",
-        "Запустите Zelda64Recomp.exe.",
-      ],
-    },
   };
 
   const games = [
@@ -139,27 +108,27 @@ export async function stage18Fixture(page: Page) {
   const sonicBuild = {
     id: "build-sonic-1",
     projectId: sonicProject.id,
-    version: "v1.1.0-release",
+    version: "1.0.0-SONIC-QA",
     os: "windows",
     arch: "x64",
     channel: "stable",
     availability: "available",
     size: 45892010,
     url: "https://github.com/hedge-dev/UnleashedRecomp/releases/download/v1.1.0/UnleashedRecomp-Windows.zip",
-    changelog: "Официальный стабильный релиз UnleashedRecomp для Windows.",
+    changelog: "QA · тестовый changelog Sonic.",
   };
 
   const zeldaBuild = {
     id: "build-zelda-1",
     projectId: zeldaProject.id,
-    version: "v1.2.0-stable",
+    version: "1.0.0-ZELDA-QA",
     os: "windows",
     arch: "x64",
     channel: "stable",
     availability: "available",
     size: 24501230,
     url: "https://github.com/Zelda64Recomp/Zelda64Recomp/releases/download/v1.2.0/Zelda64Recomp-Win.zip",
-    changelog: "Обновление Majora's Mask с улучшенной производительностью.",
+    changelog: "QA · тестовый changelog Zelda.",
   };
 
   await page.route(`${origin}/**`, (route) => {
@@ -226,6 +195,13 @@ export async function stage18Fixture(page: Page) {
   });
 
   await page.goto("http://127.0.0.1:1420/");
+  await page.evaluate(() => {
+    const badge = document.createElement("div");
+    badge.textContent = "QA FIXTURE · SYNTHETIC METADATA";
+    badge.style.cssText =
+      "position:fixed;bottom:4px;right:4px;z-index:10000;background:#141828;color:white;padding:4px 8px;font-size:11px;pointer-events:none";
+    document.body.append(badge);
+  });
   return {
     sonicProject,
     zeldaProject,
