@@ -1,5 +1,42 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 17A: design toolchain and three local concepts
+
+- Authorized separate design exploration from Stage 16 (4282407); existing dirty
+  native/legacy/tests and owner untracked files preserved. Main React/Tauri UI,
+  Rust downloader, CMS/API, storage and user data unchanged.
+- Project-local UI UX Pro Max (CLI 2.15.0), Frontend Design and Vercel Web Design
+  Guidelines installed, SKILL.md read and applied. Existing Node 24.22.0, Python
+  3.12.10, Codex 0.164.0 and Playwright 1.64.1 reused. New skills manually loaded
+  now; automatic discovery requires next turn/restart. No global MCP changes.
+- Project Playwright MCP 0.0.83 actually initialized/listed 25 tools and performed
+  browser navigate/resize/screenshot/close through stdio. Reused installed Chromium
+  1248 via executable-path after MCP expected missing 1247. Config is local and
+  machine-specific. No claim that chat tool registry hot-reloaded.
+- Figma plugin tools present; whoami returned reauthentication required. No
+  confirmed plan/read/write/create access and no Figma frames. No duplicate remote
+  MCP or paid services; used the expressly allowed HTML/CSS fallback.
+- Nine primary layouts: A Premiere (cinematic/wide cards), B Archive (covers and
+  editorial feature), C Focus (compact rail/split views), each Home/catalog/Sonic.
+  Zelda pages also available and captured. Real saved Stage 16 CMS media SHA-256
+  validated; original PORT hero reused. No fake games/ratings/users/compatibility.
+- Evidence/prototypes: .local/design-exploration/17a/. review.html opens the nine
+  layouts; overview-{1280,800}.jpg, screenshots, states.html, DESIGN-SYSTEM.md,
+  REPORT.md and machine-readable checks preserved. docs/PORT_STAGE17A_DESIGN.md
+  records setup, links, scope, replay provenance and limits.
+- PASS: 18 primary viewport + 18 full-page captures at 1280x720/800x600, no overflow
+  or broken images, h1/primary actions visible; 9 extra 480px layouts; three Zelda,
+  keyboard-focus, review and states screenshots. Filter/URL/reload, search/empty/
+  reset, sort, navigation, favorite state, disabled download, gallery/Escape/focus
+  return and skip-link pass on all three concepts; zero page errors. Token contrast
+  > =6.60:1; not full WCAG/pixel/OS-DPI acceptance. Visual pass adjusted A Home density
+  > and C narrow action grouping. Historical native Stage 16 screenshots reviewed;
+  > no new native build/test, real archive download or game operation.
+- Skill installs/config and all artwork remain local; one documentation-only local
+  commit, no vendoring/private artwork commit, push/release/deploy or installer.
+  Final direction is deliberately unselected. Stop here for owner A/B/C choice;
+  no automatic application implementation or next stage.
+
 ## 2026-10-29 — Stage 16: original-reference visual parity
 
 - Authorized local UI overhaul from 727bf88. Original board/Home/Catalog/Project

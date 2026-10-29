@@ -1,5 +1,15 @@
 # PORT// — instructions for future sessions
 
+Stage 17A authorized 2026-10-29: project-local design toolchain setup and three
+standalone UI concepts (Home/catalog/project), no main React/Tauri changes.
+See docs/PORT_STAGE17A_DESIGN.md and .local/design-exploration/17a/REPORT.md.
+Nine primary layouts and browser evidence are local/ignored; owner must choose
+the final direction. Figma tools exist but whoami requires reauthentication;
+no Figma creation/edit access or Starter capability was verified. Project-local
+skills installed and read; Playwright MCP actually verified via stdio and existing
+Chromium. Preserve all dirty work, CMS/API/native guards/user data. No automatic
+implementation/next stage, push, deploy, release or paid services.
+
 Stage 16 authorized 2026-10-29: local visual parity with the original approved
 PORT design pack across Home, catalog, project, sidebar, Downloads and Settings.
 This supersedes earlier screen-styling restrictions only within that visual scope.
