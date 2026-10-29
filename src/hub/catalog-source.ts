@@ -52,7 +52,7 @@ export function useProjectCatalog(): ProjectCatalogState {
   const config = useMemo(() => {
     try {
       const value = parseSourceConfig(
-        import.meta.env.VITE_HUB_SOURCE_JSON
+        import.meta.env.DEV && import.meta.env.VITE_HUB_SOURCE_JSON
           ? JSON.parse(import.meta.env.VITE_HUB_SOURCE_JSON)
           : sourceConfig,
       );

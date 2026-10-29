@@ -1,5 +1,16 @@
 # PORT// — instructions for future sessions
 
+Stage 19A authorized 2026-10-29: local Windows NSIS installer and public-beta
+readiness acceptance. Build with scripts/build-windows-beta.ps1: fixed production
+v2, reviewed frontend allowlist, no optional local PKG worker, unsigned/unconfigured
+updater, standard WebView2 bootstrapper. Candidate is local/undistributed; see
+docs/PORT_STAGE19A_WINDOWS_BETA.md and .local/evidence/stage19a/INDEX.md. Actual QA
+install/upgrade/uninstall uses PORT Stage19A QA/app.port.stage19a-qa, separate
+.local/stage19a data. Production anonymous v2 is still 401; positive ZIP/picker/
+Explorer E2E, complete third-party notices, CMS media rights, signing/channel and
+clean-machine checks remain gates. User/legacy data and prior dirty work retained.
+Local commit only; no publication/push, CMS neighbor changes or automatic next stage.
+
 Stage 18E authorized 2026-10-29: uniform large Home/catalog cards for every media
 state. Optional validated v2 detail media.banner has priority over hero/gallery;
 dedicated banners use centered cover on cards, Home carousel and project heroes.

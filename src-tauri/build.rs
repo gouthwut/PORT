@@ -10,9 +10,11 @@ fn main() {
     .expect("copy compiled public updater channel");
     use sha2::{Digest, Sha256};
     println!("cargo:rustc-check-cfg=cfg(port_pkg_worker)");
+    println!("cargo:rerun-if-env-changed=PORT_BETA_BUILD");
     let worker = std::path::Path::new("../.local/pkg-worker/port-pkg-worker.exe");
     println!("cargo:rerun-if-changed={}", worker.display());
-    if worker.exists() {
+    // Distribution candidates omit the optional local LGPL worker and private inputs.
+    if worker.exists() && std::env::var("PORT_BETA_BUILD").as_deref() != Ok("1") {
         let bytes = std::fs::read(worker).expect("read locally built PKG worker");
         assert!(bytes.len() < 128 * 1024 * 1024 && bytes.starts_with(b"MZ"));
         let hash = format!("{:x}", Sha256::digest(&bytes));

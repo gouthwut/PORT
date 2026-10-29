@@ -1,5 +1,50 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 19A: local Windows installer and beta readiness
+
+- Built standard Tauri NSIS `PORT_0.1.0_x64-setup.exe`, 5,909,392 bytes / 5.64 MiB,
+  copied to `.local/stage19a/`. PORT/app.port.launcher, original icons, current-user
+  install and standard WebView2 downloadBootstrapper. Explicitly unsigned; updater
+  stays unconfigured. No public distribution, signing key, push or CMS changes.
+- Added a guarded local builder and frontend allowlist/hash audit. Excluded the
+  optional local LGPL PKG worker via build flag, retaining personal-build behavior
+  and all local files. Active Stage 18E graph already excludes private Bloodborne
+  art. Release now ignores the dev-only API override. NSIS independently listed/
+  extracted: app, four license/notices files, standard installer helpers only.
+- Actual isolated release install 0.1.0 → 0.1.1 → uninstall passes; Windows registry
+  name/version/icon/path correct. Embedded tauri.localhost frontend, no dev server
+  runtime dependency. Settings/language/reduced motion/favorites and genuine failed
+  download history survive upgrade. Reinstall/uninstall preserves DB/WAL/SHM hashes;
+  QA executable/registry removed. Existing owner AppData hashes and both game
+  registration rows unchanged, schema 4/integrity ok; no game/save operation.
+- Actual installed WebView2: 24 screenshots at 800×600, 1280×720 and 1600×900,
+  Home/carousel/catalog/Sonic/Zelda/gallery/Downloads/Settings, autoplay, four
+  languages, reduced motion and solid fallback; no page exceptions/overflow.
+  Populated visuals replay saved real Stage 18B CMS data; separate banner scenario
+  uses a QA-only optional field. They do not certify production/live API or media.
+- PASS: npm ci (zero reported vulnerabilities), TypeScript/Vite, 76 current Hub
+  regressions plus 5 new HTTP/network failure tests, 85 Rust tests (8 ignored),
+  Clippy all targets with warnings denied, fmt and scoped formatting/diff checks.
+  Initial new tests targeted Home alert instead of status; corrected assertion
+  rerun passes. Native harness connection/minimized-window/banner-selector errors
+  were corrected; final installed-qa.log/installed-visual.json are acceptance.
+- Production anonymous v2 still 401; installed network/CORS failure is explicit.
+  Native downloader rejects before destination/bytes and persists error history.
+  Live ZIP/hash/no-clobber/cancel/Explorer positive E2E remains blocked, without
+  bypass. Native folder dialog opened, but automated confirmation/cancellation was
+  unreliable; QA process closed for cleanup. Test-only streaming/UI coverage is
+  distinguished from live checks. No fake successful file/history was introduced.
+- Short measured populated idle: seven processes, ~548 MiB working set / 369 MiB
+  private, ~0.44% total 12-logical-CPU capacity over 10 seconds. 180 rAF samples:
+  median 13.3 ms, p95 13.4 ms, zero >50 ms. Single warm window-ready sample ~424 ms.
+  Existing 592.49 kB / 185.92 kB gzip JS warning retained; no broad performance claim.
+- Public beta is NOT ready: production API/CORS/download E2E, full dependency
+  notices and CMS media rights, signing/updater decisions, clean-machine WebView2/
+  DPI/GPU/shortcut checks, and legacy Library access scope remain gates. Existing
+  legacy records are preserved but Stage 13A's retired UI was not reconnected.
+  Report/manual checklist: docs/PORT_STAGE19A_WINDOWS_BETA.md. Evidence is ignored
+  in `.local/evidence/stage19a/`; prior dirty files preserved, local commit only.
+
 ## 2026-10-29 — Stage 18E: uniform cards and optional CMS banners
 
 - All Home/catalog projects now use the same large card composition and reserved

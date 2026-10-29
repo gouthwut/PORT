@@ -1,5 +1,13 @@
 # Roadmap
 
+## Stage 19A — local Windows installer acceptance
+
+Authorized 2026-10-29. Standard local NSIS candidate built; isolated release
+install/upgrade/uninstall and data retention checked. Public beta remains gated
+by production v2/CORS and positive download E2E, media rights/complete notices,
+signing/channel decisions and clean-machine acceptance. No publication or next
+stage authorized. See [acceptance report](docs/PORT_STAGE19A_WINDOWS_BETA.md).
+
 ## Stage 11.0 — Hub architecture and product migration (planning only)
 
 Authorized 2026-10-28 for documentation/research only. PORT becomes a game/project/
