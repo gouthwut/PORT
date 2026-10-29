@@ -65,7 +65,7 @@ test("Stage 18C: shared cards skip portrait and low-resolution gallery frames", 
   await expect(page.locator('[data-artwork="portrait"]')).toHaveCount(1);
   expect(
     (await page.locator(".hub-project-card").boundingBox())!.height,
-  ).toBeLessThan(260);
+  ).toBeGreaterThan(320);
   await page.locator(".hub-project-card").click();
   await expect(page.locator(".project-hero[data-artwork='wide']")).toHaveCount(
     0,

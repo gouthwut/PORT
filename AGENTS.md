@@ -1,5 +1,15 @@
 # PORT// — instructions for future sessions
 
+Stage 18E authorized 2026-10-29: uniform large Home/catalog cards for every media
+state. Optional validated v2 detail media.banner has priority over hero/gallery;
+dedicated banners use centered cover on cards, Home carousel and project heroes.
+Missing/invalid banners retain Stage 18D fallback; portrait covers stay contained
+inside the same large card region. See docs/PORT_STAGE18E_BANNERS.md and
+.local/evidence/stage18e/INDEX.md. Native QA uses fresh app.port.cms-qa storage
+under .local/stage18e/app-data and live local API. No CMS/neighbor/API/Rust/schema
+changes, generated production artwork, push/deploy/release or automatic next stage.
+Preserve downloader gates, user/legacy data and prior dirty work. Local commit.
+
 Stage 18D authorized 2026-10-29: universal ProjectHero for project pages and real
 CMS featured carousel on Home. Shared validated artwork selection prefers optional
 future hero/banner, then suitable gallery frame, cover composition, then PORT.

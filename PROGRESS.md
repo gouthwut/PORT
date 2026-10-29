@@ -1,5 +1,38 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 18E: uniform cards and optional CMS banners
+
+- All Home/catalog projects now use the same large card composition and reserved
+  media/text/action rows, including cover-only and no-media records. Removed the
+  portrait compact-row geometry; vertical covers stay contained without stretch.
+  Gemini Liquid Glass, metadata, favorites and navigation remain shared.
+- Existing optional v2 detail media.banner validation/types are retained and
+  documented. Shared selection now gives decoded banner priority over optional
+  hero and suitable gallery, then Stage 18D cover/PORT fallbacks. Explicit banners
+  support wider ratios without the screenshot heuristic. Banner heroes/cards use
+  centered cover; existing hero scrims protect text. No manual URLs or production
+  artwork, API/CMS/Rust/schema changes or project-name styling rules.
+- New Playwright fixtures verify banner + competing hero/gallery, screenshots,
+  portrait cover and no images at 800×600, 1280×720 and 1600×900. Equal dimensions,
+  banner on all four surfaces and rejection of malformed/foreign optional values
+  are asserted. Existing catalog, gallery, carousel/autoplay/pause/reduced-motion,
+  favorites/history/localization/download UI regressions are included.
+- Actual isolated app.port.cms-qa uses fresh .local/stage18e/app-data and live
+  local API via existing Rust HTTPS QA transport. Home, catalog and both project
+  pages at all three sizes: 15 native + 15 browser replay screenshots, transition
+  sequences, real seven-second autoplay, gallery/Escape and enabled build CTA.
+  Native geometry check confirms identical cards in each grid, no overflow or JS
+  errors, empty QA installation/history. No live CMS banner exists; banner fixtures
+  are browser-only evidence. QA app/debug listener closed after checks.
+- PASS: 76 targeted Playwright tests, TypeScript/frontend build, scoped formatting
+  and diff checks. Existing
+  Vite >500 kB warning remains. An initial concurrent test-run mistake collided in
+  test-results and stopped the shared server; acceptance uses one sequential run.
+- Report: docs/PORT_STAGE18E_BANNERS.md; evidence: .local/evidence/stage18e/INDEX.md.
+  Preserved prior dirty files, user/legacy data and all native download/storage
+  contracts. Real transfers/picker/no-clobber, game launch and OS DPI not repeated.
+  No CMS neighbor access, production probe, push/deploy/release or next stage.
+
 ## 2026-10-29 — Stage 18D: universal heroes and dynamic featured carousel
 
 - Added reusable ProjectHero to actual project pages and Home slides, preserving

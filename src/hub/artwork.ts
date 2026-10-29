@@ -17,7 +17,7 @@ export function useWideArtwork(
   useEffect(() => {
     let active = true;
     void Promise.all(
-      [hero, banner, ...gallery].filter(Boolean).map(
+      [banner, hero, ...gallery].filter(Boolean).map(
         (src) =>
           new Promise<{ src: string; score: number }>((resolve) => {
             const image = new Image();
@@ -30,10 +30,13 @@ export function useWideArtwork(
                 ratio <= 2.4;
               resolve({
                 src,
-                score: suitable
-                  ? Math.min(image.naturalWidth, 1920) /
-                    (1 + Math.abs(ratio - 16 / 9))
-                  : 0,
+                score:
+                  src === banner
+                    ? 1
+                    : suitable
+                      ? Math.min(image.naturalWidth, 1920) /
+                        (1 + Math.abs(ratio - 16 / 9))
+                      : 0,
               });
             };
             image.onerror = () => resolve({ src, score: 0 });
@@ -76,6 +79,7 @@ export function useProjectArtwork(media: MediaSet) {
   return {
     frame,
     cover,
+    isBanner: !!frame && frame === media.banner,
     kind: frame ? "wide" : cover ? "portrait" : "brand",
     fail: (src: string) =>
       setFailed((old) => (old.includes(src) ? old : [...old, src])),

@@ -4,6 +4,7 @@ import { native } from "./settings";
 export interface MediaSet {
   hero: string;
   cover: string;
+  /** Normalized optional CMS v2 media.banner; absent/invalid input becomes empty. */
   banner: string;
   gallery: string[];
 }

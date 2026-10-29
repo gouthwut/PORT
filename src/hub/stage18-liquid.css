@@ -2686,62 +2686,12 @@ dialog {
 .hub-catalog .port-project-open {
   display: none;
 }
-/* Preserve the full portrait and spend the remaining width on useful information. */
-.port-project-grid [data-artwork="portrait"] .hub-project-card,
-.hub-catalog [data-artwork="portrait"] .hub-project-card {
-  grid-template-columns: 128px minmax(0, 1fr);
-  grid-template-rows: 1fr auto;
-  min-height: 200px;
-  background:
-    radial-gradient(ellipse at 0% 0%, #7056ae26, transparent 65%), #0e1220;
-}
-.port-project-grid
-  [data-artwork="portrait"]
-  .hub-project-card
-  .port-project-image,
-.hub-catalog [data-artwork="portrait"] .hub-project-card .port-project-image {
-  grid-row: 1 / 3;
-  height: 100%;
-  min-height: 200px;
-  background: transparent;
-  overflow: visible;
-  position: static;
-}
-.port-project-grid
-  [data-artwork="portrait"]
-  .hub-project-card
-  .port-project-image
-  > img,
-.hub-catalog
-  [data-artwork="portrait"]
-  .hub-project-card
-  .port-project-image
-  > img {
+/* Cover-only projects keep the shared banner region without cropping the poster. */
+.port-project-grid [data-artwork="portrait"] .port-project-image > img,
+.hub-catalog [data-artwork="portrait"] .port-project-image > img {
   object-fit: contain;
-  padding: 16px 0 16px 16px;
+  padding: 12px;
   transform: none;
-}
-.port-project-grid [data-artwork="portrait"] .port-project-image::after,
-.hub-catalog [data-artwork="portrait"] .port-project-image::after {
-  display: none;
-}
-[data-artwork="portrait"] .port-project-platform {
-  left: 144px;
-  right: 48px;
-  width: fit-content;
-  max-width: calc(100% - 192px);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.port-project-grid [data-artwork="portrait"] .hub-project-copy,
-.hub-catalog [data-artwork="portrait"] .hub-project-copy {
-  padding-top: 52px;
-}
-.port-project-grid [data-artwork="portrait"] .port-image-missing,
-.hub-catalog [data-artwork="portrait"] .port-image-missing {
-  min-height: 200px;
-  font-size: 11px;
 }
 /* Compact project fallback follows the cover rather than filling the whole window. */
 .hub-project-page .project-hero:not(.project-hero-wide) {
@@ -2895,4 +2845,33 @@ dialog {
     .hub-catalog-grid:has(> .project-card-wrapper:nth-child(2):last-child) {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* Stage 18E: content and media never change card geometry. */
+.port-project-grid .hub-project-card,
+.hub-catalog .hub-project-card {
+  grid-template-rows: auto 126px 42px;
+}
+.port-project-grid .hub-project-copy,
+.hub-catalog .hub-project-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+.hub-project-copy > strong {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex-shrink: 0;
+  line-height: 1.25;
+}
+.hub-build-status {
+  flex-shrink: 0;
+}
+.port-project-grid .port-image-missing,
+.hub-catalog .port-image-missing {
+  height: 100%;
+  min-height: 0;
 }

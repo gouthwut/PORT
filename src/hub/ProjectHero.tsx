@@ -27,7 +27,7 @@ export function ProjectHero({
       <div className="universal-hero-art" aria-hidden="true">
         {art.frame ? (
           <img
-            className="universal-frame"
+            className={`universal-frame${art.isBanner ? " universal-banner" : ""}`}
             src={art.frame}
             alt=""
             onError={() => art.fail(art.frame)}

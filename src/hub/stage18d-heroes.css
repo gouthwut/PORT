@@ -344,3 +344,14 @@
   background: #171b2b;
   backdrop-filter: none;
 }
+
+/* Dedicated banners share centered cover positioning with card artwork. */
+.universal-hero .universal-banner {
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  mask-image: none;
+}

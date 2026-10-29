@@ -32,7 +32,7 @@ export function parseV2Media(value: unknown): MediaSet {
   };
   return {
     ...emptyMedia,
-    // Optional forward compatibility; the current v2 API does not promise these.
+    // Optional v2 extensions; old records remain valid without hero/banner.
     hero: safe(m.hero),
     banner: safe(m.banner),
     cover: safe(m.cover),
