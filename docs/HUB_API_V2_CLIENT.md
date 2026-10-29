@@ -1,4 +1,11 @@
-# API v2 client — Stage 13A
+# API v2 client — Stages 13A / 13B
+
+Stage 13B adds the scoped native release-file download flow described in
+[HUB_DOWNLOADS.md](HUB_DOWNLOADS.md). It supersedes the Stage 13A statements below
+that asset URLs have no download action. Official links remain read-only and
+legacy installers remain disconnected. Missing/null build URLs now remain null
+in the presentation layer so that the project displays an unavailable action;
+malformed non-null URLs still fail validation. The CMS contract is unchanged.
 
 Current client flow, 2026-10-29. PORT uses the existing validated public v2
 contract. No CMS contract or backend/storage migration is part of Stage 13A.

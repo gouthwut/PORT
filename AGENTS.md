@@ -1,5 +1,15 @@
 # PORT// — instructions for future sessions
 
+Stage 13B authorized 2026-10-29: one active native download of an approved,
+available Windows GitHub Release asset from CMS v2. Rust re-fetches builds from
+the fixed public CMS endpoint by project/build IDs; no frontend-supplied URL.
+Preserve Home/catalog/hero/window styling and all legacy installers/data. See
+docs/HUB_DOWNLOADS.md and latest PROGRESS for validation and live API limits.
+No automatic execution/install/extraction, queue, pause/resume, persistent jobs,
+production release/push or next stage. No CMS/content neighbor access or changes.
+This supersedes Stage 13A's read-only asset/download-manager restriction only
+within this scope.
+
 Stage 13A authorized 2026-10-29: client UI now uses CMS API v2 for Home,
 catalog and project detail, with no v1 fallback. Product name is PORT. Preserve
 approved Home/catalog/hero/window styling. Main navigation contains Home and

@@ -1,0 +1,33 @@
+.port-download-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
+  width: min(360px, calc(100vw - 48px));
+  padding: 18px;
+  border: 1px solid #353841;
+  border-radius: 14px;
+  background: #181a20;
+  color: #edeef1;
+  box-shadow: 0 12px 36px #0006;
+  font-size: 13px;
+}
+.port-download-panel p {
+  margin: 10px 0;
+  overflow-wrap: anywhere;
+}
+.port-download-panel progress {
+  width: 100%;
+  height: 6px;
+  accent-color: #ff6046;
+}
+.port-download-panel .download-name {
+  color: #bec2cc;
+}
+.hub-build-download {
+  margin: 10px 0;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}

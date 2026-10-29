@@ -6,14 +6,19 @@ import type { CatalogProject } from "./catalog-model";
 import { createV2Client, parseSourceConfig, type V2Detail } from "./api-v2";
 import sourceConfig from "./source-config.json";
 import { ProjectOverview } from "./ProjectOverview";
+import { downloadUnavailable, type DownloadState } from "./downloads";
+import { native } from "../services/settings";
+import { Button } from "../components/ui";
 
 /** Read-only v2 detail. Legacy IDs never become an installation identity. */
 export function V2Project({
   project,
   onBack,
+  downloads,
 }: {
   project: CatalogProject;
   onBack: () => void;
+  downloads: DownloadState;
 }) {
   const [data, setData] = useState<V2Detail | null>(null);
   const [error, setError] = useState("");
@@ -80,6 +85,25 @@ export function V2Project({
                     : b.availability === "unavailable"
                       ? "Недоступна"
                       : "Доступность не указана"}
+                  <div className="hub-build-download">
+                    <Button
+                      variant="secondary"
+                      disabled={
+                        !native || downloads.busy || !!downloadUnavailable(b)
+                      }
+                      onClick={() => void downloads.start(b)}
+                    >
+                      Скачать файл
+                    </Button>
+                    <span className="muted">
+                      {downloadUnavailable(b) ??
+                        (!native
+                          ? "Скачивание доступно в приложении PORT для Windows"
+                          : b.sha256
+                            ? "После загрузки проверяется SHA-256"
+                            : "SHA-256 не указан; проверяется размер файла")}
+                    </span>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -87,8 +111,8 @@ export function V2Project({
             <p>Одобренные сборки не указаны.</p>
           )}
           <p className="muted">
-            Скачивание в PORT пока недоступно. Используйте официальные ссылки
-            проекта и релизов. Наличие сборки не подтверждает совместимость.
+            Файлы сохраняются в «Загрузки/PORT». Наличие сборки не подтверждает
+            совместимость. Установка и запуск выполняются вручную.
           </p>
           <h2>Системные требования</h2>
           {(

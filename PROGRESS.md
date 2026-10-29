@@ -1,5 +1,52 @@
 # PORT// progress
 
+## 2026-10-29 — Stage 13B: first embedded release-file downloader
+
+- Owner authorized local work only in C:\PORT and a local commit. Added one active
+  native download from approved/available Windows CMS v2 build data. Rust accepts
+  only project/build IDs and re-fetches the fixed public `/builds?channel=all`
+  endpoint; it rejects explicit non-approved reviews, foreign/duplicate identity,
+  unknown/unavailable files and repository/source-archive URLs. Missing/null URLs
+  now yield a disabled action while malformed non-null URLs still fail validation.
+  No CMS contract or neighboring repository access/change.
+- Reused the existing button, v2 detail rows, catalog network validation and path
+  guards. Added a bottom-right scoped dark panel with bytes, percentage, average
+  speed, cancellation and completed-file folder opening; it survives navigation.
+  Browser preview disables downloading. Preserved Home/catalog/hero/window styling,
+  legacy installer sources, SQLite registrations, game/profile files and dirty work.
+- Streamed async reqwest transfer uses per-hop public DNS pinning, HTTPS/GitHub
+  host allowlisting, bounded redirects, no proxy/credentials and network timeouts.
+  Safe bounded ASCII filenames, random Downloads/PORT release subfolders, `.part`
+  staging, size/optional CMS SHA-256 checks, fsync and no-clobber final persistence.
+  Cancellation/errors remove partials normally. Forced process termination can
+  leave a `.part`, never a successful job. No automatic execution or extraction.
+  Reused tempfile already present locally, promoting it from dev to runtime in
+  this commit; unrelated pre-existing image/Cargo.lock edits remain uncommitted.
+- Checks PASS: final `npm run build` (TypeScript plus Vite), **18/18 targeted
+  Playwright** (15 v2 regression + 3 download UI tests), **6/6 targeted Rust**,
+  cargo fmt --check and whitespace/changed-file formatting. Updated the retired
+  Stage 13A no-download-button assertion to require a disabled browser-preview
+  download action while retaining all no-installer/navigation checks. The existing
+  frontend bundle warning above 500 kB remains (~506 kB). No full legacy suite or
+  release installer build. Successful/truncated/hash-mismatch/cancelled stream tests
+  use a synthetic loopback response fixture only; production requester rejects loopback.
+- Built and launched actual **debug** Windows exe with isolated identity
+  `app.port.download-qa`; checked identity and empty isolated installations before
+  native commands. Actual IPC rejects invalid IDs and concurrent starts, cancels
+  during CMS validation, rejects Open folder before completion and displays the
+  live CMS failure with zero bytes. Native script/report and QA config are ignored
+  under `.local/stage13b-*`; no screenshot or production identity/data access.
+- Live limitation: production anonymous `/v2/projects` and native `/builds`
+  returned **HTTP 401** on this date. No real approved asset could be selected or
+  downloaded; no end-to-end live success claim. This stage needs a publicly
+  accessible existing v2 API, approved Windows row with actual GitHub asset URL,
+  available status and size (HTTP or CMS) or SHA-256. Without CMS hash only transfer
+  completion/size is verified. Filename restrictions and 32 GiB cap are documented.
+- Manual procedure/limits: docs/HUB_DOWNLOADS.md. No pause/resume, queue, history,
+  persistent jobs, background download after exit, installation/update, production
+  release, push/publication or next stage. Pre-existing Cargo/image, InstalledLibrary,
+  Stage04D and untracked experiments remain outside the task commit.
+
 ## 2026-10-29 — Stage 13A: native PC port client flow
 
 - Owner authorized only local client migration in C:\PORT. Read repository instructions/latest progress, active App/Home/catalog/project sources and existing v2 contract/client tests. No CMS/content neighbor access or API contract changes. Applied Ponytail; no subagents, screenshots, Computer Use or Imagegen.

@@ -42,7 +42,7 @@ pub fn init(c: &Connection) -> rusqlite::Result<()> {
     // Independent cache/config: installation schema and records remain untouched.
     c.execute_batch("CREATE TABLE IF NOT EXISTS catalog_config(id INTEGER PRIMARY KEY CHECK(id=1),endpoint TEXT NOT NULL); CREATE TABLE IF NOT EXISTS catalog_cache(id INTEGER PRIMARY KEY CHECK(id=1),value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS catalog_known(id TEXT PRIMARY KEY,value TEXT NOT NULL);")
 }
-fn public_ip(ip: IpAddr) -> bool {
+pub(crate) fn public_ip(ip: IpAddr) -> bool {
     match ip {
         IpAddr::V4(v) => {
             let [a, b, c, _] = v.octets();

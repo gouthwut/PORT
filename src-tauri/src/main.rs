@@ -3,6 +3,7 @@
 mod adapters;
 mod catalog;
 mod download;
+mod hub_download;
 mod install;
 mod media;
 mod package;
@@ -149,6 +150,7 @@ fn main() {
             }
         }))
         .manage(download::Download::default())
+        .manage(hub_download::Downloads::default())
         .manage(install::Installer::default())
         .manage(catalog::SyncLock::default())
         .manage(updater::State::default())
@@ -210,6 +212,10 @@ fn main() {
             download::download_status,
             download::start_download,
             download::control_download,
+            hub_download::hub_download_status,
+            hub_download::start_hub_download,
+            hub_download::cancel_hub_download,
+            hub_download::open_hub_download_folder,
             install::inspect_game_folder,
             install::skate3::inspect_skate3_iso,
             install::skate3::install_skate3,

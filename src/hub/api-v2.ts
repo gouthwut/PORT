@@ -37,7 +37,7 @@ export interface V2Build {
   arch: "x64" | "x86" | "arm64" | "universal" | "unknown";
   channel: Channel;
   availability: "available" | "unavailable" | "unknown";
-  url: string;
+  url: string | null;
   releaseUrl: string | null;
   sha256: string | null;
   size: number | null;
@@ -173,7 +173,7 @@ export function parseBuilds(v: unknown, projectId: string): V2Build[] {
                 "unavailable",
                 "unknown",
               ] as const),
-        url: url(o.url),
+        url: optUrl(o.url),
         releaseUrl: optUrl(o.releaseUrl),
         sha256,
         size: o.size == null ? null : integer(o.size),

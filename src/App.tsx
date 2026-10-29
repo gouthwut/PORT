@@ -21,6 +21,8 @@ import { appVersion, useUpdater } from "./services/updater";
 
 import { useProjectCatalog } from "./hub/catalog-source";
 import { V2Project } from "./hub/V2Project";
+import { useDownload } from "./hub/downloads";
+import { DownloadPanel } from "./hub/DownloadPanel";
 import { HubCatalog } from "./hub/HubCatalog";
 import {
   defaultCatalogQuery,
@@ -35,6 +37,7 @@ type Page = "home" | "catalog" | "details" | "settings";
 export default function App() {
   const systemReducedMotion = useReducedMotion();
   const updater = useUpdater();
+  const downloads = useDownload();
   const projectCatalog = useProjectCatalog();
   const [selectedV2, setSelectedV2] = useState<CatalogProject | null>(null);
   const [page, setPage] = useState<Page>("home");
@@ -218,6 +221,7 @@ export default function App() {
                     <V2Project
                       key={selectedV2.id}
                       project={selectedV2}
+                      downloads={downloads}
                       onBack={() => navigate("catalog")}
                     />
                   )}
@@ -314,6 +318,7 @@ export default function App() {
             )}
           </main>
         </div>
+        <DownloadPanel state={downloads} />
         <Modal
           open={about}
           onOpenChange={setAbout}

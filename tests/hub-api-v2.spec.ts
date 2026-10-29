@@ -642,8 +642,11 @@ test("Stage 13A: Home → catalog → official project/releases preserves filter
     page.getByText("Owner's original files", { exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: /Установить|Импорт|Скачать|Играть/ }),
+    page.getByRole("button", { name: /Установить|Импорт|Играть/ }),
   ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Скачать файл", exact: true }),
+  ).toBeDisabled();
   await page.getByRole("button", { name: "Назад в каталог" }).click();
   await expect(page.getByLabel("Поиск по игре или проекту")).toHaveValue(
     "Original",
