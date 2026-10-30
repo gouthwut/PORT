@@ -4,7 +4,7 @@
 <h1 align="center">PORT</h1>
 <p align="center"><b>Native PC ports, static recompilations and decompilations. One beautiful Windows catalog.</b></p>
 <p align="center">
-  <a href="https://github.com/gouthwut/PORT/releases/tag/v0.1.0-beta.2"><img alt="Beta 2" src="https://img.shields.io/badge/Release-v0.1.0--beta.2-blue?style=flat-square"></a>
+  <a href="https://github.com/gouthwut/PORT/releases/tag/v0.1.0-beta.3"><img alt="Beta 3" src="https://img.shields.io/badge/Release-v0.1.0--beta.3-blue?style=flat-square"></a>
   <img alt="Windows 10 / 11 x64" src="https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011%20x64-0078D4?style=flat-square">
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-green?style=flat-square"></a>
   <img alt="Languages" src="https://img.shields.io/badge/Languages-EN%20%7C%20RU%20%7C%20ES%20%7C%20FR%20%7C%20DE-blueviolet?style=flat-square">
@@ -12,20 +12,20 @@
 
 ---
 
-## ⚡ Download PORT Beta 2
+## ⚡ Download PORT Beta 3
 
 Get the latest installer for Windows 10 and 11 (x64):
 
-👉 [**Download PORT-Setup-0.1.0-beta.2.exe**](https://github.com/gouthwut/PORT/releases/download/v0.1.0-beta.2/PORT-Setup-0.1.0-beta.2.exe)
+👉 [**Download PORT-Setup-0.1.0-beta.3.exe**](https://github.com/gouthwut/PORT/releases/download/v0.1.0-beta.3/PORT-Setup-0.1.0-beta.3.exe)
 
 | Asset        | Details                                                            |
 | :----------- | :----------------------------------------------------------------- |
-| **File**     | `PORT-Setup-0.1.0-beta.2.exe`                                      |
-| **Version**  | `0.1.0-beta.2` (Pre-release)                                       |
+| **File**     | `PORT-Setup-0.1.0-beta.3.exe`                                      |
+| **Version**  | `0.1.0-beta.3` (Pre-release)                                       |
 | **Platform** | Windows 10 / 11 (x64)                                              |
-| **SHA-256**  | `3739ceda1d6f3ee51219f4dd358f5d20ba5ec10604e27c0ea1b25520c55f7b58` |
+| **SHA-256**  | `1ce6b14c0e19929c1bc44893d1eb9872afb0f34e1e2d9046c988c2933a7ad5ba` |
 
-_Release assets and checksum verification are available on the [GitHub Releases page](https://github.com/gouthwut/PORT/releases/tag/v0.1.0-beta.2)._
+_Release assets and checksum verification are available on the [GitHub Releases page](https://github.com/gouthwut/PORT/releases/tag/v0.1.0-beta.3)._
 
 ---
 
@@ -46,6 +46,7 @@ Instead of searching forums and repositories, PORT gives you a single place to:
 
 ## Features
 
+- **Copy Installation Steps:** Copy numbered setup instructions, notes, and official project links in all five interface languages.
 - **Live Cloud Catalog:** Projects and updates appear in the app dynamically via the secure Cloudflare API v2 without requiring an app reinstall.
 - **Official Releases Only:** Downloads are fetched directly from the upstream project's official GitHub Releases.
 - **Integrated Download Manager:** Track download progress, transfer speed, pause/resume, cancellation, retry, and view full download history.
@@ -124,7 +125,7 @@ PORT is backed by a dedicated Cloudflare API v2.
 
 ### Quick Setup
 
-1. Download `PORT-Setup-0.1.0-beta.2.exe`.
+1. Download `PORT-Setup-0.1.0-beta.3.exe`.
 2. Run the setup wizard (installs for the current Windows user; no admin rights required).
 3. Launch **PORT** from your Start menu or desktop shortcut.
 
@@ -133,13 +134,13 @@ PORT is backed by a dedicated Cloudflare API v2.
 You can verify the installer's integrity in PowerShell:
 
 ```powershell
-Get-FileHash .\PORT-Setup-0.1.0-beta.2.exe -Algorithm SHA256
+Get-FileHash .\PORT-Setup-0.1.0-beta.3.exe -Algorithm SHA256
 ```
 
 Verify that the hash matches:
 
 ```
-3739ceda1d6f3ee51219f4dd358f5d20ba5ec10604e27c0ea1b25520c55f7b58
+1ce6b14c0e19929c1bc44893d1eb9872afb0f34e1e2d9046c988c2933a7ad5ba
 ```
 
 ---
