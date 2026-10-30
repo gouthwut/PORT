@@ -8,7 +8,6 @@ import {
   SlidersHorizontal,
   X,
 } from "lucide-react";
-import { developerMode } from "../services/catalog";
 import type { MediaSet } from "../services/media";
 import { native } from "../services/settings";
 import { usePreferences } from "./preferences";
@@ -281,11 +280,7 @@ export function HubCatalog({
           )}
           {catalog.warning && (
             <p className="hub-catalog-note" role="status">
-              {developerMode
-                ? catalog.warning
-                : t(
-                    "Некоторые изображения недоступны. Сведения о проектах сохранены.",
-                  )}
+              {t(catalog.warning)}
             </p>
           )}
           <section

@@ -627,7 +627,10 @@ test("Stage 13A: Home → catalog → official project/releases preserves filter
   });
   await page.goto("/");
   const nav = page.getByRole("navigation", { name: "Основная навигация" });
-  await expect(nav.getByRole("button")).toHaveCount(3);
+  await expect(nav.getByRole("button")).toHaveCount(4);
+  await expect(
+    nav.getByRole("button", { name: "Библиотека", exact: true }),
+  ).toBeVisible();
   await expect(
     nav.getByRole("button", { name: "Загрузки", exact: true }),
   ).toBeVisible();

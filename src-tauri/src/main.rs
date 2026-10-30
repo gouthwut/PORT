@@ -5,6 +5,7 @@ mod catalog;
 mod download;
 #[cfg(feature = "download-e2e-qa")]
 mod download_e2e_qa;
+mod hub_cache;
 mod hub_download;
 mod hub_preferences;
 mod install;
@@ -196,6 +197,7 @@ fn main() {
             catalog::init(&conn)?;
             hub_download::init(&conn)?;
             hub_preferences::init(&conn)?;
+            hub_cache::init(&conn)?;
             install::recipe::init(&conn)?;
             if let Err(error) = install::recover(&conn) {
                 app.state::<install::Installer>().recovery_error(&error);
@@ -237,6 +239,8 @@ fn main() {
             download::control_download,
             hub_preferences::load_hub_preferences,
             hub_preferences::save_hub_preferences,
+            hub_cache::load_hub_catalog_cache,
+            hub_cache::save_hub_catalog_cache,
             hub_download::hub_download_history,
             hub_download::remove_hub_download,
             hub_download::hub_download_status,

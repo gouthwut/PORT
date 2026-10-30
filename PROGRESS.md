@@ -1,5 +1,41 @@
 # PORT// progress
 
+## 2026-10-30 — Durable validated catalog cache and native restart
+
+- Added independent bounded hub_catalog_cache SQLite table/IPC; installation
+  schema version 4 and records remain separate. Browser preview uses localStorage.
+  Store only complete public v2 summary/game snapshots; revalidate IDs, duplicates,
+  enums, text, media origin and bounds when reading. Corrupt/foreign/future-format
+  caches are ignored. Failed partial pagination cannot replace a complete cache.
+- Offline restart shows an explicit saved-catalog notice. Cached build availability
+  is unknown; native downloader still re-fetches approved builds. Full project
+  details/media are not durably cached yet; no offline-download/detail claim.
+- PASS: TypeScript/Vite, one new Rust SQLite restart/bounds/retention test, fmt,
+  Clippy all targets with warnings denied. Browser API/offline/network suite:
+  22 PASS plus one outdated navigation-count assertion; corrected Library count
+  and targeted rerun PASS (23 scenarios covered). Initial Rust compile found a
+  usize SQL-parameter mismatch, corrected to bounded i64; final checks PASS.
+- Fresh release-profile EXE built with isolated app.port.release-dev-qa and separate
+  .local/final-release/app-data. Frontend asset audit PASS: 8 allowlisted files,
+  no private art/QA transport. Actual native IPC writes/reads cache, full process
+  close/restart retains it and isolated Library stays empty. Synthetic catalog
+  metadata only, zero real-game actions. Receipt/screenshots ignored under
+  .local/evidence/final-release. First harness attempt stopped while WebView was
+  still loading; added URL wait, final two-launch receipt PASS. Current target/release
+  EXE is this QA identity and MUST NOT be distributed as production.
+- Current owner AppData file hashes and registration rows are byte-identical before/
+  after QA, schema 4. Initial Python equality check compared tuples with JSON lists;
+  independent comparison of persisted JSONs confirms exact equality. Read SQLite
+  from a private DB/WAL/SHM copy, never opening owner DB for writes.
+- Important pre-existing discrepancy: current baseline contains only Skate 3
+  (retail / recomp v2.0.2). Bloodborne 01.09 existed in Stage19A evidence, but its
+  former root/runtime/data paths already do not exist now. No records/files were
+  restored or removed; asked owner whether intentionally deleted/moved. Do not
+  assert fresh Bloodborne preservation PASS. This does not block unrelated work.
+- No production write/deploy/migration/restore, CMS push, public source push or
+  release. Still need safe resume, install/update/setup/recovery flows, accounts/
+  reviews/moderation, final localization/updater/notices/history/clean-Windows audit.
+
 ## 2026-10-30 — Library reconnected to the current launcher
 
 - Added Library to the Liquid Glass shell using existing native list/launch/verify/

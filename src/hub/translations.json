@@ -1,4 +1,14 @@
 {
+  "Показан сохранённый каталог. Для актуальных сборок подключитесь к интернету.": [
+    "Showing your saved catalog. Connect to the internet for current builds.",
+    "Se muestra el catálogo guardado. Conéctate a internet para ver las compilaciones actuales.",
+    "Le catalogue enregistré est affiché. Connectez-vous pour consulter les versions actuelles."
+  ],
+  "Не удалось сохранить каталог для работы без интернета.": [
+    "Could not save the catalog for offline use.",
+    "No se pudo guardar el catálogo para usarlo sin conexión.",
+    "Impossible d’enregistrer le catalogue pour une utilisation hors ligne."
+  ],
   "Настройки сохранены": [
     "Settings saved",
     "Ajustes guardados",

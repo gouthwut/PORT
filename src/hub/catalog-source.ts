@@ -3,6 +3,7 @@ import type { CatalogState } from "../services/catalog";
 import { downloadUnavailable } from "./downloads";
 import { fromV1, type CatalogProject } from "./catalog-model";
 import sourceConfig from "./source-config.json";
+import { readCatalogCache, saveCatalogCache } from "./catalog-cache";
 import {
   createV2Client,
   loadV2Catalog,
@@ -72,9 +73,11 @@ export function useProjectCatalog(): ProjectCatalogState {
     version: "v1" | "v2";
     projects: CatalogProject[];
     notice: string;
+    source: "cache" | "online";
   } | null>(null);
   const [busy, setBusy] = useState(config.value?.version === "v2");
   const [error, setError] = useState("");
+  const [cacheWarning, setCacheWarning] = useState("");
   const generation = useRef(0);
   const lock = useRef(false);
   const lastRefresh = useRef(0);
@@ -88,9 +91,22 @@ export function useProjectCatalog(): ProjectCatalogState {
     try {
       const c = config.value;
       const next = await selectSource(c, () =>
-        loadV2Catalog(createV2Client(c.baseUrl)),
+        loadV2Catalog(createV2Client(c.baseUrl), (snapshot) => {
+          if (current !== generation.current) return;
+          void saveCatalogCache(c.baseUrl, snapshot)
+            .then(() => {
+              if (current === generation.current) setCacheWarning("");
+            })
+            .catch(() => {
+              if (current === generation.current)
+                setCacheWarning(
+                  "Не удалось сохранить каталог для работы без интернета.",
+                );
+            });
+        }),
       );
-      if (current === generation.current) setResult(next);
+      if (current === generation.current)
+        setResult({ ...next, source: "online" });
       if (next.version === "v2") {
         const client = createV2Client(c.baseUrl);
         let index = 0;
@@ -130,10 +146,15 @@ export function useProjectCatalog(): ProjectCatalogState {
           }),
         );
         if (current === generation.current)
-          setResult({ ...next, projects: enriched });
+          setResult({ ...next, projects: enriched, source: "online" });
       }
     } catch (e) {
-      if (current === generation.current) setError(String(e));
+      if (current === generation.current) {
+        setError(String(e));
+        setResult((previous) =>
+          previous ? { ...previous, source: "cache" } : null,
+        );
+      }
     } finally {
       if (current === generation.current) {
         lock.current = false;
@@ -142,7 +163,15 @@ export function useProjectCatalog(): ProjectCatalogState {
     }
   }, [config]);
   useEffect(() => {
-    void refreshV2();
+    let disposed = false;
+    void (async () => {
+      if (config.value?.version === "v2") {
+        const projects = await readCatalogCache(config.value.baseUrl);
+        if (!disposed && projects && lastRefresh.current === 0)
+          setResult({ version: "v2", projects, notice: "", source: "cache" });
+      }
+      if (!disposed) void refreshV2();
+    })();
     const reconnect = () => void refreshV2();
     const refreshIfVisible = () => {
       if (
@@ -156,6 +185,7 @@ export function useProjectCatalog(): ProjectCatalogState {
     window.addEventListener("online", reconnect);
     document.addEventListener("visibilitychange", refreshIfVisible);
     return () => {
+      disposed = true;
       window.clearInterval(interval);
       window.removeEventListener("online", reconnect);
       document.removeEventListener("visibilitychange", refreshIfVisible);
@@ -177,9 +207,9 @@ export function useProjectCatalog(): ProjectCatalogState {
     projects: result?.projects ?? [],
     busy,
     error,
-    warning: "",
+    warning: cacheWarning,
     notice: result?.notice ?? "Источник каталога: API v2",
-    source: result ? "online" : "empty",
+    source: result?.source ?? "empty",
     refresh: refreshV2,
   };
 }
