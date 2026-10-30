@@ -158,7 +158,7 @@ fn main() {
         create_at(&desktop, &receipts, &exe, &icon, id, name).unwrap();
         let link = desktop.join(format!("{name}.lnk"));
         let output=std::process::Command::new(powershell().unwrap())
-            .args(["-NoLogo","-NoProfile","-NonInteractive","-Command",r#"[Console]::OutputEncoding=[Text.UTF8Encoding]::new();$ErrorActionPreference='Stop';$l=(New-Object -ComObject WScript.Shell).CreateShortcut($env:PORT_LINK);@{target=$l.TargetPath;args=$l.Arguments;icon=$l.IconLocation;cwd=$l.WorkingDirectory}|ConvertTo-Json -Compress;Start-Process -FilePath $env:PORT_LINK -WindowStyle Hidden"#])
+            .args(["-NoLogo","-NoProfile","-NonInteractive","-Command",r#"[Console]::OutputEncoding=[Text.UTF8Encoding]::new();$ErrorActionPreference='Stop';$p=$env:PORT_LINK;try{$p=(New-Object -ComObject Scripting.FileSystemObject).GetFile($p).ShortPath}catch{};$l=(New-Object -ComObject WScript.Shell).CreateShortcut($p);@{target=$l.TargetPath;args=$l.Arguments;icon=$l.IconLocation;cwd=$l.WorkingDirectory}|ConvertTo-Json -Compress;Start-Process -FilePath $env:PORT_LINK -WindowStyle Hidden"#])
             .env("PORT_LINK",&link).env("PORT_SHORTCUT_PROBE_OUTPUT",&marker).creation_flags(0x08000000).output().unwrap();
         assert!(
             output.status.success(),
@@ -167,17 +167,17 @@ fn main() {
         );
         let r: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
         assert_eq!(
-            r["target"].as_str().unwrap().to_lowercase(),
-            exe.display().to_string().to_lowercase()
+            fs::canonicalize(r["target"].as_str().unwrap()).unwrap(),
+            fs::canonicalize(&exe).unwrap()
         );
         assert_eq!(r["args"], format!("--launch-installation {id}"));
         assert_eq!(
-            r["icon"].as_str().unwrap().to_lowercase(),
-            format!("{},0", icon.display()).to_lowercase()
+            fs::canonicalize(r["icon"].as_str().unwrap().trim_end_matches(",0")).unwrap(),
+            fs::canonicalize(&icon).unwrap()
         );
         assert_eq!(
-            r["cwd"].as_str().unwrap().to_lowercase(),
-            t.path().display().to_string().to_lowercase()
+            fs::canonicalize(r["cwd"].as_str().unwrap()).unwrap(),
+            fs::canonicalize(t.path()).unwrap()
         );
         let deadline = std::time::Instant::now() + std::time::Duration::from_secs(15);
         while !marker.exists() && std::time::Instant::now() < deadline {
