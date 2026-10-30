@@ -31,7 +31,10 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: ./scripts/build-updater.ps1
+      - name: Test machine installer on disposable Windows runner
+        run: ./scripts/test-windows-installer.ps1
       - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
         with:
           name: signed-windows-updater-private
           retention-days: 7
