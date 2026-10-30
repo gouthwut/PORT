@@ -1,10 +1,10 @@
 {
-  "version": "0.1.0-beta.3",
-  "notes": "PORT Beta 3 (0.1.0-beta.3)\n\n- Copy Steps: copy all numbered installation instructions, notes, and official project links from the project page.\n- Copy action, Copied! confirmation, and retry message in English, Russian, Spanish, French, and German.\n- The button is hidden when installation instructions are absent.\n\nUses the existing signed production updater. Settings, favorites, download history, and local files are retained.\n",
+  "version": "0.1.0-beta.2",
+  "notes": "PORT Beta 2 (v0.1.0-beta.2)\n\n- Automatic Catalog Updates: Real-time synchronization upon startup, stale window refocus, and network reconnect.\n- Offline Resilience: Local caching displays the last verified catalog when offline or when CMS is temporarily unreachable.\n- Production Signed Auto-Updater: Official GitHub Releases updater with Minisign cryptographic verification for seamless updates across beta versions.\n- Security Hardening: Deprecated legacy IPC handlers and internal development artifacts have been removed.\n- Automated Dependency Auditing: Configured Dependabot for npm and Cargo ecosystems.\n",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUU0hYTllBMWNUYzFEVU5Ra3ZEMVlvMVZzRkJtSStza0dUeFJsSlQzaFVNWjVHTEJtenFFcHByMWcyU1Z1STJIamw4MFpDeTBtNnB0NFRvYVJ0NXV5dHRNTGtqbG80d1E0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkzMzY3Mzk0CWZpbGU6UE9SVF8wLjEuMC1iZXRhLjNfeDY0LXNldHVwLmV4ZQl2ZXJzaW9uOjAuMS4wLWJldGEuMwpPb05kaUVHSk1GVGhYWkFBWUttWkx6UDgraEZqTVBZdGV3eWFMQU96WW80akhBMTYrenBsZlRZMFZYRGdPRVIrYnozVGEzanpXM2hQTWFBZXlSSndCQT09Cg==",
-      "url": "https://github.com/gouthwut/PORT/releases/download/v0.1.0-beta.3/PORT-Setup-0.1.0-beta.3.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUU0hYTllBMWNUY3pGU0l3QXlpak42UEFiczlSOERnM0hoMm9xNWJXZkxxN3psN1BvWXYwM0ZnbEF1M3lPcFNlWXhWVE9Lbmh5VEhndEptaFU5SE9GSlN0bElUNDc2SUFNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkzMzYyMTU0CWZpbGU6UE9SVC1TZXR1cC0wLjEuMC1iZXRhLjIuZXhlCXZlcnNpb246MC4xLjAtYmV0YS4yCjh2dHJYSDBHUmZBVTYyTE1nODlVRzViV3MxMy80VjFKNllINTM5djZBY3FWdnB1Q0lSblp2SW5EVSttTXloS0RDZlVPVmJ5eXUvSEJUK1VCQ3lwS0RBPT0K",
+      "url": "https://github.com/gouthwut/PORT/releases/download/v0.1.0-beta.2/PORT-Setup-0.1.0-beta.2.exe"
     }
   }
 }
