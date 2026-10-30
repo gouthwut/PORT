@@ -1,233 +1,201 @@
 <p align="center">
-  <img src="public/port-icon.svg" width="96" height="96" alt="PORT logo">
+  <img src="public/port-icon.svg" width="96" height="96" alt="PORT Logo">
 </p>
+
 <h1 align="center">PORT</h1>
-<p align="center"><b>Native PC ports, static recompilations and decompilations. One beautiful Windows catalog.</b></p>
+
 <p align="center">
-  <a href="https://github.com/gouthwut/PORT/releases/tag/v0.1.0-beta.3"><img alt="Beta 3" src="https://img.shields.io/badge/Release-v0.1.0--beta.3-blue?style=flat-square"></a>
+  <b>Discover native PC ports and recompilations.</b>
+</p>
+
+<p align="center">
+  PORT is a free and open-source Windows application for discovering native PC ports, static recompilations, and decompilations. Browse curated projects, inspect system requirements and setup instructions, and download official developer releases directly inside the app.
+</p>
+
+<p align="center">
+  <a href="https://github.com/gouthwut/PORT/releases/latest"><img alt="Latest Release" src="https://img.shields.io/badge/Release-v0.1.0--beta.3-8f55f5?style=flat-square"></a>
   <img alt="Windows 10 / 11 x64" src="https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011%20x64-0078D4?style=flat-square">
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-green?style=flat-square"></a>
-  <img alt="Languages" src="https://img.shields.io/badge/Languages-EN%20%7C%20RU%20%7C%20ES%20%7C%20FR%20%7C%20DE-blueviolet?style=flat-square">
+  <img alt="Supported Languages" src="https://img.shields.io/badge/Languages-EN%20%7C%20RU%20%7C%20ES%20%7C%20FR%20%7C%20DE-blueviolet?style=flat-square">
 </p>
 
----
-
-## ⚡ Download PORT Beta 3
-
-Get the latest installer for Windows 10 and 11 (x64):
-
-👉 [**Download PORT-Setup-0.1.0-beta.3.exe**](https://github.com/gouthwut/PORT/releases/download/v0.1.0-beta.3/PORT-Setup-0.1.0-beta.3.exe)
-
-| Asset        | Details                                                            |
-| :----------- | :----------------------------------------------------------------- |
-| **File**     | `PORT-Setup-0.1.0-beta.3.exe`                                      |
-| **Version**  | `0.1.0-beta.3` (Pre-release)                                       |
-| **Platform** | Windows 10 / 11 (x64)                                              |
-| **SHA-256**  | `deddd70c5550c1116b69e424cdd305ac8681aa5f6c7f61e4841b8c14ede03732` |
-
-_Release assets and checksum verification are available on the [GitHub Releases page](https://github.com/gouthwut/PORT/releases/tag/v0.1.0-beta.3)._
-
----
-
-## What is PORT?
-
-**PORT** is an open-source Windows catalog and download manager designed specifically for independently developed PC ports, static recompilations, decompilations, and community runtimes.
-
-Instead of searching forums and repositories, PORT gives you a single place to:
-
-1. **Discover** independent PC ports and recompilations.
-2. **Read** project details, hardware requirements, and the developer's manual setup instructions.
-3. **Download** verified, official Windows release files directly inside the application.
-4. **Open** the downloaded archive and follow the developer's step-by-step setup guide.
-
-> **Important:** PORT **does not** automatically install, modify, or launch games. It does not contain or distribute proprietary game assets, ROMs, ISOs, or PKGs. Users provide any required game data files from their own legally owned physical or digital copies.
-
----
-
-## Features
-
-- **Copy Installation Steps:** Copy numbered setup instructions, notes, and official project links in all five interface languages.
-- **Live Cloud Catalog:** Projects and updates appear in the app dynamically via the secure Cloudflare API v2 without requiring an app reinstall.
-- **Official Releases Only:** Downloads are fetched directly from the upstream project's official GitHub Releases.
-- **Integrated Download Manager:** Track download progress, transfer speed, pause/resume, cancellation, retry, and view full download history.
-- **Integrity Verification:** Automated SHA-256 checksum validation when provided by upstream release records.
-- **Safety First:** Strict destination picker, overwrite protection, and no automated background binary execution.
-- **Liquid Glass UI:** Modern dark design inspired by Premiere Compact aesthetics with smooth motion, keyboard navigation, and reduced-motion accessibility.
-- **Multilingual Support:** English (default), Russian, Spanish, French, and German.
-- **100% Local Privacy:** Saved projects, search preferences, and download history are stored locally in SQLite. No user account, tracking, or registration required.
+<p align="center">
+  <a href="https://github.com/gouthwut/PORT/releases/latest"><b>Download for Windows</b></a>
+</p>
 
 ---
 
 ## Screenshots
 
 <p align="center">
-  <b>Home Screen</b><br>
-  <img src="docs/images/screenshot-home.png" alt="PORT Home" width="90%">
+  <b>Home — Featured Projects and New Discoveries</b><br>
+  <img src="docs/images/screenshot-home.png" alt="PORT Home Screen" width="95%">
 </p>
 
 <p align="center">
-  <b>Catalog & Discovery (Clean Empty State)</b><br>
-  <img src="docs/images/screenshot-catalog.png" alt="PORT Catalog" width="90%">
+  <b>Catalog — Search, Filters, and Platform Sorting</b><br>
+  <img src="docs/images/screenshot-catalog.png" alt="PORT Catalog Screen" width="95%">
 </p>
 
 <p align="center">
-  <b>Integrated Download Manager</b><br>
-  <img src="docs/images/screenshot-downloads.png" alt="PORT Downloads" width="90%">
+  <b>Project Details — System Specifications, Compatibility, and Setup Instructions</b><br>
+  <img src="docs/images/screenshot-details.png" alt="PORT Project Details Screen" width="95%">
 </p>
 
 <p align="center">
-  <b>Settings & Localization</b><br>
-  <img src="docs/images/screenshot-settings.png" alt="PORT Settings" width="90%">
+  <b>Download Manager — Track Transfers and Reveal Files</b><br>
+  <img src="docs/images/screenshot-downloads.png" alt="PORT Downloads Center" width="95%">
+</p>
+
+<p align="center">
+  <b>Settings — Preferences, Theme, and Multilingual Support</b><br>
+  <img src="docs/images/screenshot-settings.png" alt="PORT Settings Screen" width="95%">
 </p>
 
 ---
 
-## How It Works
+## Features
 
-```
-┌────────────────┐       ┌──────────────────────┐       ┌────────────────┐
-│  Online CMS    │ ────> │  Cloudflare API v2   │ ────> │    PORT App    │
-│  (Management)  │       │  (Public & Cached)   │       │ (Windows UI)   │
-└────────────────┘       └──────────────────────┘       └────────────────┘
-                                                                │
-                                                        Select Build & Download
-                                                                ▼
-                                                        ┌────────────────┐
-                                                        │ GitHub Release │
-                                                        │ (Official ZIP) │
-                                                        └────────────────┘
-```
-
-1. **Browse:** Open PORT to browse available ports. If the catalog is fresh or between releases, you will see a clean state.
-2. **Review:** Inspect supported platforms, system requirements, and the developer's installation instructions.
-3. **Download:** Select an approved official Windows build and pick your preferred download location.
-4. **Setup:** Use **Open Folder** to view the downloaded archive and follow the developer's instructions to complete setup.
+- **Discover Native Ports & Recompilations:** Explore community PC ports, recompilations, and decompilations across classic and modern console platforms.
+- **Growing Dynamic Catalog:** New verified projects and releases appear automatically in the catalog without requiring manual application reinstalls.
+- **Detailed Specifications:** Review screenshots, hardware requirements, engine implementation details, and compatibility status before downloading.
+- **Installation Guides & Copy Steps:** Clear, step-by-step setup instructions, required asset lists, and one-click copyable steps in all five interface languages.
+- **Integrated Download Manager:** Download verified, official developer releases (GitHub Releases) directly inside PORT, complete with speed tracking, pause/resume, and cancellation.
+- **Download History & File Reveal:** Keep track of downloaded archives with direct one-click reveal in Windows File Explorer.
+- **Automatic Catalog Updates:** Seamless catalog refresh on startup, focus, or network reconnection, with local caching for offline resilience.
+- **Cryptographically Signed Updates:** Secure, built-in application updates verified with Minisign signatures.
+- **Five Interface Languages:** Full localization in English, Russian, Spanish, French, and German.
+- **No Account Required:** Completely free and open-source. No registration, no accounts, and no tracking.
 
 ---
 
-## Catalog & Publishing
+## Getting Started
 
-PORT is backed by a dedicated Cloudflare API v2.
+1. **Download and install PORT** on Windows 10 or 11.
+2. **Browse the catalog** to explore projects, check system requirements, and view instructions.
+3. **Download the official release** inside PORT and follow the developer's setup guide to get started.
 
-- The catalog is maintained and published through the owner's web studio.
-- Regular players and users **never need an account**, API keys, or GitHub login to use PORT.
-- When new community ports are verified and published, they appear automatically in PORT for all users.
+> **Note:** PORT does not install or run games. It downloads official developer releases and provides setup instructions. Where original game files are required, you supply them from your own legally acquired game copies.
 
 ---
 
 ## Installation
 
-### Prerequisites
+### Requirements
 
 - **Operating System:** Windows 10 or Windows 11 (64-bit).
-- **Runtime:** Microsoft Edge WebView2 (pre-installed on Windows 10/11; automatically bootstrapped if missing).
-- **No Developer Tools Needed:** You do _not_ need Node.js, Rust, Git, or Python to run PORT.
+- **Runtime:** Microsoft Edge WebView2 (included by default in modern Windows 10/11; bootstrapped automatically if absent).
+- **Game Files:** Original game data files must be provided by the user where required by upstream project instructions. PORT does not host, bundle, or distribute copyrighted game data.
 
-### Quick Setup
+### Download
 
-1. Download `PORT-Setup-0.1.0-beta.3.exe`.
-2. Run the setup wizard (installs for the current Windows user; no admin rights required).
-3. Launch **PORT** from your Start menu or desktop shortcut.
+Download the latest installer from the official release page:
 
-### Checksum Verification
+👉 [**Latest Windows Release (v0.1.0-beta.3)**](https://github.com/gouthwut/PORT/releases/latest)
 
-You can verify the installer's integrity in PowerShell:
-
-```powershell
-Get-FileHash .\PORT-Setup-0.1.0-beta.3.exe -Algorithm SHA256
-```
-
-Verify that the hash matches:
-
-```
-deddd70c5550c1116b69e424cdd305ac8681aa5f6c7f61e4841b8c14ede03732
-```
+| Asset        | Details                                                            |
+| :----------- | :----------------------------------------------------------------- |
+| **File**     | `PORT-Setup-0.1.0-beta.3.exe`                                      |
+| **Version**  | `0.1.0-beta.3`                                                     |
+| **Platform** | Windows 10 / 11 (x64)                                              |
+| **SHA-256**  | `deddd70c5550c1116b69e424cdd305ac8681aa5f6c7f61e4841b8c14ede03732` |
 
 ---
 
 ## Languages
 
-PORT comes with full interface translations across 5 languages:
+PORT supports five languages:
 
-- 🇬🇧 **English** (Default)
-- 🇷🇺 **Russian**
-- 🇪🇸 **Spanish**
-- 🇫🇷 **French**
-- 🇩🇪 **German**
+- 🇬🇧 English (Default)
+- 🇷🇺 Russian
+- 🇪🇸 Spanish
+- 🇫🇷 French
+- 🇩🇪 German
 
-You can switch languages at any time under **Settings → Interface language**.
+Select your preferred language at any time in **Settings → Interface language**.
 
 ---
 
 ## Frequently Asked Questions
 
-#### Does PORT include or distribute any games?
+#### Does PORT include games?
 
-**No.** PORT is an informational catalog and download utility. It indexes independently developed open-source ports, recompilations, and runtimes. No proprietary game assets, textures, code, or ROMs are hosted or distributed.
+**No.** PORT is an informational catalog and download manager. It does not contain, host, or distribute copyrighted game ROMs, ISOs, binaries, or game assets.
 
-#### Do I need a GitHub account or API token?
+#### Do I need an account?
 
-**No.** PORT communicates anonymously with public catalog and GitHub release endpoints.
+**No.** PORT requires no accounts, passwords, or personal credentials. It communicates with public catalog endpoints and official release delivery hosts.
 
-#### Does PORT install or launch the games?
+#### Does PORT install games?
 
-**No.** PORT downloads the official archives released by the independent developers. Extraction, providing your legal game data, and running the port is done manually according to the developer's setup instructions.
+**No.** PORT downloads official release packages produced by open-source port developers. Follow the step-by-step instructions displayed on the project's detail page to complete setup on your PC.
 
-#### Does clearing download history delete files on disk?
+#### How do updates work?
 
-**No.** The download history tracks past operations in your local database. Clearing history leaves your downloaded files untouched.
+PORT checks for application updates against the official GitHub Releases channel over HTTPS. Update packages are cryptographically verified using Minisign signatures before being applied, and installation always requires your confirmation.
+
+#### Where do downloaded files go?
+
+Downloaded archives are saved to the folder you choose on your computer. You can open the containing folder at any time using the **Open Folder** button in the Download Manager.
+
+#### Is PORT free?
+
+**Yes.** PORT is 100% free and open-source software distributed under the permissive [MIT License](LICENSE).
 
 ---
 
 ## Building from Source
 
-To build PORT from source:
+### Prerequisites
 
-1. **Requirements:**
-   - [Node.js 24+](https://nodejs.org/)
-   - [Rust](https://rustup.rs/) (stable MSVC toolchain)
-   - Visual Studio C++ Build Tools & Windows SDK
+- [Node.js](https://nodejs.org/) (version 22 or newer)
+- [Rust](https://rustup.rs/) (stable MSVC toolchain)
+- Microsoft Visual Studio C++ Build Tools & Windows SDK
 
-2. **Clone & Install Dependencies:**
+### Build Instructions
 
-   ```powershell
-   git clone https://github.com/gouthwut/PORT.git
-   cd PORT
-   npm ci
-   ```
+```powershell
+# Clone the repository
+git clone https://github.com/gouthwut/PORT.git
+cd PORT
 
-3. **Run in Development Mode:**
+# Install dependencies
+npm ci
 
-   ```powershell
-   npm run tauri dev
-   ```
+# Build the frontend
+npm run build
 
-4. **Build the Production Installer:**
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File scripts/build-windows-beta.ps1
-   ```
+# Run the development server
+npm run tauri dev
 
----
-
-## Privacy & Security
-
-- **Local Storage:** All settings, favorites, and download histories are stored locally on your PC in SQLite.
-- **No Telemetry:** PORT does not track your usage, collect personal data, or phone home with user identifiers.
-- **Safe Execution:** PORT never automatically executes or runs downloaded archives.
-- **Vulnerability Reporting:** See [SECURITY.md](SECURITY.md) for instructions on responsible security disclosures.
+# Run automated tests
+npm test
+cargo test --manifest-path src-tauri/Cargo.toml
+```
 
 ---
 
-## Credits & License
+## Privacy
 
-- Built with [Tauri 2](https://tauri.app/), [Rust](https://www.rust-lang.org/), [React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/), [Motion](https://motion.dev/), and [Lucide Icons](https://lucide.dev/).
-- Fonts: [Inter](https://rsms.me/inter/) and [Manrope](https://gent.media/manrope) under the SIL Open Font License.
-- Third-party notices and open-source licenses are compiled in [THIRD_PARTY_NOTICES.md](docs/licenses/THIRD_PARTY_NOTICES.md).
+PORT is built with local privacy as a core principle:
 
-PORT is released under the **[MIT License](LICENSE)**.
+- All preferences, saved projects, and download records are stored strictly on your local PC in SQLite.
+- The current published version contains no advertising trackers or mandatory telemetry.
+- Optional anonymous usage statistics are strictly opt-in and off by default.
+
+For details, see our [Privacy Policy](docs/PRIVACY.md).
+
+---
+
+## License & Credits
+
+- PORT is licensed under the [MIT License](LICENSE).
+- Third-party open-source components and font licenses are documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- Security disclosures and vulnerability reporting: [SECURITY.md](SECURITY.md).
+- Upstream port developers: All port projects are created and maintained by their respective independent community developers.
 
 ---
 
 ## Disclaimer
 
-PORT is an independent community project and is **not** affiliated with, authorized, maintained, sponsored, or endorsed by Sony Interactive Entertainment, Nintendo, Microsoft, Electronic Arts, SEGA, or any other game publisher or console manufacturer. All trademarks, service marks, and company names are the property of their respective owners.
+PORT is an independent community project and is **not affiliated with, authorized, sponsored, or endorsed by** Sony Interactive Entertainment, Microsoft Corporation, Nintendo Co., Ltd., SEGA, FromSoftware, or any other game publisher or console manufacturer. All trademarks, service marks, logos, and company names are the property of their respective copyright owners.

@@ -9,7 +9,7 @@ async function main() {
     {
       shell: true,
       stdio: "inherit",
-      cwd: "C:/PORT",
+      cwd: process.cwd(),
     },
   );
 
@@ -39,6 +39,16 @@ async function main() {
     await page.waitForTimeout(1000);
     await page.screenshot({ path: "docs/images/screenshot-catalog.png" });
     console.log("Captured Catalog screenshot.");
+
+    // 2b. Project Details
+    console.log("Navigating to Project Details...");
+    const projectCard = page.locator(".hub-project-card").first();
+    if (await projectCard.isVisible()) {
+      await projectCard.click();
+      await page.waitForTimeout(1500);
+      await page.screenshot({ path: "docs/images/screenshot-details.png" });
+      console.log("Captured Project Details screenshot.");
+    }
 
     // 3. Downloads
     console.log("Navigating to Downloads...");

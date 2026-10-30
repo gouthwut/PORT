@@ -113,9 +113,9 @@ export function useProjectCatalog(): ProjectCatalogState {
     projects: CatalogProject[];
     notice: string;
   } | null>(cached);
-  const [sourceType, setSourceType] = useState<"demo" | "empty" | "cache" | "online">(
-    cached ? "cache" : "empty",
-  );
+  const [sourceType, setSourceType] = useState<
+    "demo" | "empty" | "cache" | "online"
+  >(cached ? "cache" : "empty");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const generation = useRef(0);
@@ -125,7 +125,11 @@ export function useProjectCatalog(): ProjectCatalogState {
   const refreshV2 = useCallback(
     async (forced = false) => {
       if (config.value?.version !== "v2" || lock.current) return;
-      if (!forced && lastFetched.current > 0 && Date.now() - lastFetched.current < STALE_MS) {
+      if (
+        !forced &&
+        lastFetched.current > 0 &&
+        Date.now() - lastFetched.current < STALE_MS
+      ) {
         return;
       }
       lock.current = true;
@@ -149,7 +153,8 @@ export function useProjectCatalog(): ProjectCatalogState {
             Array.from({ length: Math.min(4, enriched.length) }, async () => {
               for (;;) {
                 const i = index++;
-                if (i >= enriched.length || current !== generation.current) break;
+                if (i >= enriched.length || current !== generation.current)
+                  break;
                 try {
                   // Summary responses carry only covers; detail owns validated gallery media.
                   const [detail, buildResult] = await Promise.allSettled([
@@ -240,7 +245,9 @@ export function useProjectCatalog(): ProjectCatalogState {
     warning: "",
     notice:
       result?.notice ??
-      (language === "ru" ? "Источник каталога: API v2" : "Catalog source: API v2"),
+      (language === "ru"
+        ? "Источник каталога: API v2"
+        : "Catalog source: API v2"),
     source: result ? sourceType : "empty",
     refresh: () => refreshV2(true),
   };
