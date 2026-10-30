@@ -13,14 +13,14 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/gouthwut/PORT/releases/latest"><img alt="Latest Release" src="https://img.shields.io/badge/Release-v0.1.0--beta.3-8f55f5?style=flat-square"></a>
+  <a href="https://github.com/gouthwut/PORT/releases/tag/v0.1.0-beta.3"><img alt="Latest Release" src="https://img.shields.io/badge/Release-v0.1.0--beta.3-8f55f5?style=flat-square"></a>
   <img alt="Windows 10 / 11 x64" src="https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011%20x64-0078D4?style=flat-square">
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-green?style=flat-square"></a>
   <img alt="Supported Languages" src="https://img.shields.io/badge/Languages-EN%20%7C%20RU%20%7C%20ES%20%7C%20FR%20%7C%20DE-blueviolet?style=flat-square">
 </p>
 
 <p align="center">
-  <a href="https://github.com/gouthwut/PORT/releases/latest"><b>Download for Windows</b></a>
+  <a href="https://github.com/gouthwut/PORT/releases/download/v0.1.0-beta.3/PORT-Setup-0.1.0-beta.3.exe"><b>Download for Windows (Setup.exe)</b></a>
 </p>
 
 ---
@@ -60,12 +60,12 @@
 - **Growing Dynamic Catalog:** New verified projects and releases appear automatically in the catalog without requiring manual application reinstalls.
 - **Detailed Specifications:** Review screenshots, hardware requirements, engine implementation details, and compatibility status before downloading.
 - **Installation Guides & Copy Steps:** Clear, step-by-step setup instructions, required asset lists, and one-click copyable steps in all five interface languages.
-- **Integrated Download Manager:** Download verified, official developer releases (GitHub Releases) directly inside PORT, complete with speed tracking, pause/resume, and cancellation.
+- **Integrated Download Manager:** Download verified, official developer releases (GitHub Releases) directly inside PORT, complete with speed tracking, cancellation, retry, and direct folder reveal.
 - **Download History & File Reveal:** Keep track of downloaded archives with direct one-click reveal in Windows File Explorer.
 - **Automatic Catalog Updates:** Seamless catalog refresh on startup, focus, or network reconnection, with local caching for offline resilience.
 - **Cryptographically Signed Updates:** Secure, built-in application updates verified with Minisign signatures.
 - **Five Interface Languages:** Full localization in English, Russian, Spanish, French, and German.
-- **No Account Required:** Completely free and open-source. No registration, no accounts, and no tracking.
+- **Privacy by Default:** Free and open-source. No registration, no user accounts, and no mandatory telemetry (optional anonymous metrics are disabled by default).
 
 ---
 
@@ -91,14 +91,14 @@
 
 Download the latest installer from the official release page:
 
-👉 [**Latest Windows Release (v0.1.0-beta.3)**](https://github.com/gouthwut/PORT/releases/latest)
+👉 [**Download PORT-Setup-0.1.0-beta.3.exe**](https://github.com/gouthwut/PORT/releases/download/v0.1.0-beta.3/PORT-Setup-0.1.0-beta.3.exe) · [Release Notes](https://github.com/gouthwut/PORT/releases/tag/v0.1.0-beta.3)
 
-| Asset        | Details                                                            |
-| :----------- | :----------------------------------------------------------------- |
-| **File**     | `PORT-Setup-0.1.0-beta.3.exe`                                      |
-| **Version**  | `0.1.0-beta.3`                                                     |
-| **Platform** | Windows 10 / 11 (x64)                                              |
-| **SHA-256**  | `deddd70c5550c1116b69e424cdd305ac8681aa5f6c7f61e4841b8c14ede03732` |
+| Asset        | Details                                                                                                                       |
+| :----------- | :---------------------------------------------------------------------------------------------------------------------------- |
+| **File**     | [`PORT-Setup-0.1.0-beta.3.exe`](https://github.com/gouthwut/PORT/releases/download/v0.1.0-beta.3/PORT-Setup-0.1.0-beta.3.exe) |
+| **Version**  | `0.1.0-beta.3`                                                                                                                |
+| **Platform** | Windows 10 / 11 (x64)                                                                                                         |
+| **SHA-256**  | `deddd70c5550c1116b69e424cdd305ac8681aa5f6c7f61e4841b8c14ede03732`                                                            |
 
 ---
 
@@ -180,8 +180,9 @@ cargo test --manifest-path src-tauri/Cargo.toml
 PORT is built with local privacy as a core principle:
 
 - All preferences, saved projects, and download records are stored strictly on your local PC in SQLite.
-- The current published version contains no advertising trackers or mandatory telemetry.
-- Optional anonymous usage statistics are strictly opt-in and off by default.
+- PORT contains no advertising trackers and no mandatory telemetry.
+- Optional anonymous usage statistics are strictly opt-in, disabled by default, and can be toggled at any time in Settings.
+- No user accounts, registration, or cloud profiles are required.
 
 For details, see our [Privacy Policy](docs/PRIVACY.md).
 

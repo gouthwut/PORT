@@ -30,14 +30,29 @@ for (const [width, height] of [
     await expect(page.locator("#project-install")).toHaveAttribute("open", "");
     await expect(page.locator("#project-install ol")).toBeVisible();
     await page.getByRole("button", { name: "Главная", exact: true }).click();
-    const homeCard = await page
+    await expect(page.locator(".port-editorial")).toBeVisible();
+    const homeCardLocator = page
       .locator(".port-editorial .port-project")
-      .boundingBox();
+      .first();
+    await expect(homeCardLocator).toBeVisible();
+    let homeCard = await homeCardLocator.boundingBox();
+    if (!homeCard) {
+      await page.waitForTimeout(100);
+      homeCard = await homeCardLocator.boundingBox();
+    }
+    expect(homeCard).not.toBeNull();
     // The featured carousel keeps the first artwork visible even at 800×600.
     expect(homeCard!.y).toBeLessThan(height - 32);
     await page.getByRole("button", { name: "Каталог", exact: true }).click();
-    const card = page.locator(".hub-project-card");
-    const rect = await card.boundingBox();
+    await expect(page.locator(".hub-catalog")).toBeVisible();
+    const card = page.locator(".hub-catalog .hub-project-card");
+    await expect(card.first()).toBeVisible();
+    let rect = await card.first().boundingBox();
+    if (!rect) {
+      await page.waitForTimeout(100);
+      rect = await card.first().boundingBox();
+    }
+    expect(rect).not.toBeNull();
     expect(rect!.y).toBeLessThan(height - 100);
     // Stage 18C uses wide artwork cards and a single column on compact windows.
     expect(rect!.width).toBeLessThanOrEqual(880);
