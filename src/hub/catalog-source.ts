@@ -3,7 +3,6 @@ import type { CatalogState } from "../services/catalog";
 import { downloadUnavailable } from "./downloads";
 import { fromV1, type CatalogProject } from "./catalog-model";
 import sourceConfig from "./source-config.json";
-import { readCatalogCache, saveCatalogCache } from "./catalog-cache";
 import {
   createV2Client,
   loadV2Catalog,
@@ -73,40 +72,23 @@ export function useProjectCatalog(): ProjectCatalogState {
     version: "v1" | "v2";
     projects: CatalogProject[];
     notice: string;
-    source: "cache" | "online";
   } | null>(null);
   const [busy, setBusy] = useState(config.value?.version === "v2");
   const [error, setError] = useState("");
-  const [cacheWarning, setCacheWarning] = useState("");
   const generation = useRef(0);
   const lock = useRef(false);
-  const lastRefresh = useRef(0);
   const refreshV2 = useCallback(async () => {
     if (config.value?.version !== "v2" || lock.current) return;
     lock.current = true;
-    lastRefresh.current = Date.now();
     const current = generation.current;
     setBusy(true);
     setError("");
     try {
       const c = config.value;
       const next = await selectSource(c, () =>
-        loadV2Catalog(createV2Client(c.baseUrl), (snapshot) => {
-          if (current !== generation.current) return;
-          void saveCatalogCache(c.baseUrl, snapshot)
-            .then(() => {
-              if (current === generation.current) setCacheWarning("");
-            })
-            .catch(() => {
-              if (current === generation.current)
-                setCacheWarning(
-                  "Не удалось сохранить каталог для работы без интернета.",
-                );
-            });
-        }),
+        loadV2Catalog(createV2Client(c.baseUrl)),
       );
-      if (current === generation.current)
-        setResult({ ...next, source: "online" });
+      if (current === generation.current) setResult(next);
       if (next.version === "v2") {
         const client = createV2Client(c.baseUrl);
         let index = 0;
@@ -146,15 +128,10 @@ export function useProjectCatalog(): ProjectCatalogState {
           }),
         );
         if (current === generation.current)
-          setResult({ ...next, projects: enriched, source: "online" });
+          setResult({ ...next, projects: enriched });
       }
     } catch (e) {
-      if (current === generation.current) {
-        setError(String(e));
-        setResult((previous) =>
-          previous ? { ...previous, source: "cache" } : null,
-        );
-      }
+      if (current === generation.current) setError(String(e));
     } finally {
       if (current === generation.current) {
         lock.current = false;
@@ -163,32 +140,11 @@ export function useProjectCatalog(): ProjectCatalogState {
     }
   }, [config]);
   useEffect(() => {
-    let disposed = false;
-    void (async () => {
-      if (config.value?.version === "v2") {
-        const projects = await readCatalogCache(config.value.baseUrl);
-        if (!disposed && projects && lastRefresh.current === 0)
-          setResult({ version: "v2", projects, notice: "", source: "cache" });
-      }
-      if (!disposed) void refreshV2();
-    })();
+    void refreshV2();
     const reconnect = () => void refreshV2();
-    const refreshIfVisible = () => {
-      if (
-        document.visibilityState === "visible" &&
-        navigator.onLine &&
-        Date.now() - lastRefresh.current >= 5 * 60_000
-      )
-        void refreshV2();
-    };
-    const interval = window.setInterval(refreshIfVisible, 5 * 60_000);
     window.addEventListener("online", reconnect);
-    document.addEventListener("visibilitychange", refreshIfVisible);
     return () => {
-      disposed = true;
-      window.clearInterval(interval);
       window.removeEventListener("online", reconnect);
-      document.removeEventListener("visibilitychange", refreshIfVisible);
       generation.current++;
       lock.current = false;
     };
@@ -204,12 +160,14 @@ export function useProjectCatalog(): ProjectCatalogState {
       refresh: async () => {},
     };
   return {
-    projects: result?.projects ?? [],
+    projects: (result?.projects ?? []).filter(
+      (p) => p.kind !== "compatibility-runtime",
+    ),
     busy,
     error,
-    warning: cacheWarning,
+    warning: "",
     notice: result?.notice ?? "Источник каталога: API v2",
-    source: result?.source ?? "empty",
+    source: result ? "online" : "empty",
     refresh: refreshV2,
   };
 }

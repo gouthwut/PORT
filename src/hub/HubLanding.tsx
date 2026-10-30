@@ -48,14 +48,7 @@ export function HubLanding({
     .slice(0, 3);
   return (
     <div className="port-home">
-      {catalog.source === "cache" && (
-        <p role="status" className="hub-catalog-note">
-          {t(
-            "Показан сохранённый каталог. Для актуальных сборок подключитесь к интернету.",
-          )}
-        </p>
-      )}
-      {projects.length ? (
+      {projects.length && !catalog.error ? (
         <FeaturedCarousel projects={projects} onOpen={onOpen} />
       ) : (
         <section className="port-hero" aria-labelledby="hub-title">

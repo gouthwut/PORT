@@ -438,7 +438,6 @@ export type V2Client = ReturnType<typeof createV2Client>;
  * server filters cannot express. Commit only a complete bounded snapshot. */
 export async function loadV2Catalog(
   client: V2Client,
-  onSnapshot?: (snapshot: V2Snapshot) => void,
 ): Promise<CatalogProject[]> {
   async function all<T extends { id: string }>(
     load: (
@@ -475,32 +474,6 @@ export async function loadV2Catalog(
     all((cursor) => client.projects({ limit: 100, cursor, sort: "name" })),
     all((cursor) => client.games(cursor)),
   ]);
-  onSnapshot?.({ projects, games });
-  return projects.map((p) => fromV2(p, games));
-}
-
-export interface V2Snapshot {
-  projects: V2Summary[];
-  games: V2Game[];
-}
-
-/** Local storage is untrusted input and must pass the public contract again. */
-export function parseV2Snapshot(value: unknown): CatalogProject[] {
-  const o = obj(value);
-  const projects = list(
-    o.projects,
-    (p) => {
-      const summary = obj(p);
-      return parseSummary({
-        ...summary,
-        cover: obj(summary.media ?? {}).cover,
-      });
-    },
-    1000,
-  );
-  const games = list(o.games, game, 1000);
-  unique(projects);
-  unique(games);
   return projects.map((p) => fromV2(p, games));
 }
 

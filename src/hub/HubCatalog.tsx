@@ -8,6 +8,7 @@ import {
   SlidersHorizontal,
   X,
 } from "lucide-react";
+import { developerMode } from "../services/catalog";
 import type { MediaSet } from "../services/media";
 import { native } from "../services/settings";
 import { usePreferences } from "./preferences";
@@ -146,11 +147,13 @@ export function HubCatalog({
                   onChange={(e) => change({ kind: e.target.value })}
                 >
                   <option value="">{t("Все технологии")}</option>
-                  {Object.entries(technologyLabels).map(([key, label]) => (
-                    <option key={key} value={key}>
-                      {t(label)}
-                    </option>
-                  ))}
+                  {Object.entries(technologyLabels)
+                    .filter(([key]) => key !== "compatibility-runtime")
+                    .map(([key, label]) => (
+                      <option key={key} value={key}>
+                        {t(label)}
+                      </option>
+                    ))}
                 </select>
               </label>
               <label>
@@ -280,7 +283,11 @@ export function HubCatalog({
           )}
           {catalog.warning && (
             <p className="hub-catalog-note" role="status">
-              {t(catalog.warning)}
+              {developerMode
+                ? catalog.warning
+                : t(
+                    "Некоторые изображения недоступны. Сведения о проектах сохранены.",
+                  )}
             </p>
           )}
           <section
