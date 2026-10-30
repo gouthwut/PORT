@@ -687,7 +687,7 @@ test("Stage 13A: Home → catalog → official project/releases preserves filter
   expect(legacyRequests).toEqual([]);
 });
 
-test("Stage 13A: empty v2 and absent releases stay explicit, compatibility runtimes are excluded", async ({
+test("empty v2 and absent releases stay explicit; compatibility runtimes retain their technology label", async ({
   page,
 }) => {
   await setup(page);
@@ -723,8 +723,21 @@ test("Stage 13A: empty v2 and absent releases stay explicit, compatibility runti
   ).toBeVisible();
   mode = "projects";
   await page.getByRole("button", { name: "Обновить каталог" }).click();
+  await expect(page.locator(".hub-project-card")).toHaveCount(2);
+  await page
+    .getByRole("combobox", { name: "Технология", exact: true })
+    .selectOption("compatibility-runtime");
   await expect(page.locator(".hub-project-card")).toHaveCount(1);
-  await page.locator(".hub-project-card").click();
+  await expect(page.locator(".hub-project-card")).toContainText(
+    "Слой совместимости",
+  );
+  await page
+    .getByRole("combobox", { name: "Технология", exact: true })
+    .selectOption("");
+  await page
+    .locator(".hub-project-card")
+    .filter({ hasText: "Project port-a" })
+    .click();
   await expect(
     page.getByText(
       "Одобренные сборки для Windows пока не опубликованы. Исходный код и новости — на странице проекта.",
@@ -732,6 +745,52 @@ test("Stage 13A: empty v2 and absent releases stay explicit, compatibility runti
     ),
   ).toBeVisible();
   await expect(page.getByRole("link", { name: /Релиз/ })).toHaveCount(0);
+});
+
+test("published catalog refreshes while visible and retains its last complete data on failure", async ({
+  page,
+}) => {
+  await page.clock.install();
+  await setup(page);
+  let revision = "first";
+  let requests = 0;
+  await page.route(`${origin}/v2/projects?*`, (r) => {
+    requests++;
+    return revision === "failed"
+      ? r.fulfill({ status: 503 })
+      : r.fulfill({
+          json: {
+            schemaVersion: 2,
+            items: [summary(revision)],
+            total: 1,
+            nextCursor: null,
+          },
+        });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Каталог", exact: true }).click();
+  await expect(page.locator(".hub-project-card")).toContainText(
+    "Project first",
+  );
+  await expect(
+    page.getByRole("button", { name: "Обновить каталог" }),
+  ).toBeEnabled();
+  const initialRequests = requests;
+  revision = "second";
+  await page.clock.fastForward(5 * 60_000);
+  await expect(page.locator(".hub-project-card")).toContainText(
+    "Project second",
+  );
+  await expect(
+    page.getByRole("button", { name: "Обновить каталог" }),
+  ).toBeEnabled();
+  revision = "failed";
+  await page.clock.fastForward(5 * 60_000);
+  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.locator(".hub-project-card")).toContainText(
+    "Project second",
+  );
+  expect(requests).toBe(initialRequests + 2);
 });
 
 test("Stage 13A: detail failure retries without displaying fabricated releases", async ({

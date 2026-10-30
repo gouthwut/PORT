@@ -77,9 +77,11 @@ export function useProjectCatalog(): ProjectCatalogState {
   const [error, setError] = useState("");
   const generation = useRef(0);
   const lock = useRef(false);
+  const lastRefresh = useRef(0);
   const refreshV2 = useCallback(async () => {
     if (config.value?.version !== "v2" || lock.current) return;
     lock.current = true;
+    lastRefresh.current = Date.now();
     const current = generation.current;
     setBusy(true);
     setError("");
@@ -142,9 +144,21 @@ export function useProjectCatalog(): ProjectCatalogState {
   useEffect(() => {
     void refreshV2();
     const reconnect = () => void refreshV2();
+    const refreshIfVisible = () => {
+      if (
+        document.visibilityState === "visible" &&
+        navigator.onLine &&
+        Date.now() - lastRefresh.current >= 5 * 60_000
+      )
+        void refreshV2();
+    };
+    const interval = window.setInterval(refreshIfVisible, 5 * 60_000);
     window.addEventListener("online", reconnect);
+    document.addEventListener("visibilitychange", refreshIfVisible);
     return () => {
+      window.clearInterval(interval);
       window.removeEventListener("online", reconnect);
+      document.removeEventListener("visibilitychange", refreshIfVisible);
       generation.current++;
       lock.current = false;
     };
@@ -160,9 +174,7 @@ export function useProjectCatalog(): ProjectCatalogState {
       refresh: async () => {},
     };
   return {
-    projects: (result?.projects ?? []).filter(
-      (p) => p.kind !== "compatibility-runtime",
-    ),
+    projects: result?.projects ?? [],
     busy,
     error,
     warning: "",

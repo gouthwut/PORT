@@ -147,13 +147,11 @@ export function HubCatalog({
                   onChange={(e) => change({ kind: e.target.value })}
                 >
                   <option value="">{t("Все технологии")}</option>
-                  {Object.entries(technologyLabels)
-                    .filter(([key]) => key !== "compatibility-runtime")
-                    .map(([key, label]) => (
-                      <option key={key} value={key}>
-                        {t(label)}
-                      </option>
-                    ))}
+                  {Object.entries(technologyLabels).map(([key, label]) => (
+                    <option key={key} value={key}>
+                      {t(label)}
+                    </option>
+                  ))}
                 </select>
               </label>
               <label>

@@ -1,5 +1,19 @@
 # PORT// progress
 
+## 2026-10-30 — Catalog refresh and runtime visibility
+
+- Removed historical client-only exclusion of compatibility-runtime projects;
+  they retain their accurate technology label and are filterable in the catalog.
+- Visible, online catalog refreshes every five minutes and on returning to a
+  stale window; existing online/manual refresh preserved. Last complete in-memory
+  result survives failed refresh, without v1 fallback or fabricated releases.
+- Frontend TypeScript/Vite build PASS; all 16 targeted hub-api-v2 tests PASS.
+  New refresh assertion initially assumed one initial request; corrected for React
+  StrictMode baseline. The initial sandbox test process hung during server teardown;
+  outside-sandbox run completed normally (16 PASS, 30.5s).
+- Private CMS recovery committed locally as 456412b, no CMS push. Production API
+  activation and durable offline cache are pending; no production change claimed.
+
 ## 2026-10-30 — Final release development resumed
 
 - Adopted the owner's full 1.0 scope; active list is docs/RELEASE_CHECKLIST.md.
