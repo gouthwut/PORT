@@ -21,8 +21,8 @@ $sentinelHash = (Get-FileHash $sentinel).Hash
 $process = Start-Process -FilePath $installer -ArgumentList '/S' -PassThru -Wait
 if ($process.ExitCode -ne 0) { throw "Install failed: $($process.ExitCode)" }
 $exe = Join-Path $installDir 'port-launcher.exe'
-if ([Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes($exe)) -notmatch 'level="asInvoker"') {
-    throw 'PORT must run without requesting elevation.'
+if ([Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes($exe)) -match 'level="(requireAdministrator|highestAvailable)"') {
+    throw 'PORT must not request elevation.'
 }
 if ((Get-Item $exe).VersionInfo.ProductVersion -ne $version) { throw 'Wrong installed version or Program Files directory.' }
 $registration = Get-ItemProperty $machineKey

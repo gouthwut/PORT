@@ -2,7 +2,7 @@
 
 PORT includes a secure, cryptographically signed automatic update system powered by `tauri-plugin-updater` and Minisign signatures.
 
-Beta 4 uses the standard Tauri NSIS `perMachine` installer and `passive` updater. Only Setup/Uninstall request elevation; PORT itself remains `asInvoker`. A machine installation registers under HKLM and uses all-users shortcuts.
+Beta 4 uses the standard Tauri NSIS `perMachine` installer and `passive` updater. Only Setup/Uninstall request elevation; PORT keeps the default non-elevating Tauri application manifest. A machine installation registers under HKLM and uses all-users shortcuts.
 
 Beta 3 per-user installations require an explicit manual transition. Setup blocks when a PORT per-user uninstall entry is found in a loaded user hive, including when UAC uses another administrator account. It does not move or remove that installation. Close PORT, back up `%APPDATA%\app.port.launcher`, uninstall the per-user copy **without selecting Delete application data**, then install Beta 4 in Program Files. Check other Windows accounts for older per-user copies too; unloaded profiles cannot be inspected by this guard. Never delete the application data or downloaded game folders during this transition.
 
