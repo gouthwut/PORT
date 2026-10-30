@@ -5,6 +5,7 @@ export interface Settings {
   installDir: string;
   reducedMotion: boolean;
   compactCards: boolean;
+  shareAnonymousStats?: boolean;
 }
 export const defaults: Settings = {
   theme: "dark",
@@ -12,6 +13,7 @@ export const defaults: Settings = {
   installDir: "",
   reducedMotion: false,
   compactCards: false,
+  shareAnonymousStats: false,
 };
 export const native = isTauri();
 const key = "port.settings.v1";
@@ -38,6 +40,7 @@ function parse(raw: string | null): Settings {
     installDir: value.installDir,
     reducedMotion: value.reducedMotion,
     compactCards: value.compactCards,
+    shareAnonymousStats: value.shareAnonymousStats === true,
   };
 }
 export const settingsService = {

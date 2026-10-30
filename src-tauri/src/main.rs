@@ -30,6 +30,8 @@ struct Settings {
     install_dir: String,
     reduced_motion: bool,
     compact_cards: bool,
+    #[serde(default)]
+    share_anonymous_stats: bool,
 }
 fn default_language() -> String {
     "ru".into()
@@ -42,6 +44,7 @@ impl Default for Settings {
             install_dir: String::new(),
             reduced_motion: false,
             compact_cards: false,
+            share_anonymous_stats: false,
         }
     }
 }
@@ -246,8 +249,10 @@ mod tests {
         )
         .unwrap();
         assert_eq!(old.language, "ru");
+        assert!(!old.share_anonymous_stats);
         let s = Settings {
             reduced_motion: true,
+            share_anonymous_stats: true,
             language: "de".into(),
             ..Settings::default()
         };

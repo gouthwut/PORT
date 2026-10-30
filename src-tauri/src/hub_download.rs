@@ -13,7 +13,7 @@ use std::{
     },
     time::{Duration, Instant},
 };
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use tokio::sync::Notify;
 
@@ -305,12 +305,14 @@ fn verify(completed: u64, total: Option<u64>, hash: Option<&str>, actual: &str) 
     }
     Ok(())
 }
-async fn transfer(s: &Inner, a: Asset, root: PathBuf) -> Result<PathBuf> {
+async fn transfer(app: &tauri::AppHandle, s: &Inner, a: Asset, root: PathBuf) -> Result<PathBuf> {
     ensure_absent(&root.join(&a.name))?;
     #[cfg(feature = "download-e2e-qa")]
     let r = crate::download_e2e_qa::response(&a.url).await?;
     #[cfg(not(feature = "download-e2e-qa"))]
     let r = response(a.url.clone()).await?;
+    let project_id = s.status.lock().unwrap().project_id.clone();
+    let _ = app.emit("port-usage-event", serde_json::json!({ "event": "download_started", "projectId": project_id }));
     save_response(s, a, root, r).await
 }
 async fn save_response(
@@ -581,7 +583,7 @@ pub fn start_hub_download(
             tokio::select! {
                 biased;
                 _ = cancel.notified() => Err("Загрузка отменена".into()),
-                r = transfer(&s, asset, root) => r.map(Some),
+                r = transfer(&app, &s, asset, root) => r.map(Some),
             }
         }
         .await;
@@ -592,6 +594,7 @@ pub fn start_hub_download(
             s.speed = 0;
             match result {
                 Ok(Some(path)) => {
+                    let _ = app.emit("port-usage-event", serde_json::json!({ "event": "download_completed", "projectId": s.project_id }));
                     s.phase = "completed".into();
                     s.message = "Файл сохранён. Запуск выполняется вручную.".into();
                     s.path = Some(path);

@@ -23,6 +23,8 @@ import { appVersion, useUpdater } from "./services/updater";
 
 import { useProjectCatalog } from "./hub/catalog-source";
 import { V2Project } from "./hub/V2Project";
+import { setAnalyticsConsent, usageEvent } from "./services/analytics";
+import { listen } from "@tauri-apps/api/event";
 import { usePreferences } from "./hub/preferences";
 import { CompactProjectCard } from "./hub/ProjectCard";
 import { useDownload } from "./hub/downloads";
@@ -58,6 +60,28 @@ export default function App() {
   const [settings, setSettings] = useState<Settings>(defaults);
   useEffect(() => setLanguage(settings.language ?? "ru"), [settings.language]);
   const [ready, setReady] = useState(false);
+  useEffect(() => {
+    if (ready) setAnalyticsConsent(settings.shareAnonymousStats === true);
+  }, [ready, settings.shareAnonymousStats]);
+  useEffect(() => {
+    if (!native) return;
+    let active = true;
+    const subscription = listen<{
+      event: "download_started" | "download_completed";
+      projectId: string;
+    }>("port-usage-event", ({ payload }) => {
+      if (
+        active &&
+        ["download_started", "download_completed"].includes(payload.event)
+      )
+        usageEvent(payload.event, payload.projectId);
+    });
+    void subscription.catch(() => {});
+    return () => {
+      active = false;
+      void subscription.then((unlisten) => unlisten()).catch(() => {});
+    };
+  }, []);
   const [storageError, setStorageError] = useState(false);
   const [saving, setSaving] = useState(false);
   const [about, setAbout] = useState(false);
@@ -113,6 +137,7 @@ export default function App() {
   }, []);
   async function update(patch: Partial<Settings>) {
     if (saving) return;
+    if (patch.shareAnonymousStats === false) setAnalyticsConsent(false);
     const next = { ...settings, ...patch };
     setSaving(true);
     try {
@@ -130,6 +155,7 @@ export default function App() {
     setPage(next);
   }
   function openProject(project: CatalogProject) {
+    usageEvent("project_view", project.id);
     setReturnPage(page === "details" ? "catalog" : page);
     preferences.visit(project.id);
     setSelectedV2(project);
@@ -382,6 +408,35 @@ export default function App() {
                                   checked={settings.compactCards}
                                   onCheckedChange={(v) =>
                                     update({ compactCards: v })
+                                  }
+                                  disabled={saving}
+                                />
+                              </div>
+                              <div className="setting-row">
+                                <div>
+                                  <h3>Share anonymous usage statistics</h3>
+                                  <p>
+                                    Optional. Share app launches, project views
+                                    and download starts/completions. No device
+                                    ID or personal details. Daily totals are
+                                    kept for up to 180 days. Turn off at any
+                                    time.
+                                  </p>
+                                  <a
+                                    href="https://port-catalog-cms.port-catalog-cms.workers.dev/privacy"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    Privacy policy
+                                  </a>
+                                </div>
+                                <Switch
+                                  label="Share anonymous usage statistics"
+                                  checked={
+                                    settings.shareAnonymousStats === true
+                                  }
+                                  onCheckedChange={(v) =>
+                                    update({ shareAnonymousStats: v })
                                   }
                                   disabled={saving}
                                 />
