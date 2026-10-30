@@ -220,10 +220,7 @@ test("v2 snapshot follows cursors atomically and retains game search/source filt
   await expect(
     page.getByRole("region", { name: "О проекте", exact: true }),
   ).toContainText("Public description <script>unsafe()</script>");
-  await page
-    .locator("details > summary")
-    .filter({ hasText: /^Инструкция$/ })
-    .click();
+  await page.locator("#project-install summary > span").click();
   await expect(
     page.getByRole("region", { name: "Данные проекта v2" }),
   ).toContainText("Read the official guide");
@@ -719,7 +716,9 @@ test("Stage 19C: empty v2 and absent releases stay explicit, compatibility runti
   ).toBeVisible();
   await page.getByRole("button", { name: "Каталог", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: /Каталог пока пуст|Пока нет доступных проектов/ }),
+    page.getByRole("heading", {
+      name: /Каталог пока пуст|Пока нет доступных проектов/,
+    }),
   ).toBeVisible();
   mode = "projects";
   await page.getByRole("button", { name: "Обновить каталог" }).click();

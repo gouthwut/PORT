@@ -1,10 +1,17 @@
 # Changelog
 
+## 0.1.0-beta.3 — PORT Beta 3
+
+- Copy all installation steps with numbering, notes, and official project links from the project page.
+- Localized copy action, confirmation, and error message in English, Russian, Spanish, French, and German.
+- Continues to use the production updater channel and the existing Beta 2 signing key.
+
 ## 0.1.0-beta.2 — PORT Beta 2
 
 Second public beta release for Windows 10/11 x64.
 
 ### Added & Improved
+
 - **Automatic Catalog Updates:** Catalog refreshes seamlessly upon app startup, window focus/visibility changes after being stale, and network reconnection, while keeping manual refresh available.
 - **Offline Resilience:** Local caching preserves the last loaded catalog if the CMS is unreachable or offline, showing a non-intrusive notification without clearing existing items.
 - **Production Signed Auto-Updater:** Full support for Tauri updater with Minisign cryptographic verification, configured with the official GitHub Releases channel to deliver seamless updates between beta versions.

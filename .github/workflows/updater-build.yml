@@ -24,7 +24,8 @@ jobs:
           if ($channel.channel -ne 'production' -or -not $channel.publicKey -or -not $channel.endpoint.StartsWith('https://')) { throw 'Production updater channel is not configured' }
       - run: npm ci
       - run: npm run build
-      - run: cargo test --locked --manifest-path src-tauri/Cargo.toml
+      # This probe requires an interactive Explorer session, absent on hosted runners.
+      - run: cargo test --locked --manifest-path src-tauri/Cargo.toml -- --skip shortcuts::tests::actual_windows_create_read_execute_repair_delete_and_desktop_failures
       - name: Build signed NSIS updater
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
