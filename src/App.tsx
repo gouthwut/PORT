@@ -334,6 +334,7 @@ export default function App() {
                                 >
                                   <option value="ru">Русский</option>
                                   <option value="en">English</option>
+                                  <option value="de">Deutsch</option>
                                   <option value="es">Español</option>
                                   <option value="fr">Français</option>
                                 </select>
@@ -399,7 +400,9 @@ export default function App() {
                               <div className="setting-row">
                                 <div>
                                   <h3>{t("Сбросить настройки")}</h3>
-                                  <p>{t("Игры и сохранения останутся")}</p>
+                                  <p>
+                                    {t("Скачанные файлы и история останутся")}
+                                  </p>
                                 </div>
                                 <Button
                                   variant="secondary"
@@ -429,12 +432,12 @@ export default function App() {
             open={about}
             onOpenChange={setAbout}
             title={t("О PORT")}
-            description={`${t("Бесплатный Windows-лаунчер нативных ПК-портов и рекомпиляций консольных игр.")} ${t("Версия")} ${appVersion}.`}
+            description={`${t("Бесплатный каталог и менеджер загрузок независимых портов, рекомпиляций, декомпиляций и runtime-проектов для Windows.")} ${t("Версия")} ${appVersion}.`}
           >
             <div className="about-dialog-content">
               <p>
                 {t(
-                  "PORT не распространяет игровые файлы. Совместимость и способ запуска указаны на странице каждой игры.",
+                  "PORT скачивает официальные файлы проектов. Установку и запуск пользователь выполняет самостоятельно по инструкции разработчика.",
                 )}{" "}
               </p>
               <details className="technical-info font-notices">

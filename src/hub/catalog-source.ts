@@ -3,6 +3,7 @@ import type { CatalogState } from "../services/catalog";
 import { downloadUnavailable } from "./downloads";
 import { fromV1, type CatalogProject } from "./catalog-model";
 import sourceConfig from "./source-config.json";
+import { useLanguage } from "./i18n";
 import {
   createV2Client,
   loadV2Catalog,
@@ -49,6 +50,7 @@ export async function selectSource(
 }
 
 export function useProjectCatalog(): ProjectCatalogState {
+  const language = useLanguage();
   const config = useMemo(() => {
     try {
       const value = parseSourceConfig(
@@ -138,7 +140,7 @@ export function useProjectCatalog(): ProjectCatalogState {
         setBusy(false);
       }
     }
-  }, [config]);
+  }, [config, language]);
   useEffect(() => {
     void refreshV2();
     const reconnect = () => void refreshV2();
@@ -160,9 +162,7 @@ export function useProjectCatalog(): ProjectCatalogState {
       refresh: async () => {},
     };
   return {
-    projects: (result?.projects ?? []).filter(
-      (p) => p.kind !== "compatibility-runtime",
-    ),
+    projects: result?.projects ?? [],
     busy,
     error,
     warning: "",

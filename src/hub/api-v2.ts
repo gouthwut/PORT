@@ -2,6 +2,7 @@ import { publicHttps } from "../services/catalog";
 import { isLocalCms, localCmsFetch } from "./local-cms-qa";
 import { parseV2Media } from "./v2-media";
 import { native } from "../services/settings";
+import { getLanguage } from "./i18n";
 import {
   fromV2,
   lifecycleLabels,
@@ -95,13 +96,37 @@ const str = (v: unknown, max = 8000): string =>
   !/[\x00-\x09\x0b-\x1f\x7f]/.test(v)
     ? v
     : bad();
-const opt = (v: unknown) => (v == null ? null : str(v));
+/** Optional CMS text extension: old strings remain valid. Validate every locale;
+ * translations can never override IDs, URLs, media or build authority. */
+function localized<T>(v: unknown, parse: (v: unknown) => T, empty: T): T {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return parse(v);
+  const values = obj(v);
+  const languages = ["ru", "en", "es", "fr", "de"];
+  if (Object.keys(values).some((key) => !languages.includes(key))) bad();
+  const parsed = new Map<string, T>();
+  for (const [key, value] of Object.entries(values)) {
+    if (value == null || value === "") continue;
+    parsed.set(key, parse(value));
+  }
+  for (const key of [getLanguage(), "en", ...languages]) {
+    if (parsed.has(key)) return parsed.get(key)!;
+  }
+  return empty;
+}
+const text = (v: unknown, max = 8000): string =>
+  localized(v, (x) => str(x, max), "") || bad();
+const opt = (v: unknown) =>
+  v == null ? null : localized(v, (x) => str(x), null as string | null);
 const id = (v: unknown): string =>
   typeof v === "string" && /^[a-z0-9][a-z0-9-]{0,79}$/.test(v) ? v : bad();
 const list = <T>(v: unknown, parse: (v: unknown) => T, max = 100): T[] =>
   Array.isArray(v) && v.length <= max ? v.map(parse) : bad();
 const optionalList = <T>(v: unknown, parse: (v: unknown) => T, max = 100) =>
   list(v ?? [], parse, max);
+const textList = (v: unknown, max: number, length: number): string[] =>
+  v == null
+    ? []
+    : localized(v, (x) => list(x, (s) => text(s, length), max), []);
 const one = <T extends string>(v: unknown, values: readonly T[]): T =>
   values.includes(v as T) ? (v as T) : bad();
 const url = (v: unknown) => publicHttps(str(v, 2048)).href;
@@ -117,15 +142,15 @@ const nextCursor = (v: unknown) =>
   v === null ? null : typeof v === "string" && /^\d{1,6}$/.test(v) ? v : bad();
 const game = (v: unknown): V2Game => {
   const o = obj(v);
-  return { id: id(o.id), title: str(o.title, 120) };
+  return { id: id(o.id), title: text(o.title, 120) };
 };
 export function parseSummary(v: unknown): V2Summary {
   const o = obj(v);
   return {
     id: id(o.id),
-    name: str(o.name, 120),
+    name: text(o.name, 120),
     summary: opt(o.summary),
-    media: parseV2Media({ cover: o.cover }),
+    media: parseV2Media({ cover: o.cover, banner: o.banner }),
     gameIds: list(o.gameIds, id, 20),
     sourcePlatforms: optionalList(o.sourcePlatforms, (x) => str(x, 60), 12),
     targetPlatforms: optionalList(
@@ -152,7 +177,7 @@ export function parseBuilds(v: unknown, projectId: string): V2Build[] {
       // an explicit draft/proposal/revocation from a misconfigured endpoint.
       if (o.review !== undefined && o.review !== "approved") return null;
       if (o.projectId !== projectId) bad();
-      const sha256 = opt(o.sha256);
+      const sha256 = o.sha256 == null ? null : str(o.sha256);
       if (sha256 && !/^[a-f0-9]{64}$/.test(sha256)) bad();
       return {
         id: id(o.id),
@@ -179,8 +204,15 @@ export function parseBuilds(v: unknown, projectId: string): V2Build[] {
         releaseUrl: optUrl(o.releaseUrl),
         sha256,
         size: o.size == null ? null : integer(o.size),
-        publishedAt: opt(o.publishedAt),
-        changelog: o.changelog == null ? null : str(o.changelog, 64000),
+        publishedAt: o.publishedAt == null ? null : str(o.publishedAt),
+        changelog:
+          o.changelog == null
+            ? null
+            : localized(
+                o.changelog,
+                (x) => str(x, 64000),
+                null as string | null,
+              ),
       };
     },
     1000,
@@ -214,40 +246,32 @@ function requirements(o: Record<string, unknown>): Requirements {
         const d = obj(v);
         if (typeof d.required !== "boolean") bad();
         return {
-          name: str(d.name, 120),
+          name: text(d.name, 120),
           url: optUrl(d.url),
           required: d.required as boolean,
         };
       },
       30,
     ),
-    sourceRequirements: optionalList(
-      o.sourceRequirements,
-      (x) => str(x, 300),
-      20,
-    ),
+    sourceRequirements: textList(o.sourceRequirements, 20, 300),
   };
 }
 function instructions(o: Record<string, unknown>): Instructions {
   const i = obj(o.install ?? {});
   return {
     install: {
-      steps: optionalList(i.steps, (x) => str(x, 2000), 50),
+      steps: textList(i.steps, 50, 2000),
       notes: opt(i.notes),
     },
     knownIssues: optionalList(
       o.knownIssues,
       (v) => {
         const k = obj(v);
-        return { title: str(k.title, 200), details: opt(k.details) };
+        return { title: text(k.title, 200), details: opt(k.details) };
       },
       50,
     ),
-    sourceRequirements: optionalList(
-      o.sourceRequirements,
-      (x) => str(x, 300),
-      20,
-    ),
+    sourceRequirements: textList(o.sourceRequirements, 20, 300),
   };
 }
 function unique(items: { id: string }[]) {

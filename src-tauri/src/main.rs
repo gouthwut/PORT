@@ -47,7 +47,7 @@ impl Default for Settings {
 }
 impl Settings {
     fn validate(&self) -> Result<(), String> {
-        if !["ru", "en", "es", "fr"].contains(&self.language.as_str()) {
+        if !["ru", "en", "es", "fr", "de"].contains(&self.language.as_str()) {
             return Err("Недопустимый язык".into());
         }
         if !["dark", "system"].contains(&self.theme.as_str()) {
@@ -278,8 +278,10 @@ mod tests {
         assert_eq!(read(&conn).unwrap(), Settings::default());
         let s = Settings {
             reduced_motion: true,
+            language: "de".into(),
             ..Settings::default()
         };
+        assert!(s.validate().is_ok());
         conn.execute(
             "INSERT INTO settings VALUES(1,?1)",
             [serde_json::to_string(&s).unwrap()],

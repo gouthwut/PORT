@@ -1,5 +1,17 @@
 # PORT// — instructions for future sessions
 
+Stage 19C authorized/completed locally 2026-10-30: PORT is a Windows catalog and
+download manager, with manual developer instructions; no public game library,
+installation or launch. Include compatibility-runtime projects in catalog/filter.
+RU/EN/ES/FR/DE settings and UI are supported. Text parser accepts an optional
+localized-field extension, but current CMS still publishes single-language strings;
+see docs/PORT_STAGE19C_CATALOG_DOWNLOADS.md for exact fallback/contract and evidence.
+Production anonymous v2 remains 401 without CORS; Stage16C staging v2 is 200 but
+empty, so live positive download integration is blocked. Do not restore the
+reverted Final Release session (starting HEAD a7e9945). Preserve Stage19B safety,
+QA isolation, all user/legacy data and inherited dirty work. No CMS/Cloudflare
+writes, source push, release, installer or automatic next stage. Local commit only.
+
 Stage 19B completed 2026-10-30: isolated installed Windows download E2E, including
 picker/Cyrillic path/Explorer, cancellation, connection drop/retry, bad SHA-256,
 partial cleanup and durable history. See docs/PORT_STAGE19B_DOWNLOAD_E2E.md and

@@ -1,5 +1,47 @@
 # PORT// progress
 
+## 2026-10-30 — Stage 19C: catalog/download integration and DE
+
+- Continued from `a7e9945`, the owner's Final Release rollback; no reverted game
+  library/launch/installer or persistent catalog cache was restored. Public PORT
+  remains a catalog/download manager; About/settings/update copy now says so.
+  Legacy native engines, registrations, saves and inherited dirty files retained.
+- Runtime projects now appear in catalog and technology filter. Summary adapter
+  retains description/target platforms and validates summary banners through the
+  existing CMS media path. Instructions and requirements with notes only are
+  accessible. Existing Liquid Glass/components/download panel retained.
+- Added German throughout 321 translation rows, settings UI/browser validation,
+  native validation/dialog index and SQLite roundtrip. Existing four languages
+  remain. Compatible field-level CMS text dictionaries have bounded validation,
+  selected-language → EN → RU → ES → FR → DE fallback, and refresh on language
+  change. IDs/URLs/hashes/build authority remain unlocalized. Current CMS does
+  not yet support those dictionaries; exact proposed extension is in the report.
+- Real Chromium anonymous production projects/games/detail/builds GETs: **401**,
+  `Требуется вход`, no ACAO. Stage16C staging projects/games: **200**, empty lists,
+  ACAO=*; missing-project detail/builds return 404 with ACAO=*. No positive real
+  project/build exists there to accept media/instructions/official ZIP end to end.
+  Python edge 403/1010 is retained separately as tool-specific probe evidence.
+  No fake production records, player login bypass or source switch was added.
+- PASS: TypeScript/Vite; 37 unique targeted Playwright checks (API/media,
+  discovery/preferences/four existing languages, downloads/panel timing, project,
+  release routing and three new Stage19C tests); one targeted Rust DE settings
+  roundtrip/reset; fmt; unbundled debug native build. Initial new assertion and
+  test import issues were corrected; final checks pass. Existing bundle warning
+  remains. Full Rust/Stage19B Windows E2E/installer matrix were not repeated.
+- Actual isolated Tauri with embedded frontend, app.port.cms-qa and fresh
+  `.local/stage19c/app-data`: DE saved through UI, truthful production error/empty
+  cards, real failed native CMS download probe (IPC diagnostic, zero bytes/null
+  path), German error history. Full process restart preserved settings and exact
+  history. No page errors/overflow at 1440×960. This proves failure/persistence,
+  not a positive live transfer. Stage19B successful picker/hash/Explorer/retry
+  acceptance remains the applicable isolated Windows transfer evidence.
+- Report: `docs/PORT_STAGE19C_CATALOG_DOWNLOADS.md`; ignored evidence under
+  `.local/evidence/stage19c/`. Next practical blocker is real published staging
+  data/approved Windows release and localized CMS contract, then positive live
+  acceptance. Production cutover/distribution still requires existing CMS and
+  Stage19A gates. Library scope gate is resolved by this request: no public game
+  library/install/play. No CMS/Cloudflare changes, push/release/installer.
+
 ## 2026-10-30 — CMS Stage16C production cutover preparation (NO-GO)
 
 - Continued authorized CMS-only preparation in C:/PORT-CMS. PORT code/inherited dirty files, native/game/user data untouched. Existing real owner OAuth, actual-snapshot restore/upgrade/reconciliation/repeat/old-code rehearsal and 101/0/2 full regression retained without rerun. Changed local operator/runner checks: 7 targeted PASS (4 new + 2 reconciliation + 1 runner integration); no new full/native suite claim.

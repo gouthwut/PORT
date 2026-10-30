@@ -687,7 +687,7 @@ test("Stage 13A: Home → catalog → official project/releases preserves filter
   expect(legacyRequests).toEqual([]);
 });
 
-test("Stage 13A: empty v2 and absent releases stay explicit, compatibility runtimes are excluded", async ({
+test("Stage 19C: empty v2 and absent releases stay explicit, compatibility runtimes are included", async ({
   page,
 }) => {
   await setup(page);
@@ -723,7 +723,15 @@ test("Stage 13A: empty v2 and absent releases stay explicit, compatibility runti
   ).toBeVisible();
   mode = "projects";
   await page.getByRole("button", { name: "Обновить каталог" }).click();
+  await expect(page.locator(".hub-project-card")).toHaveCount(2);
+  await page
+    .getByLabel("Технология", { exact: true })
+    .selectOption("compatibility-runtime");
   await expect(page.locator(".hub-project-card")).toHaveCount(1);
+  await expect(page.locator(".hub-project-card")).toContainText("old-runtime");
+  await page
+    .getByLabel("Технология", { exact: true })
+    .selectOption("recompilation");
   await page.locator(".hub-project-card").click();
   await expect(
     page.getByText(

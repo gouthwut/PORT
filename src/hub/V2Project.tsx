@@ -1,4 +1,4 @@
-import { t, downloadMessage } from "./i18n";
+import { t, downloadMessage, useLanguage } from "./i18n";
 import { compareVersions, newerDownload } from "./releases";
 import { FavoriteButton } from "./preferences";
 import { useEffect, useState } from "react";
@@ -31,6 +31,7 @@ export function V2Project({
   backLabel?: string;
   downloads: DownloadState;
 }) {
+  const language = useLanguage();
   const [data, setData] = useState<V2Detail | null>(null);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
@@ -68,7 +69,7 @@ export function V2Project({
     return () => {
       active = false;
     };
-  }, [project.id, attempt]);
+  }, [project.id, attempt, language]);
   const currentProject = data?.project ?? project;
   const media = useV2Media(currentProject.media);
   const [linkError, setLinkError] = useState("");
@@ -108,6 +109,11 @@ export function V2Project({
   ] as const;
   const hasSpecs = specs.some(
     ([, values]) => values && Object.values(values).some(Boolean),
+  );
+  const hasRequirements = !!(
+    hasSpecs ||
+    req?.requirements.notes ||
+    req?.requirements.source
   );
   return (
     <article className="hub-project-page">
@@ -248,8 +254,12 @@ export function V2Project({
         {[
           ["project-overview", t("О проекте"), true],
           ["project-download", t("Сборки"), !!build],
-          ["project-install", t("Инструкция"), !!install?.install.steps.length],
-          ["project-requirements", t("Системные требования"), hasSpecs],
+          [
+            "project-install",
+            t("Инструкция"),
+            !!(install?.install.steps.length || install?.install.notes),
+          ],
+          ["project-requirements", t("Системные требования"), hasRequirements],
           [
             "project-issues",
             t("Известные проблемы"),
@@ -322,7 +332,7 @@ export function V2Project({
         className="project-information"
         aria-label={t("Данные проекта v2")}
       >
-        {hasSpecs && (
+        {hasRequirements && (
           <section id="project-requirements" className="project-section">
             <h2>{t("Системные требования")}</h2>
             <div className="project-spec-columns">
@@ -364,11 +374,18 @@ export function V2Project({
             )}
           </section>
         )}
-        {!!req?.sourceRequirements.length && (
+        {!!(
+          req?.sourceRequirements.length || install?.sourceRequirements.length
+        ) && (
           <section className="project-section">
             <h2>{t("Для начала игры")}</h2>
             <ul>
-              {req.sourceRequirements.map((s, i) => (
+              {[
+                ...new Set([
+                  ...(req?.sourceRequirements ?? []),
+                  ...(install?.sourceRequirements ?? []),
+                ]),
+              ].map((s, i) => (
                 <li key={i}>{s}</li>
               ))}
             </ul>
@@ -387,7 +404,7 @@ export function V2Project({
             </ul>
           </section>
         )}
-        {!!install?.install.steps.length && (
+        {!!(install?.install.steps.length || install?.install.notes) && (
           <details id="project-install" className="project-section">
             <summary>{t("Инструкция")}</summary>
             <ol>

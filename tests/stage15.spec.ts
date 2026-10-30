@@ -234,9 +234,9 @@ test("four languages persist and catalog path fits narrow and wide windows", asy
   ).toBeVisible();
 });
 
-test("each translated entry covers all three additional languages", async () => {
+test("each translated entry covers all four additional languages", async () => {
   for (const row of Object.values(translations)) {
-    expect(row).toHaveLength(3);
+    expect(row).toHaveLength(4);
     expect(row.every((text) => text.trim().length > 0)).toBe(true);
   }
   for (const file of [

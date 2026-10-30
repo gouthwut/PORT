@@ -1,7 +1,7 @@
 import { isTauri, invoke } from "@tauri-apps/api/core";
 export interface Settings {
   theme: "dark" | "system";
-  language?: "ru" | "en" | "es" | "fr";
+  language?: "ru" | "en" | "es" | "fr" | "de";
   installDir: string;
   reducedMotion: boolean;
   compactCards: boolean;
@@ -29,7 +29,7 @@ function parse(raw: string | null): Settings {
     throw new Error("Некорректные настройки");
   if (
     value.language !== undefined &&
-    !["ru", "en", "es", "fr"].includes(value.language as string)
+    !["ru", "en", "es", "fr", "de"].includes(value.language as string)
   )
     throw new Error("Некорректный язык");
   return {

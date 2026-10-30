@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from "react";
 import translations from "./translations.json";
-export type Language = "ru" | "en" | "es" | "fr";
+export type Language = "ru" | "en" | "es" | "fr" | "de";
 let language: Language = "ru";
+export const getLanguage = () => language;
 const listeners = new Set<() => void>();
 export function setLanguage(next: Language) {
   if (next === language) return;
@@ -24,7 +25,7 @@ export function useLanguage() {
 export function t(source: string): string {
   if (language === "ru") return source;
   const row = (translations as Record<string, string[]>)[source];
-  return row?.[{ en: 0, es: 1, fr: 2 }[language]] ?? source;
+  return row?.[{ en: 0, es: 1, fr: 2, de: 3 }[language]] ?? source;
 }
 
 /** Native status text is display-only; never expose OS diagnostics as UI copy. */

@@ -1,5 +1,15 @@
 # Roadmap
 
+## Stage 19C — catalog/download integration
+
+Runtime discovery, five UI languages (RU/EN/ES/FR/DE), compatible localized-text
+parsing and notes-only instructions are implemented locally. PORT's public scope
+is catalog + downloads; legacy game Library/Install/Play stays disconnected.
+Production v2 remains anonymous 401; staging v2 is 200 with zero projects/games.
+Real published staging content/approved Windows asset and CMS localization
+agreement gate positive live acceptance. Distribution gates from 19A remain.
+See [Stage 19C report](docs/PORT_STAGE19C_CATALOG_DOWNLOADS.md).
+
 ## Stage 19B — isolated Windows download acceptance completed
 
 Completed 2026-10-30: real installed QA ZIP/picker/Cyrillic path/Explorer,

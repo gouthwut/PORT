@@ -406,6 +406,7 @@ fn native_text(app: &tauri::AppHandle, source: &str) -> String {
         "en" => 0,
         "es" => 1,
         "fr" => 2,
+        "de" => 3,
         _ => return source.into(),
     };
     serde_json::from_str::<Value>(include_str!("../../src/hub/translations.json"))

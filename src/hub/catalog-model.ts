@@ -66,6 +66,8 @@ export interface PublicV2Summary {
   kind: ProjectKind;
   lifecycle: Lifecycle;
   media?: MediaSet;
+  summary?: string | null;
+  targetPlatforms?: ("windows" | "linux" | "macos")[];
 }
 export function fromV2(
   project: PublicV2Summary,
@@ -77,9 +79,10 @@ export function fromV2(
     name: project.name,
     media: project.media,
     // Summary data does not establish detail content or official links.
-    description: null,
+    description: project.summary ?? null,
     officialLinks: [],
     platforms: project.sourcePlatforms,
+    targetPlatforms: project.targetPlatforms,
     kind: project.kind,
     lifecycle: project.lifecycle,
     windows: "unknown",
