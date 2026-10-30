@@ -57,6 +57,7 @@ export function useGameState() {
     }
   }
   useEffect(() => {
+    if (!native) return;
     let disposed = false;
     let timer: ReturnType<typeof setTimeout>;
     async function poll() {

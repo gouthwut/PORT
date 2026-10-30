@@ -1,5 +1,28 @@
 # PORT// progress
 
+## 2026-10-30 — Library reconnected to the current launcher
+
+- Added Library to the Liquid Glass shell using existing native list/launch/verify/
+  Explorer/remove commands. UI passes installation IDs only; removal requires a
+  confirmation, busy/running/unhealthy/read-error guards remain. Restored global
+  recovery warning and existing shortcut-request consumption outside Library.
+- Catalog art is optional and goes through existing v2 media/hash validation;
+  absent artwork uses PORT. No bundled private artwork or fabricated installations.
+  Existing dirty InstalledLibrary.tsx is preserved and not imported/modified.
+- New screen copy supports Russian/English/Spanish/French. Browser-only preview
+  explicitly identifies Windows library availability. Existing game-state polling
+  now skips browser preview. No native schema/downloader/installer changes.
+- TypeScript/Vite build PASS. Six Library browser/mock-IPC tests and three Downloads
+  regressions PASS (9/9); extended confirmed-removal test separately PASS afterward.
+  All 16 catalog/API tests also PASS. Browser captures at 800x600 and 1600x900 under
+  ignored .local/evidence/final-release; 800px screenshot inspected, no clipping or
+  horizontal overflow. These are synthetic IPC evidence, not real game launch,
+  filesystem removal, native persistence or clean-machine acceptance.
+- Remaining library work: supported new-install/update/setup flows, cancellation/
+  recovery UX, real isolated native/restart acceptance and owner-data preservation
+  check. Safe resumable downloads/accounts/reviews/offline cache/update signing and
+  final production/release audit remain open. No production operation/push/release.
+
 ## 2026-10-30 — Catalog refresh and runtime visibility
 
 - Removed historical client-only exclusion of compatibility-runtime projects;

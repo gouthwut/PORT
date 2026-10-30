@@ -6,12 +6,15 @@ import {
   Settings,
   Gamepad2,
   Download,
+  Library,
 } from "lucide-react";
 
-export type HubPage = "home" | "catalog" | "details" | "downloads" | "settings";
+export type HubPage =
+  "home" | "catalog" | "details" | "library" | "downloads" | "settings";
 const links = [
   { id: "home", label: "Главная", icon: Home },
   { id: "catalog", label: "Каталог", icon: Compass },
+  { id: "library", label: "Библиотека", icon: Library },
   { id: "downloads", label: "Загрузки", icon: Download },
 ] as const;
 

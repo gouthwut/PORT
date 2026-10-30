@@ -1187,5 +1187,85 @@
     "Wait for the PORT update to finish",
     "Espera a que termine la actualización de PORT",
     "Attendez la fin de la mise à jour PORT"
+  ],
+  "Библиотека": ["Library", "Biblioteca", "Bibliothèque"],
+  "Библиотека доступна в приложении PORT для Windows.": [
+    "Your library is available in the PORT Windows app.",
+    "Tu biblioteca está disponible en PORT para Windows.",
+    "Votre bibliothèque est disponible dans PORT pour Windows."
+  ],
+  "Загрузка библиотеки…": [
+    "Loading library…",
+    "Cargando biblioteca…",
+    "Chargement de la bibliothèque…"
+  ],
+  "Не удалось загрузить библиотеку. Повторите попытку.": [
+    "Could not load your library. Try again.",
+    "No se pudo cargar tu biblioteca. Inténtalo de nuevo.",
+    "Impossible de charger votre bibliothèque. Réessayez."
+  ],
+  "Установленных игр пока нет": [
+    "No installed games yet",
+    "Todavía no hay juegos instalados",
+    "Aucun jeu installé pour le moment"
+  ],
+  "Здесь появятся игры, установленные через PORT.": [
+    "Games installed through PORT will appear here.",
+    "Los juegos instalados con PORT aparecerán aquí.",
+    "Les jeux installés avec PORT apparaîtront ici."
+  ],
+  "Уже запущена": ["Already running", "Ya está en ejecución", "Déjà en cours"],
+  "Папка установки недоступна": [
+    "Installation folder unavailable",
+    "Carpeta de instalación no disponible",
+    "Dossier d’installation indisponible"
+  ],
+  "Готова к игре": ["Ready to play", "Listo para jugar", "Prêt à jouer"],
+  "Играть": ["Play", "Jugar", "Jouer"],
+  "Управление игрой": ["Manage game", "Gestionar juego", "Gérer le jeu"],
+  "Проверить целостность": [
+    "Verify files",
+    "Verificar archivos",
+    "Vérifier les fichiers"
+  ],
+  "Целостность файлов подтверждена": [
+    "Files verified",
+    "Archivos verificados",
+    "Fichiers vérifiés"
+  ],
+  "Не удалось открыть папку. Проверьте, что она доступна.": [
+    "Could not open the folder. Check that it is available.",
+    "No se pudo abrir la carpeta. Comprueba que esté disponible.",
+    "Impossible d’ouvrir le dossier. Vérifiez qu’il est accessible."
+  ],
+  "Проверка файлов…": [
+    "Verifying files…",
+    "Verificando archivos…",
+    "Vérification des fichiers…"
+  ],
+  "Операция выполняется…": [
+    "Operation in progress…",
+    "Operación en curso…",
+    "Opération en cours…"
+  ],
+  "Прогресс операции": [
+    "Operation progress",
+    "Progreso de la operación",
+    "Progression de l’opération"
+  ],
+  "Удалить игру?": [
+    "Uninstall game?",
+    "¿Desinstalar el juego?",
+    "Désinstaller le jeu ?"
+  ],
+  "Игровые файлы будут удалены. Сохранения и настройки останутся.": [
+    "Game files will be removed. Saves and settings will be kept.",
+    "Se eliminarán los archivos del juego. Se conservarán las partidas y los ajustes.",
+    "Les fichiers du jeu seront supprimés. Les sauvegardes et réglages seront conservés."
+  ],
+  "Не удалось восстановить предыдущую операцию. Откройте библиотеку и проверьте файлы перед запуском.": [
+    "The previous operation could not be recovered. Open your library and verify the files before playing.",
+    "No se pudo recuperar la operación anterior. Abre tu biblioteca y verifica los archivos antes de jugar.",
+    "Impossible de récupérer l’opération précédente. Ouvrez votre bibliothèque et vérifiez les fichiers avant de jouer."
   ]
 }

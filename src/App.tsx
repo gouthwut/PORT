@@ -36,9 +36,12 @@ import {
 } from "./hub/catalog-model";
 import { HubLanding } from "./hub/HubLanding";
 import { HubSidebar } from "./hub/HubSidebar";
+import { LibraryView } from "./hub/LibraryView";
+import { useGameState } from "./services/game-state";
 import "./hub/home.css";
 
-type Page = "home" | "catalog" | "details" | "downloads" | "settings";
+type Page =
+  "home" | "catalog" | "details" | "library" | "downloads" | "settings";
 export default function App() {
   useLanguage();
   const systemReducedMotion = useReducedMotion();
@@ -46,6 +49,7 @@ export default function App() {
   const preferences = usePreferences();
   const downloads = useDownload();
   const projectCatalog = useProjectCatalog();
+  const games = useGameState();
   const [selectedV2, setSelectedV2] = useState<CatalogProject | null>(null);
   const [returnPage, setReturnPage] = useState<Page>("catalog");
   const [page, setPage] = useState<Page>("home");
@@ -216,6 +220,13 @@ export default function App() {
                 {t(preferences.error)}
               </div>
             )}
+            {games.operation?.recoveryError && (
+              <div role="alert" className="offline-banner">
+                {t(
+                  "Не удалось восстановить предыдущую операцию. Откройте библиотеку и проверьте файлы перед запуском.",
+                )}
+              </div>
+            )}
             {storageError && (
               <div role="alert" className="offline-banner">
                 {t(
@@ -297,6 +308,13 @@ export default function App() {
                     {page === "downloads" && (
                       <DownloadsCenter
                         state={downloads}
+                        onCatalog={() => navigate("catalog")}
+                      />
+                    )}
+                    {page === "library" && (
+                      <LibraryView
+                        state={games}
+                        projects={projectCatalog.projects}
                         onCatalog={() => navigate("catalog")}
                       />
                     )}
