@@ -30,11 +30,22 @@ if ($registration.DisplayVersion -ne $version -or $registration.InstallLocation.
     throw 'Incorrect uninstall registration or duplicate install scope.'
 }
 $shell = New-Object -ComObject WScript.Shell
-if ($shell.CreateShortcut($shortcut).TargetPath -ne $exe) { throw 'Incorrect all-users shortcut.' }
+$link = $shell.CreateShortcut($shortcut)
+try {
+    if ($link.TargetPath -ne $exe) { throw 'Incorrect all-users shortcut.' }
+} finally {
+    [Runtime.InteropServices.Marshal]::FinalReleaseComObject($link) | Out-Null
+    [Runtime.InteropServices.Marshal]::FinalReleaseComObject($shell) | Out-Null
+}
 $process = Start-Process -FilePath (Join-Path $installDir 'uninstall.exe') -ArgumentList '/S' -PassThru -Wait
 if ($process.ExitCode -ne 0) { throw "Uninstall failed: $($process.ExitCode)" }
-Start-Sleep -Seconds 2
-if ((Test-Path $machineKey) -or (Test-Path $exe) -or (Test-Path $shortcut)) { throw 'Uninstall left an executable, registration or shortcut.' }
+$deadline = [DateTime]::UtcNow.AddSeconds(30)
+do {
+    $leftover = @($machineKey, $exe, $shortcut) | Where-Object { Test-Path -LiteralPath $_ }
+    if (-not $leftover) { break }
+    Start-Sleep -Milliseconds 500
+} while ([DateTime]::UtcNow -lt $deadline)
+if ($leftover) { throw "Uninstall left: $($leftover -join ', ')" }
 if ((Get-FileHash $sentinel).Hash -ne $sentinelHash) { throw 'Uninstall changed user data.' }
 
 # Simulate a registered Beta 3 user install, without executing or deleting it.
