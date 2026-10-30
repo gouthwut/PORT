@@ -167,17 +167,17 @@ fn main() {
         );
         let r: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
         assert_eq!(
-            r["target"].as_str().unwrap().to_lowercase(),
-            exe.display().to_string().to_lowercase()
+            fs::canonicalize(r["target"].as_str().unwrap()).unwrap(),
+            fs::canonicalize(&exe).unwrap()
         );
         assert_eq!(r["args"], format!("--launch-installation {id}"));
         assert_eq!(
-            r["icon"].as_str().unwrap().to_lowercase(),
-            format!("{},0", icon.display()).to_lowercase()
+            fs::canonicalize(r["icon"].as_str().unwrap().trim_end_matches(",0")).unwrap(),
+            fs::canonicalize(&icon).unwrap()
         );
         assert_eq!(
-            r["cwd"].as_str().unwrap().to_lowercase(),
-            t.path().display().to_string().to_lowercase()
+            fs::canonicalize(r["cwd"].as_str().unwrap()).unwrap(),
+            fs::canonicalize(t.path()).unwrap()
         );
         let deadline = std::time::Instant::now() + std::time::Duration::from_secs(15);
         while !marker.exists() && std::time::Instant::now() < deadline {
