@@ -3,6 +3,10 @@ $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $repo
 if ($env:PORT_UPDATER_CHANNEL_FILE) { throw 'Production build must use the committed channel, without a QA override.' }
+$appConfig = Get-Content -LiteralPath 'src-tauri/tauri.conf.json' -Raw | ConvertFrom-Json
+if ($appConfig.bundle.windows.nsis.installMode -ne 'perMachine' -or $appConfig.plugins.updater.windows.installMode -ne 'passive') {
+    throw 'Windows releases require perMachine NSIS and the UAC-capable passive updater.'
+}
 $channel = Get-Content -LiteralPath 'src-tauri/updater-channel.json' -Raw | ConvertFrom-Json
 if ($channel.channel -ne 'production' -or -not $channel.publicKey -or -not $channel.endpoint.StartsWith('https://') -or $channel.testCaPem) {
     throw 'Configure the production public updater channel first.'
