@@ -355,3 +355,18 @@
     -webkit-line-clamp: 2;
   }
 }
+
+.project-install-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.project-install-heading > span {
+  flex: 1;
+}
+.project-install-heading .project-copy-steps {
+  padding: 6px 10px;
+  font-size: 12px;
+  min-height: 32px;
+}

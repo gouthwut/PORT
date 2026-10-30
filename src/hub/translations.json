@@ -1652,5 +1652,18 @@
     "PORT se cerrará para actualizarse y se reiniciará. Finaliza las descargas primero. Los ajustes, el historial y los archivos descargados se conservarán.",
     "PORT se fermera pour se mettre à jour puis redémarrera. Terminez d’abord les téléchargements. Les paramètres, l’historique et les fichiers téléchargés seront conservés.",
     "PORT wird zur Aktualisierung geschlossen und neu gestartet. Downloads zuerst abschließen. Einstellungen, Verlauf und heruntergeladene Dateien bleiben erhalten."
+  ],
+  "Копировать шаги": [
+    "Copy Steps",
+    "Copiar pasos",
+    "Copier les étapes",
+    "Schritte kopieren"
+  ],
+  "Скопировано!": ["Copied!", "¡Copiado!", "Copié !", "Kopiert!"],
+  "Не удалось скопировать. Повторите попытку.": [
+    "Could not copy. Please try again.",
+    "No se pudo copiar. Inténtalo de nuevo.",
+    "Impossible de copier. Réessayez.",
+    "Kopieren fehlgeschlagen. Bitte erneut versuchen."
   ]
 }

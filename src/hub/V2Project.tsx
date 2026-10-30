@@ -2,7 +2,7 @@ import { t, downloadMessage, useLanguage } from "./i18n";
 import { compareVersions, newerDownload } from "./releases";
 import { FavoriteButton } from "./preferences";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowUpRight, Download } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Copy, Download } from "lucide-react";
 import { Gallery } from "../components/BloodborneMedia";
 import { useV2Media } from "./v2-media";
 import { ProjectHero } from "./ProjectHero";
@@ -73,6 +73,15 @@ export function V2Project({
   const currentProject = data?.project ?? project;
   const media = useV2Media(currentProject.media);
   const [linkError, setLinkError] = useState("");
+  const [copyStatus, setCopyStatus] = useState<"" | "copied" | "error">("");
+  useEffect(() => {
+    setCopyStatus("");
+  }, [project.id, language]);
+  useEffect(() => {
+    if (!copyStatus) return;
+    const timer = setTimeout(() => setCopyStatus(""), 2500);
+    return () => clearTimeout(timer);
+  }, [copyStatus]);
   const title = currentProject.name || projectTitle(currentProject);
   const windows =
     data?.builds
@@ -406,7 +415,49 @@ export function V2Project({
         )}
         {!!(install?.install.steps.length || install?.install.notes) && (
           <details id="project-install" className="project-section">
-            <summary>{t("Инструкция")}</summary>
+            <summary className="project-install-heading">
+              <span>{t("Инструкция")}</span>
+              <Button
+                variant="ghost"
+                className="project-copy-steps"
+                onClick={async (event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  try {
+                    await navigator.clipboard.writeText(
+                      [
+                        install.install.steps
+                          .map((step, i) => `${i + 1}. ${step}`)
+                          .join("\n"),
+                        install.install.notes,
+                        ...currentProject.officialLinks.map(
+                          (link) => `${t(link.label)}: ${link.url}`,
+                        ),
+                      ]
+                        .filter(Boolean)
+                        .join("\n\n"),
+                    );
+                    setCopyStatus("copied");
+                  } catch {
+                    setCopyStatus("error");
+                  }
+                }}
+              >
+                <Copy size={15} aria-hidden="true" />
+                <span aria-live="polite">
+                  {t(
+                    copyStatus === "copied"
+                      ? "Скопировано!"
+                      : "Копировать шаги",
+                  )}
+                </span>
+              </Button>
+            </summary>
+            {copyStatus === "error" && (
+              <p role="alert">
+                {t("Не удалось скопировать. Повторите попытку.")}
+              </p>
+            )}
             <ol>
               {install.install.steps.map((s, i) => (
                 <li key={i}>{s}</li>

@@ -16,7 +16,7 @@ test("new users start in English and retain an explicit language choice", async 
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await expect(
-    page.getByText(/0\.1\.0-beta\.[12]/).first(),
+    page.getByText(/0\.1\.0-beta\.3/).first(),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "New versions on GitHub" }),

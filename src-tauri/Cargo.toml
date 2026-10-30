@@ -1,6 +1,6 @@
 [package]
 name = "port-launcher"
-version = "0.1.0-beta.2"
+version = "0.1.0-beta.3"
 description = "Windows catalog and download manager for independent ports and runtime projects"
 license = "MIT"
 edition = "2021"
