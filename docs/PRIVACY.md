@@ -1,58 +1,37 @@
-# Privacy
+# Privacy Policy
 
-PORT stores settings, saved/recent project IDs and download history locally in its Windows
-application data directory. Downloaded files are saved to the destination selected by the user.
-Clearing history does not delete those files. Uninstalling while retaining app data keeps
-preferences and history for a later installation.
+PORT is designed with privacy and local ownership as fundamental principles.
 
-The app requests public catalog metadata and images from the configured PORT catalog
-service. Official release downloads contact GitHub and its release asset delivery hosts.
-Those services receive ordinary network information such as the connection IP and request
-path and apply their own privacy policies. Official links open in the user's browser.
+---
 
-Public PORT does not require a player account or a user-supplied API token. It does not upload
-game files or provide a game-file import flow. No analytics or advertising SDK is included.
-Manually submitted GitHub issues and attachments are public unless submitted through a private channel.
+## 1. Local Storage
 
-## Optional statistics in the next client
+- PORT stores your preferences (theme, language, reduced motion), saved/recent project bookmarks, and download history locally on your machine in the Windows Application Data directory (`%APPDATA%\com.port.launcher\`).
+- Downloaded files are saved strictly to the folder you select. Clearing history in PORT does not delete downloaded files from your disk.
+- PORT does not upload your local files, game assets, or directories.
 
-Published Beta 2 does not send usage statistics. The next client adds **Share anonymous
-usage statistics**, switched off by default. Enabling it is optional and independent of
-downloads and other features. Disable it at any time in Settings; new requests stop and
-pending requests are cancelled. A request already delivered cannot be recalled.
+---
 
-With consent, only `app_open`, `project_view`, `download_started` and `download_completed`
-are sent to the existing PORT Cloudflare service. Project events contain only the published
-project ID; requests include a consent flag. A download start means the release host has
-returned a response; completion means the client has verified and saved the file. There is
-no account, persistent device ID, fingerprint, hardware identifier, nickname, game file,
-disk path, client timestamp or personal profile. No analytics or advertising SDK is added.
+## 2. Network Activity
 
-Cloudflare receives ordinary connection information, including IP addresses, to deliver
-requests and limit abuse. Its edge rate limiter uses a short-lived IP key. PORT does not
-store IP addresses in its own database and Worker request logging is disabled. Cloudflare
-applies its own privacy policy. PORT immediately aggregates events into daily event/project
-counters; no raw event records are stored. Counters and GitHub snapshots expire after up
-to 180 days with daily cleanup. Because counters cannot identify you, individual past
-contributions cannot be located or deleted. Only the authenticated CMS owner can read them.
+- **Catalog Metadata & Artwork**: The client fetches public catalog records and screenshot media over HTTPS from the official PORT catalog service.
+- **Project Downloads**: When downloading project releases, the client connects directly to official upstream servers (such as GitHub Releases) to retrieve release archives.
+- **Application Updates**: PORT checks the official release manifest for signed application updates over HTTPS.
+- Standard connection data (such as IP address and HTTP headers) is transmitted to host servers as part of normal web protocols.
 
-There is no offline queue or retry. Analytics failures do not block launch or downloads.
-Requests may be lost, duplicated, rate limited or forged. Launch counts are events, not
-unique users. We cannot link events, identify unique app users or determine who first
-discovered PORT from a particular source.
+---
 
-GitHub independently provides release-asset download counters, stars, forks and, where
-permitted, repository views, visitors, clones and referring sites. Repository visitors are
-not app users. GitHub traffic normally covers about 14 days; daily snapshots extend observed
-history without reconstructing missing days or adding overlapping unique-visitor counts.
-GitHub downloads do not establish successful installation. Sources refer to repository
-traffic and do not establish acquisition of app users.
+## 3. Telemetry & Anonymous Statistics
 
-The opt-in is a separate, freely chosen consent; the choice is stored locally. It is not
-bundled with acceptance of terms or needed to use PORT. Jurisdiction-specific requirements
-still apply; PORT does not assume all analytics is exempt merely because it is described
-as anonymous. Public policy: https://port-catalog-cms.port-catalog-cms.workers.dev/privacy.
-For questions use the PORT GitHub issue tracker without posting personal information.
+- **Default Behavior**: PORT does not send usage statistics or include advertising SDKs.
+- **Optional Anonymous Statistics**: Starting with the latest client, an optional **Share anonymous usage statistics** setting is available, switched **off by default**.
+- Enabling it is completely voluntary and independent of downloads or catalog browsing. You can disable it at any time in Settings.
+- When enabled with explicit consent, only four high-level events are counted: `app_open`, `project_view`, `download_started`, and `download_completed`.
+- Events contain only the public project ID and a consent flag. There are no accounts, persistent device identifiers, hardware fingerprints, file paths, or personal user profiles.
+- Events are aggregated into daily anonymous counters on Cloudflare without logging raw IP addresses or client records.
 
-The separate administrative CMS is not part of the public client repository or installer.
-Its owner authentication is separate from anonymous catalog access.
+---
+
+## 4. Accounts & Authentication
+
+- PORT requires **no user accounts, registrations, or API keys** to search, browse, or download from the catalog.

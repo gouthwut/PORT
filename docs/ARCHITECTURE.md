@@ -1,105 +1,77 @@
-# Architecture
+# PORT Architecture
 
-## Stage 11.0 — target Hub architecture (proposal)
+PORT is an open-source Windows application designed to discover, track, and download native PC ports, recompilations, and decompilations. Built on **Tauri v2** (Rust + React 19 / TypeScript), it combines high performance and native system integration with a modern, responsive user experience.
 
-The requested product migration is documented in [HUB_BLUEPRINT](HUB_BLUEPRINT.md),
-[HUB_COMPATIBILITY](HUB_COMPATIBILITY.md) and [HUB_REDESIGN_BRIEF](HUB_REDESIGN_BRIEF.md).
-These are planning artifacts, not implemented runtime behavior. They propose separate
-Game/Project/Release/Build identities, additive v2 API/Hub storage, shared public
-web/Windows components and a protected legacy local library. Current executable
-contracts below remain authoritative until separately authorized implementation.
+---
 
-Launcher self-updates are separate from game/runtime downloads and catalog publication. `src-tauri/src/updater.rs` owns compiled channel policy, bounded HTTPS, official Tauri signature/platform/version checks and NSIS handoff. Only custom guarded commands are exposed; no updater plugin permissions are granted to the WebView. Installation uses the existing native operation mutex and preserves SQLite schema 4/AppData. The release version comes from package.json through tauri.conf.json. See [UPDATER.md](UPDATER.md) for production setup and verified limits.
+## 1. System Overview
 
-## Stage 07 installation management
+PORT operates as an independent discovery and download client:
 
-New installs use readable compiled adapter folder names; legacy numbered paths stay valid. Schema 4 remains stable, with transactional initialization, a future-version guard and separate removal intent table. Corrupt SQLite is retained with timestamped sidecars; explicit folder recovery validates ownership, bounded manifest and all immutable bytes before registration. Library health is a lightweight availability check; verification remains explicit. Removal uses owned manifests and matching hashes for game/runtime files, retains modified or unknown files and profiles, and removes only empty inventoried parent directories. A partial failure retains the row/manifest and blocks launch until deletion is retried. See the Stage 07 progress entry for test boundaries and the missing Skate registration discovered before work.
+```
+┌────────────────────────────────────────────────────────┐
+│                   PORT Windows Client                  │
+│                                                        │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │           React 19 + TypeScript UI               │  │
+│  │   • Home (Featured Carousel & Discoveries)       │  │
+│  │   • Catalog (Filters, Search, Platforms)         │  │
+│  │   • Project Details (Specs, Guides, Releases)    │  │
+│  │   • Download Manager (Progress & History)        │  │
+│  │   • Settings & Multi-Language Preferences        │  │
+│  └────────────────────────┬─────────────────────────┘  │
+│                           │ Tauri IPC                  │
+│  ┌────────────────────────▼─────────────────────────┐  │
+│  │                 Rust Core Runtime                │  │
+│  │   • Native HTTP Engine (reqwest)                 │  │
+│  │   • SQLite Database (rusqlite)                   │  │
+│  │   • Background Download Pipeline                 │  │
+│  │   • Cryptographic Minisign Updater               │  │
+│  │   • Windows Shell Integration                    │  │
+│  └──────────────────────────────────────────────────┘  │
+└──────────────┬───────────────────────────┬─────────────┘
+               │ HTTPS (Read-Only)         │ HTTPS
+               ▼                           ▼
+      Cloudflare Workers API        GitHub Releases
+       (Curated Catalog v2)       (Official Binaries)
+```
 
-## Stage 06 compiled adapter extension
+---
 
-`adapters.rs` owns fixed collection/root/data/runtime/entrypoint identities; `services/adapters.ts` binds exact published game/collection/adapter IDs and implementation (plus Xbox 360 for Skate). `skate3.rs` implements bounded read-only XDVDFS validation, pinned Windows download, staged copy/hash, user-driven official TU3 wizard, pinned-payload verification and atomic schema-4 registration. Shared destination, status, recovery, library, shortcuts, process guards, Explorer, verification and payload-only removal resolve local records. Bloodborne paths/pins/update algorithms and records are preserved. No CMS changes or permanent local Skate catalog card. See [SKATE3.md](SKATE3.md) for the pinned source, import/license limits and owner publication fields.
+## 2. Core Subsystems
 
-## Stage 05C production endpoint
+### A. Catalog Engine (`src/hub/`, `src/services/catalog.ts`)
 
-`src/catalog-endpoint.json` supplies the same permanent anonymous endpoint to Rust and TypeScript. Missing/empty native configuration resolves to it without rewriting existing rows; nonempty configuration and exact-endpoint cache scoping survive. Release UI starts empty until validated cache/network data is available, with no fixture fallback or endpoint editor. `configure_catalog` rejects release mutations. Vite development fixtures require an explicit test/development flag; ordinary development defaults to the online API. No player OAuth, installation migration, remote command or new adapter is added. Catalog synchronization writes only its separate catalog cache/retained metadata tables.
+- **Remote Synchronization**: Periodically polls the public Cloudflare Workers v2 API for the latest curated project records and artwork.
+- **Data Validation**: Strict schema enforcement ensures all remote metadata adheres to bounded types and trusted formats.
+- **Offline Resilience**: Validated catalog snapshots are cached locally (`localStorage` and SQLite), enabling full offline catalog browsing and project search.
+- **Content Security**: Catalog descriptions and guides render as sanitized text. No remote code, script execution, or arbitrary shell commands can be injected.
 
-## Stage 04D installation experience
+### B. Download Manager (`src-tauri/src/hub_download.rs`, `src/hub/downloads.ts`)
 
-The existing Bloodborne installer/extractor/update algorithms remain in place. `check_install_destination({parent,bytes,id?})` returns a stable ID in a plan (no SQLite write), previews the exact `PORT-Bloodborne-<id>` child, checks capacity plus runtime/reserve, performs an exclusive write probe and rejects invalid Windows names, system directories, linked ancestors and installed-root overlaps. The selected parent must already exist on a local disk. `default_install_parent` suggests Documents; a saved settings preference takes precedence. `install_packages` / `import_game_folder` accept optional `destinationId` and `desktopShortcut`; omitted values retain prior API behavior. The installer rechecks the destination, actual source size/space and exclusive staging/final paths before writing. The existing manifest/recovery journal and SQLite registration store actual root/data/runtime paths; all lifecycle actions continue resolving them locally. Schema remains 4; no installation rows are migrated or rewritten.
+- **Native Transfer Pipeline**: Downloads official release binaries directly from upstream developer repositories (e.g. GitHub Releases) via Rust's `reqwest` client.
+- **Reliability & State**: Supports cancellation, background execution during navigation, and failure retry.
+- **Persistence**: Download history and target file paths are tracked locally in SQLite.
+- **Explorer Integration**: Native file revelation (`reveal_in_folder`) opens downloaded files directly in Windows File Explorer without arbitrary shell execution.
 
-After a successful installation transaction only, an optional Windows shortcut targets the current PORT executable with exactly `--launch-installation <numeric-stable-id>` and the original PORT icon. Fixed PowerShell/Windows Script Host code receives values through environment data, runs hidden without profiles/admin and publishes the `.lnk` with exclusive file creation. An app-data receipt records its exact path/hash; removal touches only an unchanged owned shortcut. Failures warn without undoing the committed installation. Moving PORT may require recreating a shortcut; automatic launcher updates/relocation are outside this stage. An interruption after game commit can leave no shortcut; library launch remains available.
+### C. Signed Application Updater (`src-tauri/src/updater.rs`, `src/services/updater.ts`)
 
-The official Tauri single-instance plugin forwards warm-start arguments before the existing SQLite session lock. Cold and forwarded requests use the same strict argument parser, then the UI resolves the ID from the local library and invokes the existing guarded launch action. Missing IDs, arbitrary flags/paths and unresolved update jobs cannot bypass launch checks. The queue has one pending slot; rapid additional shortcut requests replace the pending request rather than spawning multiple games. Existing lifecycle operation/process guards remain authoritative.
+- **Cryptographic Signatures**: Application updates are verified using Minisign signatures before execution.
+- **Channel Policy**: Hardcoded HTTPS-only endpoints; unverified or unsigned bundles are rejected immediately.
+- **Preflight Checks**: Verifies free disk space and write permissions before initiating update downloads.
+- **Safe Handoff**: Hands off verified installer packages to the NSIS installer with clean process termination.
 
-Radix context menus support pointer, Shift+F10, arrows, Escape and outside dismissal. Play, verification and confirmed removal use shared actions. `open_installation_folder({id})` resolves the local registration and validates its manifest/paths, then invokes Windows Explorer directly with the saved root as one argument. No frontend-provided folder or shell command is accepted. Browser fixtures, Windows link tests and release WebView checks are separate evidence in PROGRESS.md.
+### D. Preferences & Storage (`src-tauri/src/main.rs`, `src/services/settings.ts`)
 
-## Stage 04C online catalog
+- **Local SQLite Store**: Stored in `%APPDATA%\com.port.launcher\port.sqlite`. Contains user preferences, window state, and download records.
+- **Localization**: Interface translations across 5 languages: English, Russian, Spanish, French, and German.
+- **Accessibility & Motion**: Dedicated support for Windows high-contrast modes, system reduced motion, and compact card view.
 
-`catalog.rs` owns a bounded HTTPS metadata/image fetcher, a process-wide synchronization lock and independent SQLite `catalog_config`, `catalog_cache`, `catalog_known` tables; installation schema stays at 4. Commands: `load_catalog`, `configure_catalog({endpoint})`, `sync_catalog`. Both Rust and browser-preview TypeScript validate `docs/catalog.schema.json` with the same restricted schema interpreter and semantic rules. `src/services/catalog.ts` manages startup, reconnect, five-minute and manual refresh, native IPC versus explicit localStorage preview, and a compiled adapter allowlist. `OnlineCatalog.tsx` renders publication state, API settings, dynamic home/cards/details and honest unavailable actions. The curated local Bloodborne view remains available as installed identity/default fixture presentation. Existing installation/update/runtime code is unchanged.
+---
 
-Public catalog and installed library are independent: remote deletion cannot modify installations. Retained installed metadata names removed titles, with the original Bloodborne fallback and local media preserved. No remote field is executable or used as a runtime download/launch argument. Images are checked WebP/SHA-256 local data URLs under the existing restrictive image CSP. Full CMS publication, limits, persistence and security contract: [CATALOG.md](CATALOG.md). Historical architecture sections below retain their original stage-specific context.
+## 3. Trust Boundaries & Security
 
-## Stage 04B update contract
-
-`install_inplace.rs` owns `update_installation({id,path,updatedId?})`. The user's continuation supersedes the initial separate-copy implementation. SQLite schema 4 adds `update_jobs(id,value)` alongside existing settings/media/installations/installation_jobs. Updates retain the same installation ID/root/runtime and library card. They stage only the pinned patch, then move replaced originals into an undo backup. No full game/runtime copy or download occurs; normal updates never rewrite user-data.
-
-Before original bytes change: installed SFO/package identity/version/content ID/full package digest must match, every installed manifest hash is verified, disk space is checked for the patch/profile/reserve, and staged replacements are hashed. The original record, complete new record, old manifest and per-file old/new hashes are persisted before the first original move. Replacement renames are atomic per file; the complete multi-file operation is protected by undo, not a whole-directory atomic swap. Cancellation/error/restart before SQLite commit restores originals/additions/manifest. The manifest is atomically replaced before a SQLite transaction commits the verified 01.09 record; a crash after that commit finishes cleanup. Native get/launch/verify/removal refuse while any update journal is unresolved, even if startup recovery failed. User-data is excluded from immutable manifests.
-
-`updatedId` is a bounded one-time migration for the earlier duplicate: it must be a distinct same-collection 01.09 registration in the same parent directory. Both runtimes must be closed. Its current profile is staged/read-verified; original user-data is directory-renamed to undo storage, then the current profile is swapped in. On rollback the original profile returns; on commit it is preserved at `.port-profile-before-1.09`. The duplicate row is removed in the same SQLite transaction, and only its inventoried game payload is retired afterwards; its source profile/runtime/unknown files survive. General patches, console delta/deletion instructions and combined initial base+update automation remain unsupported. See worker README for format evidence/limits.
-
-## Stage 03 current contracts
-
-Stage 03 supersedes the historical Stage 02 feature gates below. `src-tauri/src/install.rs` owns native installation and lifecycle; `pkg_worker.rs` supervises the narrow optional compiled worker. `FolderImport` and `InstalledLibrary` use real IPC; browser preview cannot install/launch and has no fabricated installed records.
-
-- SQLite schema **3** adds `installations(id,value)` and `installation_jobs(id,staging,root)`, preserving settings/media. A process-lifetime app-data lock prevents concurrent PORT writers. Settings reset still resets only settings. `list_installations` is the library source of truth; no browser fallback for installations.
-- IPC: `inspect_game_folder`, `import_game_folder`, `install_packages`, `prepare_runtime`, `install_status`, `cancel_install`, `verify_installation`, `launch_installation({id,setup?})`, `launch_status`, `remove_installation({id,confirmed})`, `pkg_install_available`. Import accepts an existing local destination parent outside the source; every job creates a unique sibling staging/final directory, never overwrites a user's folder, and keeps the source read-only.
-- Folder checks: bounded no-link walk, required game layout/SELF header/CUSA03173 SFO, explicit version provenance/unknown state, upstream completeness floor, free space including runtime and reserve. Exact streams are hashed as copied. Unsupported/failing files abort; no link-based installation mutates the original.
-- PKG: selected compatible base + optional compatible 1.09 metadata. The self-contained pinned-source worker extracts only supported base content into installation staging. Job Object kills it if PORT exits and limits process/memory; bounded pipes, deadline, cancellation. No external commands, passcodes, keys or destination paths from package data are executed. Game-facing supplementary SFO/assets are combined with inner PFS with inner precedence. Updates are never overlaid.
-- Runtime: the existing downloader/cache/compiled SHA-256 manifest is retained. The installer rehashes the held ZIP before reading bounded entries through ZIP CRC checks and shared Windows-name policy, rejecting unexpected root/layout/links/expansion/collisions. Required executables, run.py and notices are checked; nothing runs before finalization. All immutable runtime bytes enter the integrity manifest.
-- Durable intent precedes output. Complete manifest is flushed before one no-overwrite same-volume directory rename, then SQLite registration + job deletion commit transactionally. On restart, owned unfinished staging is bounded/link-checked and removed; a fully renamed job is recovered into SQLite. Recovery access failures preserve data and surface an actionable status while existing library stays available.
-- Manifests contain relative names/sizes/SHA-256; SQLite stores their digest and fixed derived installation paths. Verification hashes all listed files. Launch checks all inventoried sizes/existence, rehashes the complete runtime plus eboot/SFO, rejects unexpected runtime files, and checks game layout. Import hashes establish a baseline, not game authenticity.
-- Launch uses pinned `Bloodborne.exe --play` plus isolated upstream settings (`game_dir`) and APPDATA/BB_DATA_DIR. Setup opens the same verified executable without flags. Single active lifecycle operation, immediate-exit/error messages and tracked process exit. Process creation/running status never becomes a gameplay-success flag.
-- Removal requires explicit UI + IPC confirmation, refuses while the tracked runtime is active, and removes only inventoried **game** files. Runtime, user-data/saves/config, original source and unknown added files are retained; a partial failure keeps the SQLite record for retry. No saved-data deletion API exists.
-
-Worker build, supported format/resource limits and LGPL obligations are in `tools/pkg-worker/README.md`. Private art is unchanged and ignored. Final actual-native verification/limitations live in PROGRESS.md; generated/browser tests are separate evidence.
-
-PORT is an offline-first Tauri 2 Windows application. Vite builds React/TypeScript into static assets embedded in the native executable. Web preview is for frontend development, not the desktop deliverable.
-
-## Components
-
-| Location                     | Responsibility                                                                   |
-| ---------------------------- | -------------------------------------------------------------------------------- |
-| src/App.tsx                  | Screens, navigation, dialogs, search, state                                      |
-| src/components/ui.tsx        | Small shadcn-style Radix primitives, CVA buttons                                 |
-| src/components/Landscape.tsx | Original resolution-independent artwork                                          |
-| src/domain.ts                | CatalogService, InstallerCore, GameAdapter, Installation, InstallEvent contracts |
-| src/services/settings.ts     | Native IPC / explicit browser-preview storage boundary                           |
-| src-tauri/src/main.rs        | Tauri commands, validated settings, SQLite                                       |
-| tests/                       | Playwright frontend behavior and screenshots                                     |
-| .github/workflows/           | Windows checks and optional Pages deployment                                     |
-
-## Persistence and IPC
-
-`load_settings() -> Settings`, `save_settings({settings}) -> ()`, `reset_settings() -> Settings` remain the settings IPC commands. JSON uses camelCase. SQLite lives at Tauri's app_data_dir()/port.db (Windows: %APPDATA%/app.port.launcher/port.db), schema user_version=2, one validated settings JSON record, serialized with a Mutex and atomic SQLite upsert. A failed save does not change visible settings; errors are shown, never silently replaced with a browser fallback. Native startup returns an error if the database cannot open; it does not silently replace the database. Browser preview uses localStorage key port.settings.v1 and is labelled WEB PREVIEW.
-
-Settings include dark/system theme, future install directory, reduced motion and compact cards. Folder picker uses the native dialog plugin, then stores only an absolute path. Settings operations never read or move game files; PKG inspection is a separate read-only command. Reset only deletes PORT's settings record. There is no pretend installed-library database: installation records will arrive with Stage 02/03 migrations.
-
-## Stage 02 implementation
-
-The active adapter/catalog has one Bloodborne title and retains the generic Collection/multiple-title model. The runtime source is Supermedo/bloodborne_pc. `entrypoint=Bloodborne.exe` records upstream documentation; no process-launch command is exposed.
-
-- `src/components/BloodborneMedia.tsx`, `src/services/media.ts`: local raster import, bounded WebP re-encoding, separate hero/cover/banner/gallery. Native `load_media` / `save_media` commands persist validated data URLs in SQLite `media`, schema user_version=2. Migration adds the table without changing existing settings; reset_settings still resets only settings. Preview uses `port.media.v1` localStorage, reports quota errors, never falls back silently from native storage.
-- `src-tauri/src/package.rs`: asynchronous blocking-worker `inspect_package({path})`, read-only local file access, absolute-path and ancestor symlink/reparse rejection. Validates fixed header and bounded metadata table/SFO reads, reports unknown version explicitly. No package data is sent over the network. Metadata is not authenticated and installable/compatible remain false while extraction is gated. `inspect_packages({paths})` accepts 1–8 files, returns per-file errors plus a selection assessment: roles require matching CNT content flags and SFO CATEGORY (gd/gp); validates version syntax, SFO/header Content ID, exact base/update Content ID and Title ID, version progression, conflicts, missing base and unsupported delta/unknown types. metadataCompatible is separate from installable. Reads the bounded PFS superblock encryption marker without decoding payloads. No filename/size heuristics. The single inspector remains for backward-compatible read-only callers.
-- `src-tauri/src/download.rs`: `start_download`, `download_status`, `control_download({action})` implement one process-wide task. Multiple panels observe the same backend state. Download URL/tag/size/hash are compiled from runtime-manifest.json; external release metadata can confirm them but cannot replace them. Runtime staging paths are fixed beneath app_cache_dir/runtime, never frontend supplied. File lock prevents simultaneous cache writers across PORT processes; ancestors are checked for reparse points.
-- States: idle → connecting → downloading ⇄ paused → verifying → ready, with error/cancelled branches. UI guards mutations; Rust enforces one active worker. Closing a dialog does not cancel a task. Explicit cancellation removes only the known app-owned partial file while holding its lock. Errors preserve partial bytes; retry validates the pinned release and uses HTTP Range. Server 200 on resume restarts with free-space recheck. Server 206 requires an exact Content-Range/length. The final SHA-256 covers resumed bytes. A process exit may leave a partial file which the next explicit start resumes; task status itself is in memory, not an installation DB record.
-- Cache verification reads bounded ZIP entries/CRC without extraction. Transfer has connect/request timeouts (15/120 s); pause/cancel are cooperative between reads. A blocked network read may delay controls up to that timeout. Failed hash removes the partial file; existing verified cache is rehashed before reporting ready. Finalization renames only within the cache, refusing to replace an existing destination.
-
-Only GitHub HTTPS requests for pinned runtime metadata/bytes are made. No arbitrary frontend HTTP/shell access, DRM keys, extractor execution or game-data upload. Opener allowlist now targets Bloodborne's source repository. CSP still accepts only self/data images. ZIP size/ratio/path checks are runtime-cache validation, not a claim of safe PKG extraction. No install target writes, data copies, full installation disk-space checks, installation records, repair/remove, saves access or game execution exist while the Stage 02C gate remains unresolved. See UPSTREAM.md for the source evidence and next gate.
-
-## Continuation: private artwork and extractor lab
-
-`src/services/bundled-media.ts` uses a build-time Vite glob over ignored `src/assets/bloodborne-local/*.webp`. Optional files become executable assets; a clean public checkout has no restricted art and still builds. The persisted MediaSet remains an override record, not a copied bundle manifest: `resolveMedia` chooses per-slot overrides then bundled defaults. Neither SQLite schema nor settings reset changes. See LOCAL_ART.md for provenance, packaging and private evidence handling.
-
-In native, mounting the installation panel opens one standard multiple-file picker; the same button can retry after cancellation/error. React's duplicate development effect is guarded. Browser preview keeps file access disabled. The UI lists detected components and errors, never calls a synthetic install or exposes Play. No progress is fabricated for metadata inspection.
-
-`tools/extractor-lab` is isolated developer code, no IPC or runtime integration. Its bounded writer receives streams and stages atomically without overwriting an existing target. 33 Windows checks run without upstream. An optional exact-revision source reference drives generated unencrypted PFS fixtures through the existing PfsReader into the new writer. No downloaded source, binaries or keys are tracked. Decoder allocation/traversal/PFSC audit and production process confinement remain unresolved; this lab must not be used as a general PKG validator. Actual user packages are never passed to it. See its README and UPSTREAM.md.
+1. **PORT Does Not Distribute Game Data**: The application contains no ROMs, game rips, proprietary keys, or game binaries. Users obtain original game files legitimately where required.
+2. **Read-Only Metadata**: Remote catalog entries are strictly informational. They never provide execution flags, custom scripts, or installer instructions to the host system.
+3. **Strict Content Security Policy (CSP)**: WebView2 is locked down to local resources and approved HTTPS media hosts (`img-src self data: https:`).
+4. **No Mandatory Account**: PORT functions fully anonymously with zero user registration, tracking cookies, or mandatory authentication.

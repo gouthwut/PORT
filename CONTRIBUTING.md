@@ -1,37 +1,60 @@
 # Contributing to PORT
 
-PORT's public scope is a Windows project catalog and download manager. Contributions
-should improve discovery, project information, accessibility, localization or safe downloads.
-Read AGENTS.md and the current PROGRESS.md entry before working in this repository.
+Thank you for your interest in contributing to PORT!
 
-Discuss substantial changes in an issue first. Keep pull requests focused, describe the
-user-visible result and include the checks you ran. Label browser, native Windows and
-mocked evidence accurately. Existing data, settings and downloaded files must be preserved.
+PORT is an open-source Windows application for discovering native PC ports, recompilations, and decompilations, viewing project requirements and setup guides, and downloading official developer releases.
 
-## Development
+---
 
-Use Node.js 24, Rust stable/MSVC, Windows C++ Build Tools, a Windows SDK and WebView2.
+## Guidelines
+
+- **Focus**: Contributions should improve discovery, project information, user experience, accessibility, localization, or download stability.
+- **Scope**: PORT is strictly a discovery and download manager. It does not install, run, or distribute games, ROMs, ISOs, or closed game data.
+- **Safety**: Do not commit copyrighted game data, private keys, or non-redistributable assets.
+- **Architecture**: Review [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/CATALOG.md](docs/CATALOG.md) before making architectural changes.
+
+---
+
+## Development Setup
+
+Requirements:
+
+- Windows 10 or 11
+- Node.js 22+ (LTS recommended)
+- Rust stable (MSVC toolchain)
+- Microsoft Visual Studio C++ Build Tools
+- Microsoft Edge WebView2
+
+### Build and Test Commands
 
 ```powershell
+# Install frontend dependencies
 npm ci
+
+# Typecheck and build frontend
 npm run build
-npx playwright install chromium
-npx playwright test tests/beta1.spec.ts tests/hub-api-v2.spec.ts tests/stage19b-release.spec.ts
+
+# Run Playwright tests
+npx playwright test
+
+# Check Rust formatting and tests
 cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
-cargo test --locked --manifest-path src-tauri/Cargo.toml
+cargo test --manifest-path src-tauri/Cargo.toml
+cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings
 ```
 
-Run the current Hub suites affected by your change. Older installer-era UI suites target
-retired screens and should not be presented as acceptance for the current application.
-For native changes, build and exercise an isolated Windows copy. Do not use the owner's app data.
+---
 
-## Content and security
+## Localization
 
-Never submit credentials, CMS private source/backups, game dumps, ISO/PKG/ROM files,
-private artwork, personal paths in screenshots or generated build outputs. Only include
-assets with documented redistribution permission. Project downloads must stay on reviewed
-official HTTPS sources and must not be executed automatically.
+PORT supports five languages: **English, Russian, Spanish, French, and German**. Translations are maintained in:
 
-Report vulnerabilities privately using SECURITY.md. Do not include tokens or private game
-files in issue reports. Translation corrections are welcome for English, Russian, Spanish,
-French and German; preserve stable IDs, URLs, file names and integrity hashes.
+- `src/hub/translations.json`
+
+Contributions to improve translation accuracy or expand language support are welcome.
+
+---
+
+## Security
+
+Please report any security vulnerabilities responsibly according to our [Security Policy](SECURITY.md).
