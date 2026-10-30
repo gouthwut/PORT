@@ -23,7 +23,7 @@ Get the latest installer for Windows 10 and 11 (x64):
 | **File**     | `PORT-Setup-0.1.0-beta.3.exe`                                      |
 | **Version**  | `0.1.0-beta.3` (Pre-release)                                       |
 | **Platform** | Windows 10 / 11 (x64)                                              |
-| **SHA-256**  | `1ce6b14c0e19929c1bc44893d1eb9872afb0f34e1e2d9046c988c2933a7ad5ba` |
+| **SHA-256**  | `deddd70c5550c1116b69e424cdd305ac8681aa5f6c7f61e4841b8c14ede03732` |
 
 _Release assets and checksum verification are available on the [GitHub Releases page](https://github.com/gouthwut/PORT/releases/tag/v0.1.0-beta.3)._
 
@@ -140,7 +140,7 @@ Get-FileHash .\PORT-Setup-0.1.0-beta.3.exe -Algorithm SHA256
 Verify that the hash matches:
 
 ```
-1ce6b14c0e19929c1bc44893d1eb9872afb0f34e1e2d9046c988c2933a7ad5ba
+deddd70c5550c1116b69e424cdd305ac8681aa5f6c7f61e4841b8c14ede03732
 ```
 
 ---
