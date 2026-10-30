@@ -37,7 +37,8 @@ try {
     [Runtime.InteropServices.Marshal]::FinalReleaseComObject($link) | Out-Null
     [Runtime.InteropServices.Marshal]::FinalReleaseComObject($shell) | Out-Null
 }
-$process = Start-Process -FilePath (Join-Path $installDir 'uninstall.exe') -ArgumentList '/S' -PassThru -Wait
+# NSIS _?= runs in place, so Wait observes the actual uninstaller, not its temp bootstrap.
+$process = Start-Process -FilePath (Join-Path $installDir 'uninstall.exe') -ArgumentList ("/S _?=" + $installDir) -PassThru -Wait
 if ($process.ExitCode -ne 0) { throw "Uninstall failed: $($process.ExitCode)" }
 $deadline = [DateTime]::UtcNow.AddSeconds(30)
 do {
