@@ -158,7 +158,7 @@ fn main() {
         create_at(&desktop, &receipts, &exe, &icon, id, name).unwrap();
         let link = desktop.join(format!("{name}.lnk"));
         let output=std::process::Command::new(powershell().unwrap())
-            .args(["-NoLogo","-NoProfile","-NonInteractive","-Command",r#"[Console]::OutputEncoding=[Text.UTF8Encoding]::new();$ErrorActionPreference='Stop';$l=(New-Object -ComObject WScript.Shell).CreateShortcut($env:PORT_LINK);@{target=$l.TargetPath;args=$l.Arguments;icon=$l.IconLocation;cwd=$l.WorkingDirectory}|ConvertTo-Json -Compress;Start-Process -FilePath $env:PORT_LINK -WindowStyle Hidden"#])
+            .args(["-NoLogo","-NoProfile","-NonInteractive","-Command",r#"[Console]::OutputEncoding=[Text.UTF8Encoding]::new();$ErrorActionPreference='Stop';$p=$env:PORT_LINK;try{$p=(New-Object -ComObject Scripting.FileSystemObject).GetFile($p).ShortPath}catch{};$l=(New-Object -ComObject WScript.Shell).CreateShortcut($p);@{target=$l.TargetPath;args=$l.Arguments;icon=$l.IconLocation;cwd=$l.WorkingDirectory}|ConvertTo-Json -Compress;Start-Process -FilePath $env:PORT_LINK -WindowStyle Hidden"#])
             .env("PORT_LINK",&link).env("PORT_SHORTCUT_PROBE_OUTPUT",&marker).creation_flags(0x08000000).output().unwrap();
         assert!(
             output.status.success(),
