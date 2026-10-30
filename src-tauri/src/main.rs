@@ -38,7 +38,7 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             theme: "dark".into(),
-            language: default_language(),
+            language: "en".into(),
             install_dir: String::new(),
             reduced_motion: false,
             compact_cards: false,
@@ -276,6 +276,12 @@ mod tests {
         let conn = Connection::open_in_memory().unwrap();
         init(&conn).unwrap();
         assert_eq!(read(&conn).unwrap(), Settings::default());
+        assert_eq!(read(&conn).unwrap().language, "en");
+        let old: Settings = serde_json::from_str(
+            r#"{"theme":"dark","installDir":"","reducedMotion":false,"compactCards":false}"#,
+        )
+        .unwrap();
+        assert_eq!(old.language, "ru");
         let s = Settings {
             reduced_motion: true,
             language: "de".into(),

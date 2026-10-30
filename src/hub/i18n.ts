@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import translations from "./translations.json";
 export type Language = "ru" | "en" | "es" | "fr" | "de";
-let language: Language = "ru";
+let language: Language = "en";
 export const getLanguage = () => language;
 const listeners = new Set<() => void>();
 export function setLanguage(next: Language) {

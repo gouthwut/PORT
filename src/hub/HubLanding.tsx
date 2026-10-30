@@ -7,6 +7,7 @@ import {
   MonitorDown,
   Grid2X2,
   RotateCw,
+  Search,
 } from "lucide-react";
 import type { ProjectCatalogState } from "./catalog-source";
 import { type CatalogProject } from "./catalog-model";
@@ -170,11 +171,16 @@ export function HubLanding({
               ))}
             </div>
           ) : (
-            !catalog.error &&
-            projects.length > 0 && (
-              <p className="port-empty">
-                {t("Опубликованные проекты появятся здесь.")}{" "}
-              </p>
+            !catalog.error && (
+              <div className="hub-catalog-empty" style={{ margin: "24px 0" }}>
+                <Search size={32} aria-hidden="true" />
+                <h3>{t("Пока нет доступных проектов")}</h3>
+                <p>
+                  {t(
+                    "Новые порты и рекомпиляции появятся здесь по мере добавления в каталог.",
+                  )}
+                </p>
+              </div>
             )
           )}
         </section>

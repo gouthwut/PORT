@@ -1,0 +1,312 @@
+/* PORT// HUB design system — Stage 11.1-A. Scoped to .hub-* classes so the legacy
+   launcher screens keep their existing look. */
+:root {
+  --h-bg-0: #010104;
+  --h-bg-1: #070a12;
+  --h-bg-2: #0d101a;
+  --h-surface: #111925cc;
+  --h-surface-2: #151c28;
+  --h-line: #ffffff14;
+  --h-line-2: #ffffff26;
+  --h-text: #f1ece6;
+  --h-text-2: #b7bccb;
+  --h-muted: #7c8296;
+  --h-violet: #8b5cf6;
+  --h-violet-2: #b48cff;
+  --h-blue: #4f7cff;
+  --h-pink: #f07ac8;
+  --h-amber: #ffb53d;
+  --h-amber-2: #ff8a2a;
+  --h-success: #3ddc84;
+  --h-info: #4fa3ff;
+  --h-warning: #f5c344;
+  --h-danger: #ff5b6b;
+  --h-r-sm: 8px;
+  --h-r: 14px;
+  --h-r-lg: 22px;
+  --h-gap: clamp(14px, 1.6vw, 22px);
+  --h-pad: clamp(18px, 3vw, 40px);
+  --h-display: "Manrope", "Inter", system-ui, sans-serif;
+  --h-mono: "Cascadia Mono", "Consolas", ui-monospace, monospace;
+  --h-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hub-home,
+.hub-catalog {
+  color: var(--h-text);
+  padding: 0 var(--h-pad) 64px;
+  max-width: 1680px;
+  margin: 0 auto;
+}
+.hub-eyebrow {
+  font: 600 11px/1 var(--h-mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--h-amber);
+  margin: 0 0 10px;
+}
+
+/* Buttons */
+.hub-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 22px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font: 700 15px var(--h-display);
+  cursor: pointer;
+  transition:
+    transform 0.18s var(--h-ease),
+    box-shadow 0.18s,
+    background 0.18s,
+    border-color 0.18s;
+  color: var(--h-text);
+}
+.hub-btn:active {
+  transform: scale(0.97);
+}
+.hub-btn:focus-visible,
+.hub-card:focus-visible,
+.hub-pill:focus-visible,
+.cat-chips button:focus-visible {
+  outline: 2px solid var(--h-violet-2);
+  outline-offset: 3px;
+}
+.hub-btn.primary {
+  background: linear-gradient(
+    180deg,
+    #ffd060,
+    var(--h-amber) 55%,
+    var(--h-amber-2)
+  );
+  color: #1a0e00;
+  box-shadow:
+    0 10px 30px -8px #ff9a2a90,
+    inset 0 1px 0 #fff6;
+}
+.hub-btn.primary:hover {
+  box-shadow:
+    0 14px 40px -6px #ffaa3ab0,
+    inset 0 1px 0 #fff8;
+  transform: translateY(-1px);
+}
+.hub-btn.ghost {
+  background: #ffffff08;
+  border-color: var(--h-line-2);
+}
+.hub-btn.ghost:hover {
+  background: #ffffff12;
+  border-color: #b48cff66;
+}
+.hub-btn.sm {
+  height: 36px;
+  padding: 0 14px;
+  font-size: 13px;
+  border-radius: 10px;
+}
+.hub-link {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  background: none;
+  border: 0;
+  color: var(--h-violet-2);
+  font: 600 14px var(--h-display);
+  cursor: pointer;
+}
+.hub-link:hover {
+  color: #fff;
+}
+
+/* Hero */
+.hub-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--h-r-lg);
+  min-height: clamp(380px, 48vh, 540px);
+  margin-top: 8px;
+  border: 1px solid var(--h-line);
+  display: flex;
+  align-items: center;
+  padding: clamp(28px, 5vw, 72px);
+  background: var(--h-bg-0);
+}
+.hero-sky {
+  position: absolute;
+  inset: 0;
+  z-index: -5;
+  background:
+    radial-gradient(60% 70% at 72% 38%, #ff6a2a66, transparent 60%),
+    radial-gradient(40% 50% at 82% 30%, #ffb05055, transparent 60%),
+    radial-gradient(70% 90% at 20% 100%, #4b1d8a88, transparent 65%),
+    linear-gradient(180deg, #160a1e 0%, #2a0f22 40%, #120814 70%, #05050a 100%);
+}
+.hero-sun {
+  position: absolute;
+  z-index: -4;
+  width: 34vmin;
+  aspect-ratio: 1;
+  right: 14%;
+  top: 14%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffd9a0 0%, #ff8a3a 40%, #ff4d2a00 70%);
+  filter: blur(2px);
+  opacity: 0.85;
+}
+.hero-ridge {
+  position: absolute;
+  z-index: -3;
+  left: -5%;
+  right: -5%;
+  bottom: 0;
+}
+.hero-ridge.r1 {
+  height: 58%;
+  background: linear-gradient(180deg, #2a0f2a, #0a0610);
+  clip-path: polygon(
+    0 70%,
+    8% 52%,
+    15% 60%,
+    26% 34%,
+    34% 48%,
+    44% 30%,
+    52% 44%,
+    58% 18%,
+    61% 6%,
+    64% 18%,
+    70% 40%,
+    78% 26%,
+    86% 46%,
+    94% 36%,
+    100% 50%,
+    100% 100%,
+    0 100%
+  );
+  opacity: 0.9;
+}
+.hero-ridge.r2 {
+  height: 34%;
+  background: linear-gradient(180deg, #0c0612, #020205);
+  clip-path: polygon(
+    0 40%,
+    12% 60%,
+    22% 30%,
+    36% 55%,
+    48% 40%,
+    62% 62%,
+    74% 36%,
+    88% 58%,
+    100% 44%,
+    100% 100%,
+    0 100%
+  );
+}
+.hero-grid {
+  position: absolute;
+  z-index: -2;
+  inset: auto 0 0 0;
+  height: 40%;
+  background:
+    linear-gradient(transparent, #01010400 30%, var(--h-bg-0)),
+    repeating-linear-gradient(90deg, #b48cff14 0 1px, transparent 1px 64px);
+  mask: linear-gradient(transparent, #000 70%);
+}
+.hub-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, #010104f0 0%, #010104b0 34%, transparent 64%),
+    linear-gradient(0deg, #010104 0%, transparent 30%);
+}
+.hero-copy {
+  max-width: 620px;
+  position: relative;
+  z-index: 2;
+}
+.hero-tag,
+.hero-cart {
+  z-index: 2;
+}
+.hero-copy h1 {
+  font: 900 clamp(38px, 5.4vw, 78px)/0.95 var(--h-display);
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  margin: 0 0 18px;
+  text-wrap: balance;
+}
+.hero-copy h1 em {
+  font-style: normal;
+  background: linear-gradient(90deg, #ff9ad6, #c79bff 55%, #7aa2ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero-sub {
+  color: var(--h-text-2);
+  font-size: clamp(14px, 1.15vw, 17px);
+  line-height: 1.55;
+  max-width: 520px;
+  margin: 0 0 28px;
+  text-wrap: pretty;
+}
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.hero-count {
+  font: 500 12px var(--h-mono);
+  color: var(--h-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.hero-tag {
+  position: absolute;
+  right: clamp(24px, 4vw, 64px);
+  bottom: clamp(24px, 4vw, 56px);
+  text-align: right;
+  display: grid;
+  gap: 14px;
+}
+.hero-tag .neon {
+  font: italic 800 clamp(20px, 2.2vw, 34px)/1 var(--h-display);
+  text-transform: uppercase;
+  color: #ffe1f4;
+  text-shadow:
+    0 0 6px #ff6ad5,
+    0 0 18px #c45cff,
+    0 0 40px #8b5cf6;
+  transform: rotate(-4deg);
+}
+.hero-tag .mono {
+  font: 600 11px/1.6 var(--h-mono);
+  letter-spacing: 0.2em;
+  color: var(--h-amber-2);
+}
+.hero-cart {
+  position: absolute;
+  left: -38px;
+  bottom: -46px;
+  width: 150px;
+  height: 120px;
+  border-radius: 14px 14px 6px 6px;
+  border: 2px solid #c45cff;
+  box-shadow:
+    0 0 18px #c45cffaa,
+    inset 0 0 24px #8b5cf655;
+  transform: rotate(-12deg);
+  display: grid;
+  place-items: center;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.hero-cart span {
+  font: 900 18px var(--h-display);
+  color: #f3d6ff;
+  text-shadow: 0 0 10px #c45cff;
+}

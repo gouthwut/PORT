@@ -1,4 +1,10 @@
 {
+  "Новые версии на GitHub": [
+    "New versions on GitHub",
+    "Nuevas versiones en GitHub",
+    "Nouvelles versions sur GitHub",
+    "Neue Versionen auf GitHub"
+  ],
   "Настройки сохранены": [
     "Settings saved",
     "Ajustes guardados",
@@ -532,10 +538,22 @@
     "Einige Bilder sind nicht verfügbar. Projektdaten sind weiterhin verfügbar."
   ],
   "Каталог пока пуст": [
-    "The catalog is empty",
-    "El catálogo está vacío",
-    "Le catalogue est vide",
-    "Der Katalog ist noch leer"
+    "No projects available yet",
+    "Aún no hay proyectos disponibles",
+    "Aucun projet disponible pour le moment",
+    "Noch keine Projekte verfügbar"
+  ],
+  "Пока нет доступных проектов": [
+    "No projects available yet",
+    "Aún no hay proyectos disponibles",
+    "Aucun projet disponible pour le moment",
+    "Noch keine Projekte verfügbar"
+  ],
+  "Новые порты и рекомпиляции появятся здесь по мере добавления в каталог.": [
+    "New ports and recompilations will appear here as they're added to the catalog.",
+    "Los nuevos ports y recompilaciones aparecerán aquí a medida que se añadan al catálogo.",
+    "Les nouveaux ports et recompilations apparaîtront ici au fur et à mesure de leur ajout au catalogue.",
+    "Neue Ports und Rekompilationen erscheinen hier, sobald sie zum Katalog hinzugefügt werden."
   ],
   "Ничего не найдено": [
     "No results found",

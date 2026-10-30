@@ -110,6 +110,13 @@ async function fixture(page: Page, installed = false) {
               return "QA: launch routed by ID";
             if (command === "open_installation_folder")
               return "QA: Explorer opened by ID";
+            if (command === "create_installation_shortcut") {
+              if ((window as any).qaShortcutWarning)
+                throw Error(
+                  "На рабочем столе уже есть чужой или ручной ярлык: Bloodborne.lnk",
+                );
+              return "Ярлык создан: Desktop/Bloodborne.lnk";
+            }
             if (command === "verify_installation") return "QA: integrity";
             if (command === "remove_installation") {
               if (!args.confirmed) throw Error("Confirmation required");
@@ -249,6 +256,36 @@ test("library context menu mouse, keyboard, dismissal and shared actions (mocked
   await expect(
     page.getByRole("status").filter({ hasText: "Explorer opened" }),
   ).toBeVisible();
+  await card.focus();
+  await page.keyboard.press("Shift+F10");
+  await page
+    .getByRole("menuitem", { name: "Создать/восстановить ярлык" })
+    .click();
+  await expect(
+    page.getByRole("status").filter({ hasText: "Desktop/Bloodborne.lnk" }),
+  ).toBeVisible();
+  const shortcutCalls = await page.evaluate(() =>
+    (window as any).qaCalls.filter(
+      (c: any) => c.command === "create_installation_shortcut",
+    ),
+  );
+  expect(shortcutCalls).toEqual([
+    {
+      command: "create_installation_shortcut",
+      args: { id: "123-45", setup: false, confirmed: false },
+    },
+  ]);
+  await page.evaluate(() => {
+    (window as any).qaShortcutWarning = true;
+  });
+  await card.click({ button: "right" });
+  await page
+    .getByRole("menuitem", { name: "Создать/восстановить ярлык" })
+    .click();
+  await expect(page.getByRole("alert")).toContainText(
+    "На рабочем столе уже есть чужой или ручной ярлык: Bloodborne.lnk",
+  );
+  await expect(card).toBeVisible();
   await card.click({ button: "right" });
   await page.keyboard.press("ArrowDown");
   await page.keyboard.press("Home");

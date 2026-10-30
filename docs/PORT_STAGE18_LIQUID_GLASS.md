@@ -2,7 +2,7 @@
 
 Date: 2026-10-29  
 Status: Complete (Local Implementation & Verification)  
-Design Direction: **A / Premiere Compact + Apple-inspired Liquid Glass + Cinematic Gaming UI**  
+Design Direction: **A / Premiere Compact + Apple-inspired Liquid Glass + Cinematic Gaming UI**
 
 ---
 
@@ -13,6 +13,7 @@ Stage 18 realizes the transition from the Stage 17A design exploration into the 
 Instead of generic plastic translucent divs with plain 1px white borders, Stage 18 implements an **Apple-inspired Liquid Glass material system** combined with the cinematic game-forward composition of **Direction A (Premiere Compact)**.
 
 ### What Was Delivered:
+
 1. **Master Liquid Glass System (`src/hub/stage18-liquid.css`)**:
    - Multi-layer specular reflections (`inset 0 1px 1px rgba(255, 255, 255, 0.42)`, `inset 0 -1px 1px rgba(0, 0, 0, 0.40)`).
    - High-chroma saturation boost (`backdrop-filter: blur(12px) saturate(155%) brightness(103%)`), ensuring underlying game art stays vivid rather than turning dull/muddy gray.
@@ -55,6 +56,7 @@ Instead of generic plastic translucent divs with plain 1px white borders, Stage 
 ## 2. Liquid Glass Material Architecture
 
 ### Tokens & Variables
+
 ```css
 :root {
   --lg-glass-fill: rgba(18, 14, 28, 0.65);
@@ -62,13 +64,20 @@ Instead of generic plastic translucent divs with plain 1px white borders, Stage 
   --lg-glass-fill-dense: rgba(14, 11, 22, 0.86);
   --lg-glass-border-specular: rgba(255, 255, 255, 0.22);
   --lg-glass-border-rim: rgba(255, 255, 255, 0.08);
-  --lg-glass-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.65), 0 4px 12px rgba(0, 0, 0, 0.40);
+  --lg-glass-shadow:
+    0 16px 36px -8px rgba(0, 0, 0, 0.65), 0 4px 12px rgba(0, 0, 0, 0.4);
   --lg-glass-blur: blur(12px) saturate(155%) brightness(103%);
-  --lg-sheen: linear-gradient(125deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.04) 32%, transparent 68%);
+  --lg-sheen: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.04) 32%,
+    transparent 68%
+  );
 }
 ```
 
 ### Optical Principles Applied:
+
 - **No Flat White Outlines**: Instead of a crude 1px solid white stroke, elements use a dual-inset box-shadow to simulate thickness (top specular edge + bottom ambient shadow) paired with a sub-pixel semi-transparent border.
 - **Surface Sheen Sweep**: Pseudo-elements (`::before`) cast a delicate 125-degree soft white gradient across the upper third of glass capsules, creating physical glass curvature.
 - **Underlying Color Vibrancy**: `backdrop-filter: saturate(155%)` prevents the blur from washing out saturated game screenshots.
@@ -80,21 +89,21 @@ Instead of generic plastic translucent divs with plain 1px white borders, Stage 
 
 Generated Playwright visual evidence is located in `.local/evidence/stage18/`:
 
-| File | Viewport | Content / Assertion Verified |
-|---|---|---|
-| `01-home-1280x720.png` | 1280×720 | First-screen density: Hero and top edge of cards visible (Y: 462px). Clean layout without search bar overlap. |
-| `02-home-1600x900.png` | 1600×900 | High-res desktop layout, wide game cards, floating glass sidebar. |
-| `03-home-800x600.png` | 800×600 | Compact layout density: zero horizontal overflow (`scrollWidth <= clientWidth`). |
-| `04-catalog-1280x720.png` | 1280×720 | Catalog grid with filter pills, real Sonic and Zelda project cards. |
-| `05-catalog-1600x900.png` | 1600×900 | Expanded catalog grid. |
-| `06-catalog-800x600.png` | 800×600 | Compact catalog with stacked filter controls, no clipping. |
-| `07-project-sonic-1280x720.png` | 1280×720 | Sonic Unleashed Recompiled: Cinema hero, platform badges, liquid glass download plate, gallery. |
-| `08-project-sonic-1600x900.png` | 1600×900 | Panoramic cinema hero, specs table, collapsible installation notes. |
-| `09-project-zelda-1280x720.png` | 1280×720 | Zelda 64 Recompiled detail view. |
-| `10-downloads-1280x720.png` | 1280×720 | Downloads Center with glass summary cards, clean empty state. |
-| `11-settings-1280x720.png` | 1280×720 | Settings screen with glass sections and language selectors. |
-| `12-home-card-hover.png` | 1280×720 | Interactive card hover: scale elevation, violet specular halo, sheen brightening. |
-| `13-home-fallback.png` | 1280×720 | Fallback mode (`.no-backdrop-filter`): solid deep-tone container backgrounds with 100% legibility. |
+| File                            | Viewport | Content / Assertion Verified                                                                                  |
+| ------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------- |
+| `01-home-1280x720.png`          | 1280×720 | First-screen density: Hero and top edge of cards visible (Y: 462px). Clean layout without search bar overlap. |
+| `02-home-1600x900.png`          | 1600×900 | High-res desktop layout, wide game cards, floating glass sidebar.                                             |
+| `03-home-800x600.png`           | 800×600  | Compact layout density: zero horizontal overflow (`scrollWidth <= clientWidth`).                              |
+| `04-catalog-1280x720.png`       | 1280×720 | Catalog grid with filter pills, real Sonic and Zelda project cards.                                           |
+| `05-catalog-1600x900.png`       | 1600×900 | Expanded catalog grid.                                                                                        |
+| `06-catalog-800x600.png`        | 800×600  | Compact catalog with stacked filter controls, no clipping.                                                    |
+| `07-project-sonic-1280x720.png` | 1280×720 | Sonic Unleashed Recompiled: Cinema hero, platform badges, liquid glass download plate, gallery.               |
+| `08-project-sonic-1600x900.png` | 1600×900 | Panoramic cinema hero, specs table, collapsible installation notes.                                           |
+| `09-project-zelda-1280x720.png` | 1280×720 | Zelda 64 Recompiled detail view.                                                                              |
+| `10-downloads-1280x720.png`     | 1280×720 | Downloads Center with glass summary cards, clean empty state.                                                 |
+| `11-settings-1280x720.png`      | 1280×720 | Settings screen with glass sections and language selectors.                                                   |
+| `12-home-card-hover.png`        | 1280×720 | Interactive card hover: scale elevation, violet specular halo, sheen brightening.                             |
+| `13-home-fallback.png`          | 1280×720 | Fallback mode (`.no-backdrop-filter`): solid deep-tone container backgrounds with 100% legibility.            |
 
 ---
 

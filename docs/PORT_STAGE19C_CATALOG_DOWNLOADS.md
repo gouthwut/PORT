@@ -63,14 +63,14 @@ CMS должна отдельно согласовать и реализоват
 
 Анонимные GET через обычный Chromium 2026-10-30:
 
-| Среда | Маршрут | Результат |
-| --- | --- | --- |
-| production | `/v2/projects?limit=100` | 401, `Требуется вход`, без ACAO |
-| production | `/v2/games?limit=100` | 401, без ACAO |
-| production | detail/builds для диагностического отсутствующего ID | 401, без ACAO |
-| staging Stage16C | `/v2/projects?limit=100` | 200, total=0, items=[], ACAO=* |
-| staging Stage16C | `/v2/games?limit=100` | 200, items=[], ACAO=* |
-| staging Stage16C | detail/builds для отсутствующего ID | 404 `Проект не найден`, ACAO=* |
+| Среда            | Маршрут                                              | Результат                       |
+| ---------------- | ---------------------------------------------------- | ------------------------------- |
+| production       | `/v2/projects?limit=100`                             | 401, `Требуется вход`, без ACAO |
+| production       | `/v2/games?limit=100`                                | 401, без ACAO                   |
+| production       | detail/builds для диагностического отсутствующего ID | 401, без ACAO                   |
+| staging Stage16C | `/v2/projects?limit=100`                             | 200, total=0, items=[], ACAO=*  |
+| staging Stage16C | `/v2/games?limit=100`                                | 200, items=[], ACAO=*           |
+| staging Stage16C | detail/builds для отсутствующего ID                  | 404 `Проект не найден`, ACAO=*  |
 
 Production: `https://port-catalog-cms.port-catalog-cms.workers.dev`.
 Staging: `https://port-catalog-cms-stage16c.port-catalog-cms.workers.dev`.

@@ -6,7 +6,7 @@ import { GameArt } from "./BloodborneMedia";
 import { GameAction } from "./GameAction";
 import { Button, Modal, gameCount } from "./ui";
 import * as ContextMenu from "@radix-ui/react-context-menu";
-import { Play, FolderOpen, ShieldCheck, Trash2 } from "lucide-react";
+import { Play, FolderOpen, ShieldCheck, Trash2, Monitor } from "lucide-react";
 
 export function InstalledLibrary({
   media,
@@ -167,6 +167,20 @@ export function InstalledLibrary({
                   >
                     <FolderOpen size={16} />
                     Просмотреть локальные файлы
+                  </ContextMenu.Item>
+                  <ContextMenu.Item
+                    className="context-item"
+                    disabled={
+                      state.busy ||
+                      !!state.loadError ||
+                      !!state.operation?.active
+                    }
+                    onSelect={() =>
+                      void action("create_installation_shortcut", i)
+                    }
+                  >
+                    <Monitor size={16} />
+                    Создать/восстановить ярлык
                   </ContextMenu.Item>
                   <ContextMenu.Item
                     className="context-item"

@@ -1,106 +1,232 @@
-# PORT//
+<p align="center">
+  <img src="public/port-icon.svg" width="96" height="96" alt="PORT logo">
+</p>
+<h1 align="center">PORT</h1>
+<p align="center"><b>Native PC ports, static recompilations and decompilations. One beautiful Windows catalog.</b></p>
+<p align="center">
+  <a href="https://github.com/gouthwut/PORT/releases/tag/v0.1.0-beta.1"><img alt="Beta 1" src="https://img.shields.io/badge/Release-v0.1.0--beta.1-blue?style=flat-square"></a>
+  <img alt="Windows 10 / 11 x64" src="https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011%20x64-0078D4?style=flat-square">
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-green?style=flat-square"></a>
+  <img alt="Languages" src="https://img.shields.io/badge/Languages-EN%20%7C%20RU%20%7C%20ES%20%7C%20FR%20%7C%20DE-blueviolet?style=flat-square">
+</p>
 
-**Знакомые миры. Новый дом.** Независимый Windows-лаунчер консольных Windows-проектов.
+---
 
-Tauri 2 · React · TypeScript · Rust · SQLite
+## ⚡ Download PORT Beta 1
 
-![PORT Bloodborne — local artwork slots](screenshots/02a-01-home-1440.png)
+Get the latest installer for Windows 10 and 11 (x64):
 
-## Текущий статус
+👉 [**Download PORT-Setup-0.1.0-beta.1.exe**](https://github.com/gouthwut/PORT/releases/download/v0.1.0-beta.1/PORT-Setup-0.1.0-beta.1.exe)
 
-**Stage 05C: настоящий онлайн-каталог подключён автоматически.** PORT получает [опубликованный каталог](https://port-catalog-cms.port-catalog-cms.workers.dev/v1/catalog.json) при запуске, каждые пять минут, после восстановления связи и вручную. Настройка сервера и GitHub OAuth игрокам не нужны. Новые публикации приходят без пересборки exe; новый установочный адаптер требует проверенного кода клиента. Проверенные метаданные и изображения сохраняются локально, установленная библиотека независима от публикации. Ручной адрес и диагностика доступны только в developer build. Локальные fixtures включаются явно для разработки/тестов. Контракт и границы проверки: [docs/CATALOG.md](docs/CATALOG.md), [PROGRESS.md](PROGRESS.md).
+| Asset        | Details                                                            |
+| :----------- | :----------------------------------------------------------------- |
+| **File**     | `PORT-Setup-0.1.0-beta.1.exe`                                      |
+| **Version**  | `0.1.0-beta.1` (Pre-release)                                       |
+| **Platform** | Windows 10 / 11 (x64)                                              |
+| **SHA-256**  | `145057756bf654dc753766ab597f433c057f4ae8e3c1f9f8efb006ab5d87e94e` |
 
-Bloodborne — единственная игра со встроенным проверенным установочным адаптером. В локальную Windows-сборку заранее упакованы hero, обложка, широкий баннер и четыре исходных игровых кадра из предоставленного архива. Работают без сети и ручного импорта. Дизайн PORT сохранён; замена оформления доступна дополнительно. Права на публичное распространение материалов не подтверждены: изображения, личная сборка и новые скриншоты исключены из Git. Чистый публичный checkout собирается с пустыми слотами. См. [локальную упаковку](docs/LOCAL_ART.md).
+_Release assets and checksum verification are available on the [GitHub Releases page](https://github.com/gouthwut/PORT/releases/tag/v0.1.0-beta.1)._
 
-Кнопка установки в Windows сразу открывает один стандартный диалог с множественным выбором PKG. PORT определяет основную игру и обновление по CNT + PARAM.SFO, проверяет Title/Content ID, версии и конфликты независимо от порядка файлов. Обновление необязательно. Реальные пользовательские файлы распознаны как CUSA03173 1.00 + 1.09 с одинаковым Content ID; PFS обоих помечен как зашифрованный. Проверка метаданных не доказывает полную целостность или доступность содержимого. Исходные PKG открываются только для чтения, никуда не отправляются.
+---
 
-Работает существующий загрузчик закреплённого Windows-архива SuperMedo `windows-v1.9.4`: реальный прогресс/скорость, пауза/Range, отмена, SHA-256 и проверка ZIP. Скачанный архив — **ещё не установленная игра**.
+## What is PORT?
 
-Установщик поддерживает собственную подготовленную папку CUSA03173 и, в сборке с [PKG worker](tools/pkg-worker/README.md), совместимый основной fake/debug PKG. Флаг шифрования сам по себе не определяет поддержку: оба предоставленных пакета прошли штатную ограниченную проверку механизма и дерева. Установка использует staging, SHA-256 манифест, проверенный Windows-runtime и SQLite-библиотеку с запуском, проверкой файлов и удалением игровых копий без удаления сохранений.
+**PORT** is an open-source Windows catalog and download manager designed specifically for independently developed PC ports, static recompilations, decompilations, and community runtimes.
 
-**Stage 04B: поддержан один подтверждённый update PKG CUSA03173 1.09 по полному SHA-256.** В библиотеке: «Управление игрой» → «Установить обновление». Патч проверяется отдельно, затем заменяет файлы **в текущей установке** с журналом отката при ошибке/отмене. ID, папка, сохранения и одна карточка игры сохраняются; полная копия игры/runtime не создаётся. После проверки обновляются версия и манифест. Другие патчи, произвольные дельты/retail PKG и обновление запущенной игры не поддерживаются. Первичная установка остаётся двухэтапной: основной PKG, затем действие обновления в библиотеке. Реальные нативные результаты, пользовательское подтверждение работы 1.09 и ограничения проверки gameplay — в [PROGRESS.md](PROGRESS.md).
+Instead of searching forums and repositories, PORT gives you a single place to:
 
-Исторически основная игра 1.00 была установлена из предоставленного PKG и запущена через PORT до **главного меню, подтверждённого пользователем**. Затем эта же установка обновлена до 1.09; пользователь подтвердил, что она запускается и работает. Новая игровая сцена и длительная игра не проверялись в Stage 04C. Источники и результаты тестов — в документации выше.
+1. **Discover** independent PC ports and recompilations.
+2. **Read** project details, hardware requirements, and the developer's manual setup instructions.
+3. **Download** verified, official Windows release files directly inside the application.
+4. **Open** the downloaded archive and follow the developer's step-by-step setup guide.
 
-Настройки темы, анимаций, компактности карточек и папки установки сохраняются локально в SQLite. Сам выбор папки не устанавливает игру: нужна отдельная команда установки. Проверенный кэш runtime позволяет устанавливать без повторной загрузки. Приложению не нужна сеть для просмотра каталога и изменения настроек; нет обязательной учётной записи PORT и телеметрии PORT.
+> **Important:** PORT **does not** automatically install, modify, or launch games. It does not contain or distribute proprietary game assets, ROMs, ISOs, or PKGs. Users provide any required game data files from their own legally owned physical or digital copies.
 
-## Запуск на Windows
+---
 
-Нужны Node.js 24 LTS, Rust stable с MSVC toolchain, Visual Studio C++ Build Tools / Windows SDK и Microsoft Edge WebView2. См. [официальные требования Tauri](https://v2.tauri.app/start/prerequisites/). Версии зависимостей закреплены lock-файлами.
+## Features
+
+- **Live Cloud Catalog:** Projects and updates appear in the app dynamically via the secure Cloudflare API v2 without requiring an app reinstall.
+- **Official Releases Only:** Downloads are fetched directly from the upstream project's official GitHub Releases.
+- **Integrated Download Manager:** Track download progress, transfer speed, pause/resume, cancellation, retry, and view full download history.
+- **Integrity Verification:** Automated SHA-256 checksum validation when provided by upstream release records.
+- **Safety First:** Strict destination picker, overwrite protection, and no automated background binary execution.
+- **Liquid Glass UI:** Modern dark design inspired by Premiere Compact aesthetics with smooth motion, keyboard navigation, and reduced-motion accessibility.
+- **Multilingual Support:** English (default), Russian, Spanish, French, and German.
+- **100% Local Privacy:** Saved projects, search preferences, and download history are stored locally in SQLite. No user account, tracking, or registration required.
+
+---
+
+## Screenshots
+
+<p align="center">
+  <b>Home Screen</b><br>
+  <img src="docs/images/screenshot-home.png" alt="PORT Home" width="90%">
+</p>
+
+<p align="center">
+  <b>Catalog & Discovery (Clean Empty State)</b><br>
+  <img src="docs/images/screenshot-catalog.png" alt="PORT Catalog" width="90%">
+</p>
+
+<p align="center">
+  <b>Integrated Download Manager</b><br>
+  <img src="docs/images/screenshot-downloads.png" alt="PORT Downloads" width="90%">
+</p>
+
+<p align="center">
+  <b>Settings & Localization</b><br>
+  <img src="docs/images/screenshot-settings.png" alt="PORT Settings" width="90%">
+</p>
+
+---
+
+## How It Works
+
+```
+┌────────────────┐       ┌──────────────────────┐       ┌────────────────┐
+│  Online CMS    │ ────> │  Cloudflare API v2   │ ────> │    PORT App    │
+│  (Management)  │       │  (Public & Cached)   │       │ (Windows UI)   │
+└────────────────┘       └──────────────────────┘       └────────────────┘
+                                                                │
+                                                        Select Build & Download
+                                                                ▼
+                                                        ┌────────────────┐
+                                                        │ GitHub Release │
+                                                        │ (Official ZIP) │
+                                                        └────────────────┘
+```
+
+1. **Browse:** Open PORT to browse available ports. If the catalog is fresh or between releases, you will see a clean state.
+2. **Review:** Inspect supported platforms, system requirements, and the developer's installation instructions.
+3. **Download:** Select an approved official Windows build and pick your preferred download location.
+4. **Setup:** Use **Open Folder** to view the downloaded archive and follow the developer's instructions to complete setup.
+
+---
+
+## Catalog & Publishing
+
+PORT is backed by a dedicated Cloudflare API v2.
+
+- The catalog is maintained and published through the owner's web studio.
+- Regular players and users **never need an account**, API keys, or GitHub login to use PORT.
+- When new community ports are verified and published, they appear automatically in PORT for all users.
+
+---
+
+## Installation
+
+### Prerequisites
+
+- **Operating System:** Windows 10 or Windows 11 (64-bit).
+- **Runtime:** Microsoft Edge WebView2 (pre-installed on Windows 10/11; automatically bootstrapped if missing).
+- **No Developer Tools Needed:** You do _not_ need Node.js, Rust, Git, or Python to run PORT.
+
+### Quick Setup
+
+1. Download `PORT-Setup-0.1.0-beta.1.exe`.
+2. Run the setup wizard (installs for the current Windows user; no admin rights required).
+3. Launch **PORT** from your Start menu or desktop shortcut.
+
+### Checksum Verification
+
+You can verify the installer's integrity in PowerShell:
 
 ```powershell
-npm ci
-npm run tauri dev
+Get-FileHash .\PORT-Setup-0.1.0-beta.1.exe -Algorithm SHA256
 ```
 
-Сборка исполняемого приложения без установщика:
+Verify that the hash matches:
 
-```powershell
-npm run tauri build -- --no-bundle
-.\src-tauri\target\release\port-launcher.exe
+```
+145057756bf654dc753766ab597f433c057f4ae8e3c1f9f8efb006ab5d87e94e
 ```
 
-`npm run tauri build` дополнительно собирает NSIS-установщик. Обычные локальные сборки не имеют Windows Authenticode-подписи. Основа безопасного обновления лаунчера через подписанные Tauri-пакеты реализована; официальный публичный канал пока не подключён. Схема выпуска, ключей и изолированных испытаний — в [docs/UPDATER.md](docs/UPDATER.md). `npm run dev` — только браузерный frontend-preview, помеченный WEB PREVIEW; он использует localStorage и не заменяет Tauri.
+---
 
-## Проверки
+## Languages
 
-```powershell
-npm run build
-npm run format:check
-npx playwright install chromium
-npm test
-cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
-cargo test --locked --manifest-path src-tauri/Cargo.toml
-cargo clippy --locked --manifest-path src-tauri/Cargo.toml -- -D warnings
-```
+PORT comes with full interface translations across 5 languages:
 
-Дополнительно: `./scripts/test-extractor.ps1` (.NET SDK 8+) проверяет отдельный writer без зависимости приложения от .NET; опциональная проверка закреплённого upstream описана в стенде. `scripts/native-continuation.mjs` проверяет настоящий release WebView через временный loopback CDP и опциональную локальную папку PKG.
+- 🇬🇧 **English** (Default)
+- 🇷🇺 **Russian**
+- 🇪🇸 **Spanish**
+- 🇫🇷 **French**
+- 🇩🇪 **German**
 
-Playwright проверяет навигацию, поиск/фильтры, диалоги, пустые состояния, offline, сохранение и сброс настроек, темы и размеры. Контракт multi-picker проверяется с явно указанным mock IPC; это не нативный диалог. Это frontend-тесты; проверка настоящего окна описывается отдельно в [PROGRESS.md](PROGRESS.md). [Скриншоты](screenshots/INDEX.md) разделены на браузерные и нативные.
+You can switch languages at any time under **Settings → Interface language**.
 
-## Архитектура
+---
 
-React UI → Tauri IPC → Rust → SQLite / локальные операции / закреплённый GitHub artifact. Каталог расширяемый, одна коллекция может содержать несколько названий и общий runtime; сейчас активна только Bloodborne. Настройки и локальное оформление хранятся отдельно в SQLite, browser preview использует явно обозначенный localStorage. Runtime запускается проверенным адаптером с документированным `--play`; произвольных команд/аргументов нет. PKG reader работает в отдельном ограниченном worker. Schema 4 сохраняет журнал обновления; незавершённое восстановление блокирует запуск/удаление, сохраняя файлы для отката.
+## Frequently Asked Questions
 
-```text
-src/             UI, сервис настроек, доменные контракты
-src-tauri/       нативное окно, SQLite, команды Rust
-tests/           Playwright
-screenshots/     визуальные результаты
-docs/            архитектура, дизайн, исследование, страница Pages
-```
+#### Does PORT include or distribute any games?
 
-Подробнее: [архитектура](docs/ARCHITECTURE.md), [дизайн](docs/DESIGN.md), [roadmap](ROADMAP.md), [contributing](CONTRIBUTING.md). Каждая новая сессия Codex сначала читает [AGENTS.md](AGENTS.md) и [PROGRESS.md](PROGRESS.md).
+**No.** PORT is an informational catalog and download utility. It indexes independently developed open-source ports, recompilations, and runtimes. No proprietary game assets, textures, code, or ROMs are hosted or distributed.
 
-## Bloodborne и Windows-проект
+#### Do I need a GitHub account or API token?
 
-Выбран [bloodborne_pc от SuperMedo / Mohammed Albarghouthi](https://github.com/Supermedo/bloodborne_pc), [релиз windows-v1.9.4](https://github.com/Supermedo/bloodborne_pc/releases/tag/windows-v1.9.4). Он основан на bbport/shadPS4: x86-64 код игры выполняется на CPU, графика переводится в Vulkan. Это не официальный нативный PC-релиз Bloodborne. Сравнение с Lantern Engine и лицензии — в [UPSTREAM.md](docs/UPSTREAM.md).
+**No.** PORT communicates anonymously with public catalog and GitHub release endpoints.
 
-Runtime использует собственные **подготовленные файлы Bloodborne CUSA03173**; для community patches нужна 1.09. PORT может подготовить их из узкого поддерживаемого класса основных PKG либо импортировать готовую папку. Нужны eboot.bin, sce_module, sce_sys/param.sfo и полная dvdroot_ps4, включая shader/gxshader.shaderbnd.dcx. Версия берётся из PARAM.SFO либо остаётся неизвестной. Проверка метаданных/манифеста не доказывает подлинность дампа. Произвольные зашифрованные retail PKG, подбор passcode и обход DRM не поддерживаются.
+#### Does PORT install or launch the games?
 
-Кнопка «Играть» использует документированный в исходниках выбранного тега `Bloodborne.exe --play` с отдельным файлом настроек установки. «Настроить runtime» открывает upstream-мастер без аргументов. Успех создания процесса не обозначается как успешная загрузка игры. Runtime, настройки и сохранения остаются на диске при удалении игровых копий из библиотеки.
+**No.** PORT downloads the official archives released by the independent developers. Extraction, providing your legal game data, and running the port is done manually according to the developer's setup instructions.
 
-Чтобы собрать личный exe с PKG worker:
+#### Does clearing download history delete files on disk?
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/fetch-pkg-source.ps1
-powershell -ExecutionPolicy Bypass -File scripts/build-pkg-worker.ps1
-npm run tauri build -- --no-bundle
-```
+**No.** The download history tracks past operations in your local database. Clearing history leaves your downloaded files untouched.
 
-Upstream source и worker остаются в игнорируемой `.local`; без worker доступен импорт папки. Самостоятельная установка .NET пользователю собранного exe не нужна.
+---
 
-## Roadmap
+## Building from Source
 
-- **00 Foundation / 01 UI Prototype** — завершённая основа.
-- **02 Bloodborne** — локальное оформление, multi-PKG inspector, проверенный загрузчик, ограниченный worker для поддерживаемого основного PKG.
-- **03 Library / Runtime** — импорт папки/PKG, runtime, SQLite-библиотека и жизненный цикл реализованы; фактические проверки и оставшиеся ограничения — PROGRESS.md.
-- **04 Distribution** — подпись, обновления, полная release-проверка.
+To build PORT from source:
 
-GitHub Actions проверяет Windows-сборку; ручной workflow Pages публикует основу страницы из docs/site после настройки Pages на GitHub Actions в репозитории. Публикация страницы не выполняется автоматически.
+1. **Requirements:**
+   - [Node.js 24+](https://nodejs.org/)
+   - [Rust](https://rustup.rs/) (stable MSVC toolchain)
+   - Visual Studio C++ Build Tools & Windows SDK
 
-## Лицензии и acknowledgements
+2. **Clone & Install Dependencies:**
 
-Собственный код PORT — [MIT](LICENSE). [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) и inventories содержат сведения о зависимостях. Перед публичным распространением бинарников нужно собрать полные тексты их лицензий. Благодарим Tauri, React, Radix, Tailwind, Motion, Lucide, rusqlite/SQLite и Playwright.
+   ```powershell
+   git clone https://github.com/gouthwut/PORT.git
+   cd PORT
+   npm ci
+   ```
 
-Значок и исторические SVG-материалы — собственные демонстрационные материалы PORT. Официальные обложки и игровые логотипы не включены в публичный Git. Личное оформление упаковывается локально с неподтверждёнными правами на распространение; такая сборка не готова к публичной публикации. Названия игр принадлежат правообладателям; PORT не связан с Sony Interactive Entertainment или FromSoftware.
+3. **Run in Development Mode:**
+
+   ```powershell
+   npm run tauri dev
+   ```
+
+4. **Build the Production Installer:**
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File scripts/build-windows-beta.ps1
+   ```
+
+---
+
+## Privacy & Security
+
+- **Local Storage:** All settings, favorites, and download histories are stored locally on your PC in SQLite.
+- **No Telemetry:** PORT does not track your usage, collect personal data, or phone home with user identifiers.
+- **Safe Execution:** PORT never automatically executes or runs downloaded archives.
+- **Vulnerability Reporting:** See [SECURITY.md](SECURITY.md) for instructions on responsible security disclosures.
+
+---
+
+## Credits & License
+
+- Built with [Tauri 2](https://tauri.app/), [Rust](https://www.rust-lang.org/), [React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/), [Motion](https://motion.dev/), and [Lucide Icons](https://lucide.dev/).
+- Fonts: [Inter](https://rsms.me/inter/) and [Manrope](https://gent.media/manrope) under the SIL Open Font License.
+- Third-party notices and open-source licenses are compiled in [THIRD_PARTY_NOTICES.md](docs/licenses/THIRD_PARTY_NOTICES.md).
+
+PORT is released under the **[MIT License](LICENSE)**.
+
+---
+
+## Disclaimer
+
+PORT is an independent community project and is **not** affiliated with, authorized, maintained, sponsored, or endorsed by Sony Interactive Entertainment, Nintendo, Microsoft, Electronic Arts, SEGA, or any other game publisher or console manufacturer. All trademarks, service marks, and company names are the property of their respective owners.

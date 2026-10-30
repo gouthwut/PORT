@@ -1,7 +1,7 @@
 {
   "name": "port-launcher",
-  "version": "0.1.0",
-  "description": "PORT Windows native port launcher",
+  "version": "0.1.0-beta.1",
+  "description": "Windows catalog and download manager for independent ports and runtime projects",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

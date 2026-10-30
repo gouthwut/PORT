@@ -76,16 +76,16 @@ Reference structure: [upstream XContent reader](https://github.com/hedge-dev/Unl
 Counting one field entry, button/confirmation or OS picker as one action, starting
 **inside an open Builder with a paired helper**, with an unambiguous documented project:
 
-| Action group | Simple prepared-folder game | ISO + TU + upstream setup |
-| --- | ---: | ---: |
-| URL + analyze | 2 | 2 |
-| Download/check runtime + consent | 2 | 2 |
-| Next + base picker + optional TU picker + inspect | 3 | 4 |
-| Next + review requirements | 2 | 2 |
-| Trial + separate execution consent | 0 | 2 |
-| Confirm upstream trial/patch evidence | 0 | 1 |
-| Validate (accept proposed measurements) + private save | 2 | 2 |
-| **CMS total** | **11** | **15 + official wizard actions** |
+| Action group                                           | Simple prepared-folder game |        ISO + TU + upstream setup |
+| ------------------------------------------------------ | --------------------------: | -------------------------------: |
+| URL + analyze                                          |                           2 |                                2 |
+| Download/check runtime + consent                       |                           2 |                                2 |
+| Next + base picker + optional TU picker + inspect      |                           3 |                                4 |
+| Next + review requirements                             |                           2 |                                2 |
+| Trial + separate execution consent                     |                           0 |                                2 |
+| Confirm upstream trial/patch evidence                  |                           0 |                                1 |
+| Validate (accept proposed measurements) + private save |                           2 |                                2 |
+| **CMS total**                                          |                      **11** | **15 + official wizard actions** |
 
 Opening Builder adds 1; starting/pairing the helper once per session adds 4 (open CMD,
 open connection panel, enter code, connect). An existing URL removes 1. These budgets
@@ -355,12 +355,12 @@ For a **new recipe from an existing card with its GitHub URL**, assuming an inde
 checked trial and **two sufficient deterministic results** (base + TU), the current UI
 needs **21 interactions**, counting a file/folder picker as one interaction:
 
-| Part | Interactions |
-| --- | --- |
-| Open Builder, analyze, choose asset, open asset download, select local ZIP, choose EXE | 6 |
-| Next, choose ISO+TU template, enter reviewed Title ID and setup flags, Next | 5 |
-| Confirm requirements/trial, choose trial folder, select+hash base result, select TU result+role+hash, validate | 9 |
-| Save private recipe draft | 1 |
+| Part                                                                                                           | Interactions |
+| -------------------------------------------------------------------------------------------------------------- | ------------ |
+| Open Builder, analyze, choose asset, open asset download, select local ZIP, choose EXE                         | 6            |
+| Next, choose ISO+TU template, enter reviewed Title ID and setup flags, Next                                    | 5            |
+| Confirm requirements/trial, choose trial folder, select+hash base result, select TU result+role+hash, validate | 9            |
+| Save private recipe draft                                                                                      | 1            |
 
 Typing a missing GitHub URL adds one interaction. Replacing configured settings adds up
 to three overwrite confirmations; already known fields can remove entries. Navigation,

@@ -321,7 +321,7 @@ export function HubCatalog({
                       ? t("В избранном нет проектов текущего каталога")
                       : projects.length || active
                         ? t("Ничего не найдено")
-                        : t("Каталог пока пуст")}
+                        : t("Пока нет доступных проектов")}
                   </h3>
                   <p>
                     {favoritesOnly && !projects.length
@@ -330,7 +330,9 @@ export function HubCatalog({
                         )
                       : projects.length
                         ? t("Попробуй другое название или сбрось фильтры.")
-                        : t("Опубликованные проекты появятся здесь.")}
+                        : t(
+                            "Новые порты и рекомпиляции появятся здесь по мере добавления в каталог.",
+                          )}
                   </p>
                   {active && (
                     <button className="text-link" onClick={reset}>

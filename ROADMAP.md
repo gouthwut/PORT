@@ -39,14 +39,14 @@ secondary only after future parity checks. Blueprint: [HUB_BLUEPRINT](docs/HUB_B
 
 Proposed stages, each requiring separate implementation authorization:
 
-| Stage | Deliverable | Dependency / gate |
-| --- | --- | --- |
-| 11.1 | Contracts, additive storage, shadow migration/restore rehearsal | Approved 11.0; zero destructive changes |
-| 11.2 | Catalog v2/read API, editorial CMS/guides/rights/search | 11.1; v1 compatibility and single-writer cutover |
-| 11.3 | Official source/release approval and verified download-only flow | 11.2; key custody plan; no autorun/installation claims |
-| 11.4 | Community identity/profiles/favorites and moderation skeleton | 11.3; owner auth isolation, privacy/operator decisions |
-| 11.5 | Reviews/reports, anti-abuse and scoped compatibility aggregates | 11.4; deterministic policy/S/N/interval/insufficient-data states |
-| 11.6 | Full web/Windows/CMS redesign implementation and parity | 11.2–11.5 + separately approved full design; native preservation/rollback |
+| Stage | Deliverable                                                      | Dependency / gate                                                         |
+| ----- | ---------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| 11.1  | Contracts, additive storage, shadow migration/restore rehearsal  | Approved 11.0; zero destructive changes                                   |
+| 11.2  | Catalog v2/read API, editorial CMS/guides/rights/search          | 11.1; v1 compatibility and single-writer cutover                          |
+| 11.3  | Official source/release approval and verified download-only flow | 11.2; key custody plan; no autorun/installation claims                    |
+| 11.4  | Community identity/profiles/favorites and moderation skeleton    | 11.3; owner auth isolation, privacy/operator decisions                    |
+| 11.5  | Reviews/reports, anti-abuse and scoped compatibility aggregates  | 11.4; deterministic policy/S/N/interval/insufficient-data states          |
+| 11.6  | Full web/Windows/CMS redesign implementation and parity          | 11.2–11.5 + separately approved full design; native preservation/rollback |
 
 Detailed acceptance criteria are in the blueprint. Production deployment, public
 community activation, signing keys and binary release remain separate decisions.

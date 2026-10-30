@@ -18,7 +18,7 @@
   not yet support those dictionaries; exact proposed extension is in the report.
 - Real Chromium anonymous production projects/games/detail/builds GETs: **401**,
   `Требуется вход`, no ACAO. Stage16C staging projects/games: **200**, empty lists,
-  ACAO=*; missing-project detail/builds return 404 with ACAO=*. No positive real
+  ACAO=_; missing-project detail/builds return 404 with ACAO=_. No positive real
   project/build exists there to accept media/instructions/official ZIP end to end.
   Python edge 403/1010 is retained separately as tool-specific probe evidence.
   No fake production records, player login bypass or source switch was added.
@@ -58,7 +58,6 @@
 - Owner confirmed no second account; live non-owner 403 remains UNVERIFIED; production provenance/recovery and authenticated migration execution-context acceptance still required. Production NO-GO, no production deploy/migration/writes or next stage. CMS final gate table and production runbook updated.
 - Both GitHub repos confirmed private. Outgoing history token/private-key/storage path scan: PORT 456 blobs, CMS 264 blobs, no findings. CMS history includes 26 previously committed backup/migration artwork files with unestablished redistribution rights; ordinary CMS push would include them and is blocked. No history rewrite/deletion. Safe current CMS changes committed locally. PORT contains no corresponding outgoing artwork finding; owner explicitly authorized safe source push in this continuation.
 - New checks: targeted CMS stub OAuth/security regression 1 PASS (not live proof), TypeScript PASS, production-config Wrangler dry-run PASS, diff whitespace PASS. Stage16C results do not certify public beta distribution or native production download E2E.
-
 
 ## 2026-10-30 — CMS Stage 16C: owner CSV backup verification
 

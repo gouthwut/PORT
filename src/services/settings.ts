@@ -8,7 +8,7 @@ export interface Settings {
 }
 export const defaults: Settings = {
   theme: "dark",
-  language: "ru",
+  language: "en",
   installDir: "",
   reducedMotion: false,
   compactCards: false,

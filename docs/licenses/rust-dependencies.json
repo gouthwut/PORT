@@ -90,8 +90,18 @@
     "license": "MIT OR Apache-2.0"
   },
   {
+    "name": "bytemuck",
+    "version": "1.25.2",
+    "license": "Zlib OR Apache-2.0 OR MIT"
+  },
+  {
     "name": "byteorder",
     "version": "1.5.0",
+    "license": "Unlicense OR MIT"
+  },
+  {
+    "name": "byteorder-lite",
+    "version": "0.1.0",
     "license": "Unlicense OR MIT"
   },
   {
@@ -545,6 +555,16 @@
     "license": "Apache-2.0 OR MIT"
   },
   {
+    "name": "image",
+    "version": "0.25.10",
+    "license": "MIT OR Apache-2.0"
+  },
+  {
+    "name": "image-webp",
+    "version": "0.2.4",
+    "license": "MIT OR Apache-2.0"
+  },
+  {
     "name": "indexmap",
     "version": "1.9.3",
     "license": "Apache-2.0 OR MIT"
@@ -670,6 +690,11 @@
     "license": "MIT"
   },
   {
+    "name": "moxcms",
+    "version": "0.8.1",
+    "license": "BSD-3-Clause OR Apache-2.0"
+  },
+  {
     "name": "muda",
     "version": "0.20.0",
     "license": "Apache-2.0 OR MIT"
@@ -766,7 +791,7 @@
   },
   {
     "name": "port-launcher",
-    "version": "0.1.0",
+    "version": "0.1.0-beta.1",
     "license": "MIT"
   },
   {
@@ -788,6 +813,16 @@
     "name": "proc-macro2",
     "version": "1.0.107",
     "license": "MIT OR Apache-2.0"
+  },
+  {
+    "name": "pxfm",
+    "version": "0.1.30",
+    "license": "BSD-3-Clause OR Apache-2.0"
+  },
+  {
+    "name": "quick-error",
+    "version": "2.0.1",
+    "license": "MIT/Apache-2.0"
   },
   {
     "name": "quick-xml",

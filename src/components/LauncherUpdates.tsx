@@ -46,6 +46,20 @@ export function LauncherUpdates({ state }: { state: UpdaterState }) {
       <p role="status" aria-live="polite">
         {t(labels[status.phase] || "Состояние обновлений недоступно")}
       </p>
+      {(status.phase === "unconfigured" || status.phase === "preview") && (
+        <Button
+          variant="secondary"
+          onClick={async () => {
+            const url = "https://github.com/gouthwut/PORT/releases";
+            if (native) {
+              const { openUrl } = await import("@tauri-apps/plugin-opener");
+              await openUrl(url);
+            } else window.open(url, "_blank", "noopener,noreferrer");
+          }}
+        >
+          {t("Новые версии на GitHub")}
+        </Button>
+      )}
       {status.version && (
         <p>
           {t("Доступная версия:")} <strong>{status.version}</strong>

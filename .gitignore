@@ -28,3 +28,18 @@ screenshots/14-native-window.png
 
 # Local Hub review captures can contain private catalog artwork.
 design/reviews/
+
+# Local agent tools, prototypes and browser sessions are not release inputs.
+.agents/
+.codex/
+.playwright-mcp/
+.sharrowkin/
+design/
+logo-design-skill/
+skills-lock.json
+*.iso
+*.rom
+*.xex
+*.pfx
+*.p12
+*.key

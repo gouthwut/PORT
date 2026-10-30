@@ -8,6 +8,26 @@ export default defineConfig({
     baseURL: "http://127.0.0.1:1420",
     viewport: { width: 1440, height: 1000 },
     locale: "ru-RU",
+    // Existing regression suites exercise the previously saved Russian preference.
+    // Fresh-install behavior is tested with empty storage in beta1.spec.ts.
+    storageState: {
+      cookies: [],
+      origins: [1420, 1421].map((port) => ({
+        origin: `http://127.0.0.1:${port}`,
+        localStorage: [
+          {
+            name: "port.settings.v1",
+            value: JSON.stringify({
+              theme: "dark",
+              language: "ru",
+              installDir: "",
+              reducedMotion: false,
+              compactCards: false,
+            }),
+          },
+        ],
+      })),
+    },
     colorScheme: "dark",
     reducedMotion: "reduce",
     trace: "retain-on-failure",

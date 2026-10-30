@@ -15,7 +15,7 @@ if ($channel.channel -ne 'unconfigured' -or $channel.endpoint -or $channel.publi
     throw 'This unsigned local candidate requires the unconfigured updater channel.'
 }
 $config = @{
-    build = @{ beforeBuildCommand = 'npm run build && node scripts/audit-beta-assets.mjs' }
+    build = @{ beforeBuildCommand = 'npm run build && node scripts/audit-beta-assets.mjs && node scripts/build-third-party-notices.mjs' }
     bundle = @{
         createUpdaterArtifacts = $false
         resources = @{
@@ -23,6 +23,11 @@ $config = @{
             '../src/assets/fonts/Inter-OFL.txt' = 'licenses/Inter-OFL.txt'
             '../src/assets/fonts/Manrope-OFL.txt' = 'licenses/Manrope-OFL.txt'
             '../docs/WINDOWS_BETA_NOTICES.md' = 'licenses/BETA-NOTICES.md'
+            '../docs/licenses/THIRD_PARTY_NOTICES.md' = 'licenses/THIRD-PARTY-NOTICES.md'
+        }
+        windows = @{
+            webviewInstallMode = @{ type = 'downloadBootstrapper' }
+            nsis = @{ languages = @('English', 'Russian', 'Spanish', 'French', 'German'); displayLanguageSelector = $true }
         }
     }
 }

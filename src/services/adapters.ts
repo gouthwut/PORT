@@ -14,7 +14,9 @@ export const hasRecipe = (g: PublishedGame) =>
   !(g.collectionId in adapterRegistry) && recipeCollections.has(g.collectionId);
 export const supportsInstall = (g: PublishedGame) => {
   if (hasRecipe(g))
-    return g.windowsBuild === "available" && g.compatibility.status !== "unavailable";
+    return (
+      g.windowsBuild === "available" && g.compatibility.status !== "unavailable"
+    );
   const adapter = adapterRegistry[g.adapterId as keyof typeof adapterRegistry];
   return (
     !!adapter &&
