@@ -30,14 +30,17 @@ for (const [width, height] of [
     await expect(page.locator("#project-install")).toHaveAttribute("open", "");
     await expect(page.locator("#project-install ol")).toBeVisible();
     await page.getByRole("button", { name: "Главная", exact: true }).click();
-    const homeCard = await page
+    const homeCardLocator = page
       .locator(".port-editorial .port-project")
-      .boundingBox();
+      .first();
+    await homeCardLocator.waitFor({ state: "visible" });
+    const homeCard = await homeCardLocator.boundingBox();
     // The featured carousel keeps the first artwork visible even at 800×600.
     expect(homeCard!.y).toBeLessThan(height - 32);
     await page.getByRole("button", { name: "Каталог", exact: true }).click();
     const card = page.locator(".hub-project-card");
-    const rect = await card.boundingBox();
+    await card.first().waitFor({ state: "visible" });
+    const rect = await card.first().boundingBox();
     expect(rect!.y).toBeLessThan(height - 100);
     // Stage 18C uses wide artwork cards and a single column on compact windows.
     expect(rect!.width).toBeLessThanOrEqual(880);

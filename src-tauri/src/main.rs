@@ -1,18 +1,25 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-#![allow(dead_code)]
 
+#[allow(dead_code)]
 mod adapters;
+#[allow(dead_code)]
 mod catalog;
+#[allow(dead_code)]
 mod download;
 #[cfg(feature = "download-e2e-qa")]
 mod download_e2e_qa;
 mod hub_download;
 mod hub_preferences;
+#[allow(dead_code)]
 mod install;
 mod local_cms_qa;
+#[allow(dead_code)]
 mod media;
+#[allow(dead_code)]
 mod package;
+#[allow(dead_code)]
 mod pkg_worker;
+#[allow(dead_code)]
 mod shortcuts;
 mod updater;
 #[cfg(windows)]
