@@ -11,7 +11,10 @@ for (const [language, label, copied] of [
 ]) {
   test(`copy installation steps in ${language}`, async ({ page, context }) => {
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-    const { project } = await project14Fixture(page);
+    const { project, build } = await project14Fixture(page);
+    Object.assign(build, {
+      releaseUrl: "https://github.com/owner/project/releases/tag/v1",
+    });
     project.install.steps.push(
       "Extract the archive.\nKeep its folder structure.",
     );
@@ -41,7 +44,7 @@ for (const [language, label, copied] of [
         "\n",
       ),
     ).toBe(
-      `1. ${project.install.steps[0]}\n2. ${project.install.steps[1]}\n\nUse your own game files.\n\n${translate("Проект на GitHub")}: https://github.com/owner/project\n\n${translate("Сайт проекта")}: https://example.org/docs/setup`,
+      `1. ${project.install.steps[0]}\n2. ${project.install.steps[1]}\n\nUse your own game files.\n\n${translate("Проект на GitHub")}: https://github.com/owner/project\n\n${translate("Сайт проекта")}: https://example.org/docs/setup\n\n${translate("Релиз")} ${build.version}: https://github.com/owner/project/releases/tag/v1`,
     );
     await expect(page.locator("#project-install")).not.toHaveAttribute(
       "open",

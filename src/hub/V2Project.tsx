@@ -19,6 +19,9 @@ import { downloadUnavailable, type DownloadState } from "./downloads";
 import { native } from "../services/settings";
 import { Button } from "../components/ui";
 
+const officialLinkLabel = (label: string) =>
+  label.startsWith("Релиз ") ? `${t("Релиз")} ${label.slice(6)}` : t(label);
+
 /** Read-only v2 detail. Legacy IDs never become an installation identity. */
 export function V2Project({
   project,
@@ -431,7 +434,8 @@ export function V2Project({
                           .join("\n"),
                         install.install.notes,
                         ...currentProject.officialLinks.map(
-                          (link) => `${t(link.label)}: ${link.url}`,
+                          (link) =>
+                            `${officialLinkLabel(link.label)}: ${link.url}`,
                         ),
                       ]
                         .filter(Boolean)
@@ -507,9 +511,7 @@ export function V2Project({
                     : undefined
                 }
               >
-                {link.label.startsWith("Релиз ")
-                  ? `${t("Релиз")} ${link.label.slice(6)}`
-                  : t(link.label)}{" "}
+                {officialLinkLabel(link.label)}{" "}
                 <ArrowUpRight size={15} aria-hidden="true" />
               </a>
             ))}
