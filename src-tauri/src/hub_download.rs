@@ -312,7 +312,10 @@ async fn transfer(app: &tauri::AppHandle, s: &Inner, a: Asset, root: PathBuf) ->
     #[cfg(not(feature = "download-e2e-qa"))]
     let r = response(a.url.clone()).await?;
     let project_id = s.status.lock().unwrap().project_id.clone();
-    let _ = app.emit("port-usage-event", serde_json::json!({ "event": "download_started", "projectId": project_id }));
+    let _ = app.emit(
+        "port-usage-event",
+        serde_json::json!({ "event": "download_started", "projectId": project_id }),
+    );
     save_response(s, a, root, r).await
 }
 async fn save_response(
