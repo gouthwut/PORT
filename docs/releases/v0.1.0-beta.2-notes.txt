@@ -1,0 +1,7 @@
+PORT Beta 2 (v0.1.0-beta.2)
+
+- Automatic Catalog Updates: Real-time synchronization upon startup, stale window refocus, and network reconnect.
+- Offline Resilience: Local caching displays the last verified catalog when offline or when CMS is temporarily unreachable.
+- Production Signed Auto-Updater: Official GitHub Releases updater with Minisign cryptographic verification for seamless updates across beta versions.
+- Security Hardening: Deprecated legacy IPC handlers and internal development artifacts have been removed.
+- Automated Dependency Auditing: Configured Dependabot for npm and Cargo ecosystems.

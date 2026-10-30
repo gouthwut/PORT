@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 $workspace = Split-Path -Parent $PSScriptRoot
 if ($workspace -ne 'C:\PORT') { throw 'This local acceptance build is scoped to C:\PORT.' }
 Set-Location -LiteralPath $workspace
-if (Get-ChildItem Env: | Where-Object Name -Match '^(VITE_|PORT_UPDATER_CHANNEL_FILE$|TAURI_CONFIG$|TAURI_SIGNING_)') {
+if (Get-ChildItem Env: | Where-Object Name -Match '^(VITE_|PORT_UPDATER_CHANNEL_FILE$|TAURI_CONFIG$)') {
     throw 'Remove inherited frontend, updater or Tauri overrides before building the beta candidate.'
 }
 $source = Get-Content src/hub/source-config.json -Raw | ConvertFrom-Json
@@ -11,8 +11,8 @@ if ($source.version -ne 'v2' -or $source.fallback -ne 'none' -or $source.baseUrl
     throw 'Unexpected production catalog configuration.'
 }
 $channel = Get-Content src-tauri/updater-channel.json -Raw | ConvertFrom-Json
-if ($channel.channel -ne 'unconfigured' -or $channel.endpoint -or $channel.publicKey) {
-    throw 'This unsigned local candidate requires the unconfigured updater channel.'
+if ($channel.channel -ne 'production' -or $channel.endpoint -ne 'https://raw.githubusercontent.com/gouthwut/PORT/main/updater-beta.json' -or -not $channel.publicKey) {
+    throw 'Beta release candidate requires the production updater channel.'
 }
 $config = @{
     build = @{ beforeBuildCommand = 'npm run build && node scripts/audit-beta-assets.mjs && node scripts/build-third-party-notices.mjs' }

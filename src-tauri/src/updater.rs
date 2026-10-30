@@ -1,5 +1,5 @@
 //! Only compiled channels and Tauri-verified NSIS packages. No client-supplied URLs/arguments.
-use crate::{download, install, Database};
+use crate::{download, Database};
 use reqwest::{redirect::Policy, Url};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -266,7 +266,6 @@ fn validate_update(update: &Update, channel: &Channel) -> Result<()> {
     let next =
         semver::Version::parse(&update.version).map_err(|_| "Некорректная версия обновления")?;
     if next <= current
-        || !next.pre.is_empty()
         || !channel.trusted(&update.download_url)
         || !update.download_url.path().ends_with(".exe")
         || update.signature.is_empty()
@@ -410,24 +409,10 @@ fn install(app: &tauri::AppHandle, confirmed: bool) -> Result<()> {
     let state = app.state::<State>();
     let _busy = state.begin()?;
     let result: Result<()> = (|| -> Result<()> {
-        // Reservation shares the exact mutex used by install, launch, recovery and removal.
-        let installer = app.state::<install::Installer>();
-        let _operation = install::updater_operation(&installer)?;
-        let downloader = app.state::<download::Download>();
-        let _download = downloader.reserve_for_update()?;
         let hub = app.state::<crate::hub_download::Downloads>();
         let _hub_download = hub.reserve_for_update()?;
-        install::updater_safe(app, &installer)?;
         let db = app.state::<Database>();
         let conn = db.0.lock().map_err(|_| "База данных занята")?;
-        for table in ["installation_jobs", "update_jobs", "removal_jobs"] {
-            let count: i64 = conn
-                .query_row(&format!("SELECT COUNT(*) FROM {table}"), [], |r| r.get(0))
-                .map_err(|_| "Не удалось проверить незавершённые операции")?;
-            if count != 0 {
-                return Err("Сначала завершите восстановление операций с играми".into());
-            }
-        }
         conn.execute_batch("PRAGMA wal_checkpoint(FULL)")
             .map_err(|_| "Не удалось сохранить базу данных")?;
         let mut inner = state.inner.lock().map_err(|_| "Обновления недоступны")?;

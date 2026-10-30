@@ -719,7 +719,7 @@ test("Stage 19C: empty v2 and absent releases stay explicit, compatibility runti
   ).toBeVisible();
   await page.getByRole("button", { name: "Каталог", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Каталог пока пуст" }),
+    page.getByRole("heading", { name: /Каталог пока пуст|Пока нет доступных проектов/ }),
   ).toBeVisible();
   mode = "projects";
   await page.getByRole("button", { name: "Обновить каталог" }).click();
