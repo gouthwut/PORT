@@ -1,5 +1,17 @@
 # PORT// — instructions for future sessions
 
+Final release development authorized 2026-10-30 by the owner's comprehensive
+request. Follow docs/RELEASE_CHECKLIST.md as the single active work list; older
+stage-only/no-next-stage limits are historical within that scope. Finish the
+Windows launcher, catalog/library/downloads (safe resume), separate user accounts,
+ratings/likes/reviews/moderation, four languages, signed updater and audited public
+gouthwut/PORT installer release. CMS stays PRIVATE, local commits only and NO CMS
+push (including source-only). Production deploy/migration/restore/destructive data
+changes require separate permission. Owner attests rights/publication permission
+for all 21 inventoried CMS images; retain files. Non-owner OAuth remains UNVERIFIED
+without second account, not a local development blocker. Preserve inherited dirty
+work, existing histories and all installations/saves. No new paid service.
+
 Stage 19B completed 2026-10-30: isolated installed Windows download E2E, including
 picker/Cyrillic path/Explorer, cancellation, connection drop/retry, bad SHA-256,
 partial cleanup and durable history. See docs/PORT_STAGE19B_DOWNLOAD_E2E.md and

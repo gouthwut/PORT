@@ -1,5 +1,27 @@
 # PORT// progress
 
+## 2026-10-30 — Final release development resumed
+
+- Adopted the owner's full 1.0 scope; active list is docs/RELEASE_CHECKLIST.md.
+  No new stage authorization prompts; production changes remain separately gated.
+- Read both AGENTS/PROGRESS/checkpoint sets, ROADMAP, Hub blueprint/compatibility/
+  redesign/API and release/updater reports. Saved original PORT tracked diff/status
+  under ignored .local/final-release; inherited files remain outside this commit.
+- Saved interrupted CMS recovery work before editing. `_cf_KV` backup exclusion,
+  private recovery RPC, production-pinned offline config/loopback caller, receipt
+  operator and guarded sessions/oauth invalidation implemented in private CMS.
+  New isolated remote restore/undo/auth invalidation PASS (2 steps, no production
+  requests), 6 focused local tests PASS, TypeScript and maintenance dry-run PASS.
+  Loopback bridge closed. CMS source is not copied into public PORT files.
+- Prior 101/0/2 CMS regression, snapshot/restore/reconciliation/OAuth/operator/PITR
+  retained without rerun. Alarm automatic-delivery failure remains explicit.
+  Owner permission for 21 CMS images recorded; no images removed. Independent
+  non-owner OAuth UNVERIFIED. Secret recovery/rotation procedure prepared, no values
+  exported and no production secrets changed. Further CMS push stopped.
+- PORT is not release-ready: user accounts/reviews/resume/library/UI/localization,
+  production v2 activation and final distribution checks remain in the checklist.
+  No production deployment/migration/restore, public visibility or release change.
+
 ## 2026-10-30 — CMS Stage16C production cutover preparation (NO-GO)
 
 - Continued authorized CMS-only preparation in C:/PORT-CMS. PORT code/inherited dirty files, native/game/user data untouched. Existing real owner OAuth, actual-snapshot restore/upgrade/reconciliation/repeat/old-code rehearsal and 101/0/2 full regression retained without rerun. Changed local operator/runner checks: 7 targeted PASS (4 new + 2 reconciliation + 1 runner integration); no new full/native suite claim.
